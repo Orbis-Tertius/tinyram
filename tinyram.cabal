@@ -15,6 +15,7 @@ library
     TinyRAM.Types.InputTape
     TinyRAM.Types.MachineState
     TinyRAM.Types.MemoryValues
+    TinyRAM.Types.Params
     TinyRAM.Types.ProgramCounter
     TinyRAM.Types.RegisterCount
     TinyRAM.Types.Register
