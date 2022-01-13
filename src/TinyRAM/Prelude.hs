@@ -4,8 +4,10 @@
 module TinyRAM.Prelude
   ( module Prelude
   , module Data.Map
+  , module GHC.Generics
   ) where
 
 
-import Prelude
+import Prelude hiding (Word)
 import Data.Map (Map)
+import GHC.Generics (Generic)

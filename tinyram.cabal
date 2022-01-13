@@ -10,6 +10,13 @@ maintainer:    morgan.thomas@platonic.systems
 library
   exposed-modules:
     TinyRAM.Prelude
+    TinyRAM.Types.Address
+    TinyRAM.Types.RegisterCount
+    TinyRAM.Types.Register
+    TinyRAM.Types.SignedInt
+    TinyRAM.Types.UnsignedInt
+    TinyRAM.Types.Word
+    TinyRAM.Types.WordSize
 
   build-depends:
     base >= 4.9 && < 5,
