@@ -3,6 +3,7 @@
 
 module TinyRAM.Prelude
   ( module Prelude
+  , module Control.Lens
   , module Control.Monad.Trans.Class
   , module Data.Map
   , module GHC.Generics
@@ -10,6 +11,8 @@ module TinyRAM.Prelude
 
 
 import Prelude hiding (Word)
+import Control.Lens ((^.), (.~))
 import Control.Monad.Trans.Class (MonadTrans (lift))
+import Data.Generics.Labels ()
 import Data.Map (Map)
 import GHC.Generics (Generic)
