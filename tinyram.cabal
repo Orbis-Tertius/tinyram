@@ -9,11 +9,14 @@ maintainer:    morgan.thomas@platonic.systems
 
 library
   exposed-modules:
+    TinyRAM.Instructions
+    TinyRAM.MachineState
     TinyRAM.Prelude
     TinyRAM.Types.Address
     TinyRAM.Types.Flag
-    TinyRAM.Types.InputTape
     TinyRAM.Types.HasMachineState
+    TinyRAM.Types.ImmediateOrRegister
+    TinyRAM.Types.InputTape
     TinyRAM.Types.MachineState
     TinyRAM.Types.MemoryValues
     TinyRAM.Types.Params
