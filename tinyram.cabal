@@ -15,6 +15,7 @@ library
     TinyRAM.Types.ProgramCounter
     TinyRAM.Types.RegisterCount
     TinyRAM.Types.Register
+    TinyRAM.Types.RegisterValues
     TinyRAM.Types.SignedInt
     TinyRAM.Types.UnsignedInt
     TinyRAM.Types.Word
