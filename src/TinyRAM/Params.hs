@@ -6,6 +6,7 @@ module TinyRAM.Params
   ( getRegisterCount
   , getWordSize
   , getWordSizeBitmask
+  , getWordSizeBitmaskMSB
   ) where
 
 
@@ -29,3 +30,10 @@ getWordSizeBitmask = f <$> getWordSize
   where
     f :: WordSize -> Word
     f (WordSize n) = (2 ^ n) - 1
+
+
+getWordSizeBitmaskMSB :: ( Functor m, HasParams m ) => m Word
+getWordSizeBitmaskMSB = f <$> getWordSize
+  where
+    f :: WordSize -> Word
+    f (WordSize n) = (2 ^ n) * ((2 ^ n) - 1)

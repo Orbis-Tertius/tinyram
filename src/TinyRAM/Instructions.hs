@@ -13,7 +13,7 @@ module TinyRAM.Instructions
 
 
 import TinyRAM.MachineState (conditionToFlag, getImmediateOrRegister)
-import TinyRAM.Params (getWordSize, getWordSizeBitmask)
+import TinyRAM.Params (getWordSize, getWordSizeBitmask, getWordSizeBitmaskMSB)
 import TinyRAM.Prelude
 import TinyRAM.Types.HasParams (HasParams)
 import TinyRAM.Types.HasMachineState (HasMachineState (..))
@@ -79,11 +79,12 @@ addUnsigned ri rj a = do
   a'  <- UnsignedInt <$$> getImmediateOrRegister a
   rj' <- UnsignedInt <$$> getRegisterValue rj
   wsb <- getWordSizeBitmask
+  msb <- getWordSizeBitmaskMSB
   case (a', rj') of
     (Just a'', Just rj'') -> do
       let y = a'' + rj''
       setRegisterValue ri (unUnsignedInt y .&. wsb)
-      setConditionFlag (conditionToFlag (unUnsignedInt y `xor` wsb /= 0))
+      setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb /= 0))
     _ -> return ()
 
 
@@ -94,12 +95,13 @@ subtractUnsigned ri rj a = do
   rj' <- UnsignedInt <$$> getRegisterValue rj
   ws  <- getWordSize
   wsb <- getWordSizeBitmask
+  msb <- getWordSizeBitmaskMSB
   case (a', rj') of
     (Just a'', Just rj'') -> do
       let k = 2 ^ (fromIntegral ws :: UnsignedInt)
           y = rj'' + k - a''
       setRegisterValue ri (unUnsignedInt y .&. wsb)
-      setConditionFlag (conditionToFlag (unUnsignedInt y `xor` wsb /= 0))
+      setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb /= 0))
     _ -> return ()
 
 
@@ -109,9 +111,10 @@ multiplyUnsignedLSB ri rj a = do
   a'  <- UnsignedInt <$$> getImmediateOrRegister a
   rj' <- UnsignedInt <$$> getRegisterValue rj
   wsb <- getWordSizeBitmask
+  msb <- getWordSizeBitmaskMSB
   case (a', rj') of
     (Just a'', Just rj'') -> do
       let y = rj'' * a''
       setRegisterValue ri (unUnsignedInt y .&. wsb)
-      setConditionFlag (conditionToFlag (unUnsignedInt y `xor` wsb /= 0))
+      setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb /= 0))
     _ -> return ()
