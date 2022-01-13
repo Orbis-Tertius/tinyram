@@ -15,6 +15,7 @@ library
     TinyRAM.Types.Address
     TinyRAM.Types.Flag
     TinyRAM.Types.HasMachineState
+    TinyRAM.Types.HasParams
     TinyRAM.Types.ImmediateOrRegister
     TinyRAM.Types.InputTape
     TinyRAM.Types.MachineState

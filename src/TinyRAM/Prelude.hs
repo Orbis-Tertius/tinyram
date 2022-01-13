@@ -8,6 +8,7 @@ module TinyRAM.Prelude
   , module Data.Bits
   , module Data.Map
   , module GHC.Generics
+  , (<$$>)
   ) where
 
 
@@ -18,3 +19,7 @@ import Data.Bits (Bits ((.&.), (.|.), xor, complement, shift))
 import Data.Generics.Labels ()
 import Data.Map (Map)
 import GHC.Generics (Generic)
+
+
+(<$$>) :: ( Functor f, Functor g ) => (a -> b) -> f (g a) -> f (g b)
+f <$$> x = fmap f <$> x

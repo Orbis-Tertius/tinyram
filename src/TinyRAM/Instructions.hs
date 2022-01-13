@@ -6,6 +6,7 @@ module TinyRAM.Instructions
   , orBits
   , xorBits
   , notBits
+  , addUnsigned
   ) where
 
 
@@ -14,6 +15,7 @@ import TinyRAM.Prelude
 import TinyRAM.Types.HasMachineState (HasMachineState (..))
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
 import TinyRAM.Types.Register (Register)
+import TinyRAM.Types.UnsignedInt (UnsignedInt (..))
 
 
 andBits :: ( Monad m, HasMachineState m )
@@ -65,3 +67,15 @@ notBits ri a = do
       setRegisterValue ri y
       setConditionFlag (conditionToFlag (y == 0))
     Nothing -> return ()
+
+
+addUnsigned :: ( Monad m, HasMachineState m )
+  => Register -> Register -> ImmediateOrRegister -> m ()
+addUnsigned ri rj a = do
+  a'  <- UnsignedInt <$$> getImmediateOrRegister a
+  rj' <- UnsignedInt <$$> getRegisterValue rj
+  case (a', rj') of
+    (Just a'', Just rj'') -> do
+      let y = a'' + rj'' -- TODO handle overflow
+      setRegisterValue ri (unUnsignedInt y)
+    _ -> return ()
