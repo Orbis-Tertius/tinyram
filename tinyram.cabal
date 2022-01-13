@@ -22,6 +22,7 @@ library
     TinyRAM.Types.Register
     TinyRAM.Types.RegisterValues
     TinyRAM.Types.SignedInt
+    TinyRAM.Types.TinyRAMT
     TinyRAM.Types.UnsignedInt
     TinyRAM.Types.Word
     TinyRAM.Types.WordSize
@@ -38,6 +39,7 @@ library
     hedgehog -any,
     lens,
     text -any,
+    transformers,
     mtl
 
   hs-source-dirs: src
