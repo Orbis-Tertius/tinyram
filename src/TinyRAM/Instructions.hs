@@ -9,7 +9,7 @@ module TinyRAM.Instructions
   ) where
 
 
-import TinyRAM.MachineState (getImmediateOrRegister)
+import TinyRAM.MachineState (conditionToFlag, getImmediateOrRegister)
 import TinyRAM.Prelude
 import TinyRAM.Types.HasMachineState (HasMachineState (..))
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
@@ -22,8 +22,10 @@ andBits ri rj a = do
   a'  <- getImmediateOrRegister a
   rj' <- getRegisterValue rj
   case (a', rj') of
-    (Just a'', Just rj'') ->
-      setRegisterValue ri (a'' .&. rj'')
+    (Just a'', Just rj'') -> do
+      let y = a'' .&. rj''
+      setRegisterValue ri y
+      setConditionFlag (conditionToFlag (y == 0))
     _ -> return ()
 
 
@@ -33,8 +35,10 @@ orBits ri rj a = do
   a'  <- getImmediateOrRegister a
   rj' <- getRegisterValue rj
   case (a', rj') of
-    (Just a'', Just rj'') ->
-      setRegisterValue ri (a'' .|. rj'')
+    (Just a'', Just rj'') -> do
+      let y = a'' .|. rj''
+      setRegisterValue ri y
+      setConditionFlag (conditionToFlag (y == 0))
     _ -> return ()
 
 
@@ -44,8 +48,10 @@ xorBits ri rj a = do
   a'  <- getImmediateOrRegister a
   rj' <- getRegisterValue rj
   case (a', rj') of
-    (Just a'', Just rj'') ->
-      setRegisterValue ri (a'' `xor` rj'')
+    (Just a'', Just rj'') -> do
+      let y = a'' `xor` rj''
+      setRegisterValue ri y
+      setConditionFlag (conditionToFlag (y == 0))
     _ -> return ()
 
 
@@ -54,5 +60,8 @@ notBits :: ( Monad m, HasMachineState m )
 notBits ri a = do
   a' <- getImmediateOrRegister a
   case a' of
-    Just a'' -> setRegisterValue ri (complement a'')
+    Just a'' -> do
+      let y = complement a''
+      setRegisterValue ri y
+      setConditionFlag (conditionToFlag (y == 0))
     Nothing -> return ()
