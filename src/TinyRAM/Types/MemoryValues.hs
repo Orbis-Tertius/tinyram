@@ -14,3 +14,4 @@ import TinyRAM.Types.Word (Word)
 -- A state of the RAM, giving the value at each address.
 newtype MemoryValues = MemoryValues
   { unMemoryValues :: Map Address Word }
+  deriving (Eq, Ord, Read, Show, Generic)

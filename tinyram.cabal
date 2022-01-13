@@ -12,6 +12,8 @@ library
     TinyRAM.Prelude
     TinyRAM.Types.Address
     TinyRAM.Types.Flag
+    TinyRAM.Types.InputTape
+    TinyRAM.Types.MachineState
     TinyRAM.Types.MemoryValues
     TinyRAM.Types.ProgramCounter
     TinyRAM.Types.RegisterCount
