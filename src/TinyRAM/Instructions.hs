@@ -11,7 +11,9 @@ module TinyRAM.Instructions
 
 
 import TinyRAM.MachineState (conditionToFlag, getImmediateOrRegister)
+import TinyRAM.Params (getWordSizeBitmask)
 import TinyRAM.Prelude
+import TinyRAM.Types.HasParams (HasParams)
 import TinyRAM.Types.HasMachineState (HasMachineState (..))
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
 import TinyRAM.Types.Register (Register)
@@ -69,13 +71,15 @@ notBits ri a = do
     Nothing -> return ()
 
 
-addUnsigned :: ( Monad m, HasMachineState m )
+addUnsigned :: ( Monad m, HasMachineState m, HasParams m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 addUnsigned ri rj a = do
   a'  <- UnsignedInt <$$> getImmediateOrRegister a
   rj' <- UnsignedInt <$$> getRegisterValue rj
+  wsb <- getWordSizeBitmask
   case (a', rj') of
     (Just a'', Just rj'') -> do
-      let y = a'' + rj'' -- TODO handle overflow
-      setRegisterValue ri (unUnsignedInt y)
+      let y = a'' + rj''
+      setRegisterValue ri (unUnsignedInt y .&. wsb)
+      setConditionFlag (conditionToFlag (unUnsignedInt y `xor` wsb /= 0))
     _ -> return ()
