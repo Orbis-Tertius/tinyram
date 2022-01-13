@@ -9,6 +9,7 @@ module TinyRAM.Instructions
   , addUnsigned
   , subtractUnsigned
   , multiplyUnsignedLSB
+  , multiplyUnsignedMSB
   ) where
 
 
@@ -20,6 +21,7 @@ import TinyRAM.Types.HasMachineState (HasMachineState (..))
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
 import TinyRAM.Types.Register (Register)
 import TinyRAM.Types.UnsignedInt (UnsignedInt (..))
+import TinyRAM.Types.WordSize (WordSize (..))
 
 
 andBits :: ( Monad m, HasMachineState m )
@@ -116,5 +118,20 @@ multiplyUnsignedLSB ri rj a = do
     (Just a'', Just rj'') -> do
       let y = rj'' * a''
       setRegisterValue ri (unUnsignedInt y .&. wsb)
+      setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb /= 0))
+    _ -> return ()
+
+
+multiplyUnsignedMSB :: ( Monad m, HasMachineState m, HasParams m )
+  => Register -> Register -> ImmediateOrRegister -> m ()
+multiplyUnsignedMSB ri rj a = do
+  a'  <- UnsignedInt <$$> getImmediateOrRegister a
+  rj' <- UnsignedInt <$$> getRegisterValue rj
+  ws  <- getWordSize
+  msb <- getWordSizeBitmaskMSB
+  case (a', rj') of
+    (Just a'', Just rj'') -> do
+      let y = rj'' * a''
+      setRegisterValue ri (shift (unUnsignedInt y .&. msb) (negate (unWordSize ws)))
       setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb /= 0))
     _ -> return ()
