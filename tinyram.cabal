@@ -13,6 +13,7 @@ library
     TinyRAM.Types.Address
     TinyRAM.Types.Flag
     TinyRAM.Types.InputTape
+    TinyRAM.Types.HasMachineState
     TinyRAM.Types.MachineState
     TinyRAM.Types.MemoryValues
     TinyRAM.Types.Params
