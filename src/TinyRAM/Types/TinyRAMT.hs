@@ -13,13 +13,15 @@ import qualified Data.Map as Map
 
 import TinyRAM.Prelude
 import TinyRAM.Types.HasMachineState (HasMachineState (..))
+import TinyRAM.Types.HasParams (HasParams (getParams))
 import TinyRAM.Types.InputTape (InputTape (InputTape), Primary, Auxiliary)
 import TinyRAM.Types.MachineState (MachineState)
+import TinyRAM.Types.Params (Params)
 import TinyRAM.Types.MemoryValues (MemoryValues (..))
 import TinyRAM.Types.RegisterValues (RegisterValues (..))
 
 
-newtype TinyRAMT m a = TinyRAMT { unTinyRAMT :: StateT MachineState m a }
+newtype TinyRAMT m a = TinyRAMT { unTinyRAMT :: StateT (Params, MachineState) m a }
   deriving Generic
 
 instance MonadTrans TinyRAMT where
@@ -36,36 +38,42 @@ instance Monad m => Monad (TinyRAMT m) where
   return = TinyRAMT . return
   (TinyRAMT x) >>= f = TinyRAMT $ x >>= (unTinyRAMT . f)
 
+instance Monad m => HasParams (TinyRAMT m) where
+  getParams = TinyRAMT $ gets (^. _1)
+
 instance Monad m => HasMachineState (TinyRAMT m) where
-  getProgramCounter = TinyRAMT $ gets (^. #programCounter)
-  setProgramCounter pc = TinyRAMT $ modify (#programCounter .~ pc)
-  getRegisterValue r = TinyRAMT $ gets (Map.lookup r . (^. #registerValues . #unRegisterValues))
+  getProgramCounter = TinyRAMT $ gets (^. _2 . #programCounter)
+  setProgramCounter pc = TinyRAMT $ modify (_2 . #programCounter .~ pc)
+  getRegisterValue r = TinyRAMT $ gets (Map.lookup r . (^. _2 . #registerValues . #unRegisterValues))
   setRegisterValue r w =
     TinyRAMT $ modify
-      (\s -> #registerValues
-        .~ RegisterValues (Map.insert r w (s ^. #registerValues . #unRegisterValues))
+      (\s -> _2 . #registerValues
+        .~ RegisterValues (Map.insert r w
+             (s ^. _2 . #registerValues . #unRegisterValues))
         $ s
       )
-  getConditionFlag = TinyRAMT $ gets (^. #conditionFlag)
-  setConditionFlag flag = TinyRAMT $ modify (#conditionFlag .~ flag)
-  getMemoryValue addr = TinyRAMT $ gets (Map.lookup addr . (^. #memoryValues . #unMemoryValues))
+  getConditionFlag = TinyRAMT $ gets (^. _2 . #conditionFlag)
+  setConditionFlag flag = TinyRAMT $ modify (_2 . #conditionFlag .~ flag)
+  getMemoryValue addr =
+    TinyRAMT $ gets
+      (Map.lookup addr . (^. _2 . #memoryValues . #unMemoryValues))
   setMemoryValue addr w =
     TinyRAMT $  modify
-      (\s -> #memoryValues
-         .~ MemoryValues (Map.insert addr w (s ^. #memoryValues . #unMemoryValues))
+      (\s -> _2 . #memoryValues
+         .~ MemoryValues (Map.insert addr w (s ^. _2 . #memoryValues . #unMemoryValues))
          $ s
        )
   readPrimaryInput = TinyRAMT $ do
-    input <- gets (^. #primaryInput . #unInputTape)
+    input <- gets (^. _2 . #primaryInput . #unInputTape)
     case input of
       [] -> return Nothing
       (w:input') -> do
-        modify (#primaryInput .~ InputTape @Primary input')
+        modify (_2 . #primaryInput .~ InputTape @Primary input')
         return (Just w)
   readAuxiliaryInput = TinyRAMT $ do
-    input <- gets (^. #auxiliaryInput . #unInputTape)
+    input <- gets (^. _2 . #auxiliaryInput . #unInputTape)
     case input of
       [] -> return Nothing
       (w:input') -> do
-        modify (#auxiliaryInput .~ InputTape @Auxiliary input')
+        modify (_2 . #auxiliaryInput .~ InputTape @Auxiliary input')
         return (Just w)

@@ -13,7 +13,7 @@ module TinyRAM.Prelude
 
 
 import Prelude hiding (Word)
-import Control.Lens ((^.), (.~))
+import Control.Lens ((^.), (.~), _1, _2)
 import Control.Monad.Trans.Class (MonadTrans (lift))
 import Data.Bits (Bits ((.&.), (.|.), xor, complement, shift))
 import Data.Generics.Labels ()
