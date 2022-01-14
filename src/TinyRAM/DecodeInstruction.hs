@@ -10,7 +10,7 @@ import TinyRAM.Types.Instruction (Instruction (..))
 import TinyRAM.Types.Opcode (Opcode (..))
 import TinyRAM.Types.Register (Register (..))
 import TinyRAM.Types.RegisterCount (RegisterCount (..))
-import TinyRAM.Types.Word (Word)
+import TinyRAM.Types.Word (Word (..))
 
 
 decodeInstruction :: RegisterCount -> (Word, Word) -> Instruction
@@ -31,11 +31,20 @@ opcodeBitmask = 31
 
 
 decodeRI :: RegisterCount -> Word -> Register
-decodeRI = todo
-
+decodeRI rc (Word w) = Register . fromIntegral
+  $ (w `shift` (-6)) .&. registerBitmask rc
 
 decodeRJ :: RegisterCount -> Word -> Register
-decodeRJ = todo
+decodeRJ rc (Word w) = Register . fromIntegral
+  $ (w `shift` negate (6 + bitsPerRegister rc)) .&. registerBitmask rc
+
+
+bitsPerRegister :: RegisterCount -> Int
+bitsPerRegister (RegisterCount rc) = ceiling (fromIntegral rc `logBase` 2 :: Double)
+
+
+registerBitmask :: RegisterCount -> Integer
+registerBitmask rc = 2 ^ (bitsPerRegister rc) - 1
 
 
 decodeA :: (Word, Word) -> ImmediateOrRegister
