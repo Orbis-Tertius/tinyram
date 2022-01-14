@@ -20,8 +20,10 @@ library
     TinyRAM.Types.HasParams
     TinyRAM.Types.ImmediateOrRegister
     TinyRAM.Types.InputTape
+    TinyRAM.Types.Instruction
     TinyRAM.Types.MachineState
     TinyRAM.Types.MemoryValues
+    TinyRAM.Types.Opcode
     TinyRAM.Types.Params
     TinyRAM.Types.ProgramCounter
     TinyRAM.Types.RegisterCount
