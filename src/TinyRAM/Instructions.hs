@@ -22,6 +22,9 @@ module TinyRAM.Instructions
   , compareGreaterOrEqualSigned
   , move
   , conditionalMove
+  , jump
+  , jumpIfFlag
+  , jumpIfNotFlag
   ) where
 
 
@@ -29,10 +32,12 @@ import TinyRAM.MachineState (conditionToFlag, getImmediateOrRegister, incrementP
 import TinyRAM.Params (getWordSize, getWordSizeBitmask, getWordSizeBitmaskMSB)
 import TinyRAM.Prelude
 import TinyRAM.SignedArithmetic (getSign, getUnsignedComponent, decodeSignedInt)
+import TinyRAM.Types.Address (Address (..))
 import TinyRAM.Types.Flag (Flag (..))
 import TinyRAM.Types.HasParams (HasParams)
 import TinyRAM.Types.HasMachineState (HasMachineState (..))
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
+import TinyRAM.Types.ProgramCounter (ProgramCounter (..))
 import TinyRAM.Types.Register (Register)
 import TinyRAM.Types.SignedInt (SignedInt (..))
 import TinyRAM.Types.UnsignedInt (UnsignedInt (..))
@@ -321,4 +326,31 @@ conditionalMove ri a = do
   flag <- getConditionFlag
   case flag of
     1 -> move ri a
+    _ -> incrementProgramCounter
+
+
+jump :: ( Monad m, HasMachineState m )
+  => ImmediateOrRegister -> m ()
+jump a = do
+  a' <- (ProgramCounter . Address) <$$> getImmediateOrRegister a
+  case a' of
+    Just a'' -> setProgramCounter a''
+    _ -> return ()
+
+
+jumpIfFlag :: ( Monad m, HasMachineState m )
+  => ImmediateOrRegister -> m ()
+jumpIfFlag a = do
+  flag <- getConditionFlag
+  case flag of
+    1 -> jump a
+    _ -> incrementProgramCounter
+
+
+jumpIfNotFlag :: ( Monad m, HasMachineState m )
+  => ImmediateOrRegister -> m ()
+jumpIfNotFlag a = do
+  flag <- getConditionFlag
+  case flag of
+    0 -> jump a
     _ -> incrementProgramCounter
