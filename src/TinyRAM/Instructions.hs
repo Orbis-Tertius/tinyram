@@ -16,6 +16,8 @@ module TinyRAM.Instructions
   , shiftLeft
   , shiftRight
   , compareEqual
+  , compareGreaterUnsigned
+  , compareGreaterOrEqualUnsigned
   ) where
 
 
@@ -229,6 +231,28 @@ compareEqual ri a = do
   a'  <- getImmediateOrRegister a
   ri' <- getRegisterValue ri
   case (a', ri') of
-    (Just a'', Just ri'') -> do
+    (Just a'', Just ri'') ->
       setConditionFlag . conditionToFlag $ a'' == ri''
+    _ -> return ()
+
+
+compareGreaterUnsigned :: ( Monad m, HasMachineState m )
+  => Register -> ImmediateOrRegister -> m ()
+compareGreaterUnsigned ri a = do
+  a'  <- UnsignedInt <$$> getImmediateOrRegister a
+  ri' <- UnsignedInt <$$> getRegisterValue ri
+  case (a', ri') of
+    (Just a'', Just ri'') ->
+      setConditionFlag . conditionToFlag $ ri'' > a''
+    _ -> return ()
+
+
+compareGreaterOrEqualUnsigned :: ( Monad m, HasMachineState m )
+  => Register -> ImmediateOrRegister -> m ()
+compareGreaterOrEqualUnsigned ri a = do
+  a'  <- UnsignedInt <$$> getImmediateOrRegister a
+  ri' <- UnsignedInt <$$> getRegisterValue ri
+  case (a', ri') of
+    (Just a'', Just ri'') ->
+      setConditionFlag . conditionToFlag $ ri'' >= a''
     _ -> return ()

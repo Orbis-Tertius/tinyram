@@ -12,4 +12,4 @@ import TinyRAM.Types.Word (Word)
 
 -- A word representing a signed integer.
 newtype SignedInt = SignedInt { unSignedInt :: Word }
-  deriving (Eq, Ord, Read, Show, Generic, Enum)
+  deriving (Eq, Read, Show, Generic, Enum)
