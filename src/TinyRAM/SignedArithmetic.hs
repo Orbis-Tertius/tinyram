@@ -4,6 +4,7 @@
 module TinyRAM.SignedArithmetic
   ( getSign
   , getUnsignedComponent
+  , decodeSignedInt
   ) where
 
 

@@ -18,13 +18,15 @@ module TinyRAM.Instructions
   , compareEqual
   , compareGreaterUnsigned
   , compareGreaterOrEqualUnsigned
+  , compareGreaterSigned
+  , compareGreaterOrEqualSigned
   ) where
 
 
 import TinyRAM.MachineState (conditionToFlag, getImmediateOrRegister)
 import TinyRAM.Params (getWordSize, getWordSizeBitmask, getWordSizeBitmaskMSB)
 import TinyRAM.Prelude
-import TinyRAM.SignedArithmetic (getSign, getUnsignedComponent)
+import TinyRAM.SignedArithmetic (getSign, getUnsignedComponent, decodeSignedInt)
 import TinyRAM.Types.Flag (Flag (..))
 import TinyRAM.Types.HasParams (HasParams)
 import TinyRAM.Types.HasMachineState (HasMachineState (..))
@@ -252,6 +254,30 @@ compareGreaterOrEqualUnsigned :: ( Monad m, HasMachineState m )
 compareGreaterOrEqualUnsigned ri a = do
   a'  <- UnsignedInt <$$> getImmediateOrRegister a
   ri' <- UnsignedInt <$$> getRegisterValue ri
+  case (a', ri') of
+    (Just a'', Just ri'') ->
+      setConditionFlag . conditionToFlag $ ri'' >= a''
+    _ -> return ()
+
+
+compareGreaterSigned :: ( Monad m, HasMachineState m, HasParams m )
+  => Register -> ImmediateOrRegister -> m ()
+compareGreaterSigned ri a = do
+  ws  <- getWordSize
+  a'  <- (decodeSignedInt ws . SignedInt) <$$> getImmediateOrRegister a
+  ri' <- (decodeSignedInt ws . SignedInt) <$$> getRegisterValue ri
+  case (a', ri') of
+    (Just a'', Just ri'') ->
+      setConditionFlag . conditionToFlag $ ri'' > a''
+    _ -> return ()
+
+
+compareGreaterOrEqualSigned :: ( Monad m, HasMachineState m, HasParams m )
+  => Register -> ImmediateOrRegister -> m ()
+compareGreaterOrEqualSigned ri a = do
+  ws  <- getWordSize
+  a'  <- (decodeSignedInt ws . SignedInt) <$$> getImmediateOrRegister a
+  ri' <- (decodeSignedInt ws . SignedInt) <$$> getRegisterValue ri
   case (a', ri') of
     (Just a'', Just ri'') ->
       setConditionFlag . conditionToFlag $ ri'' >= a''
