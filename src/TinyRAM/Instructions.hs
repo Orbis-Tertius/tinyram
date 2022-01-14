@@ -132,6 +132,8 @@ multiplyUnsignedMSB ri rj a = do
   case (a', rj') of
     (Just a'', Just rj'') -> do
       let y = rj'' * a''
+      -- FIXME: these are not necessarily the most significant bits; the shift amount
+      -- depends on the position of the leading one
       setRegisterValue ri (shift (unUnsignedInt y .&. msb) (negate (unWordSize ws)))
       setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb /= 0))
     _ -> return ()
