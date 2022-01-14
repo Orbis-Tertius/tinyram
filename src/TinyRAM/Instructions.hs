@@ -27,6 +27,7 @@ module TinyRAM.Instructions
   , jumpIfNotFlag
   , store
   , load
+  , readInputTape
   ) where
 
 
@@ -380,3 +381,21 @@ load ri a = do
       setRegisterValue ri v
       incrementProgramCounter
     Nothing -> return ()
+
+
+readInputTape :: ( Monad m, HasMachineState m )
+  => Register -> ImmediateOrRegister -> m ()
+readInputTape ri a = do
+  a' <- getImmediateOrRegister a
+  next <- case a' of
+    Just 0 -> readPrimaryInput
+    Just 1 -> readAuxiliaryInput
+    _ -> return Nothing
+  case next of
+    Just next' -> do
+      setRegisterValue ri next'
+      setConditionFlag 0
+    Nothing -> do
+      setRegisterValue ri 0
+      setConditionFlag 1
+  incrementProgramCounter
