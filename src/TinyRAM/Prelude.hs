@@ -7,6 +7,7 @@ module TinyRAM.Prelude
   , module Control.Monad.Trans.Class
   , module Data.Bits
   , module Data.Map
+  , module Data.Maybe
   , module GHC.Generics
   , (<$$>)
   ) where
@@ -18,6 +19,7 @@ import Control.Monad.Trans.Class (MonadTrans (lift))
 import Data.Bits (Bits ((.&.), (.|.), xor, complement, shift))
 import Data.Generics.Labels ()
 import Data.Map (Map)
+import Data.Maybe (fromMaybe)
 import GHC.Generics (Generic)
 
 

@@ -25,6 +25,8 @@ module TinyRAM.Instructions
   , jump
   , jumpIfFlag
   , jumpIfNotFlag
+  , store
+  , load
   ) where
 
 
@@ -354,3 +356,27 @@ jumpIfNotFlag a = do
   case flag of
     0 -> jump a
     _ -> incrementProgramCounter
+
+
+store :: ( Monad m, HasMachineState m )
+  => ImmediateOrRegister -> Register -> m ()
+store a ri = do
+  a'  <- getImmediateOrRegister a
+  ri' <- Address <$$> getRegisterValue ri
+  case (a', ri') of
+    (Just a'', Just ri'') -> do
+      setMemoryValue ri'' a''
+      incrementProgramCounter
+    _ -> return ()
+
+
+load :: ( Monad m, HasMachineState m )
+  => Register -> ImmediateOrRegister -> m ()
+load ri a = do
+  a' <- Address <$$> getImmediateOrRegister a
+  case a' of
+    Just a'' -> do
+      v <- fromMaybe 0 <$> getMemoryValue a''
+      setRegisterValue ri v
+      incrementProgramCounter
+    Nothing -> return ()
