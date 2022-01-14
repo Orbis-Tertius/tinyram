@@ -20,10 +20,12 @@ module TinyRAM.Instructions
   , compareGreaterOrEqualUnsigned
   , compareGreaterSigned
   , compareGreaterOrEqualSigned
+  , move
+  , conditionalMove
   ) where
 
 
-import TinyRAM.MachineState (conditionToFlag, getImmediateOrRegister)
+import TinyRAM.MachineState (conditionToFlag, getImmediateOrRegister, incrementProgramCounter)
 import TinyRAM.Params (getWordSize, getWordSizeBitmask, getWordSizeBitmaskMSB)
 import TinyRAM.Prelude
 import TinyRAM.SignedArithmetic (getSign, getUnsignedComponent, decodeSignedInt)
@@ -48,6 +50,7 @@ andBits ri rj a = do
       let y = a'' .&. rj''
       setRegisterValue ri y
       setConditionFlag (conditionToFlag (y == 0))
+      incrementProgramCounter
     _ -> return ()
 
 
@@ -61,6 +64,7 @@ orBits ri rj a = do
       let y = a'' .|. rj''
       setRegisterValue ri y
       setConditionFlag (conditionToFlag (y == 0))
+      incrementProgramCounter
     _ -> return ()
 
 
@@ -74,6 +78,7 @@ xorBits ri rj a = do
       let y = a'' `xor` rj''
       setRegisterValue ri y
       setConditionFlag (conditionToFlag (y == 0))
+      incrementProgramCounter
     _ -> return ()
 
 
@@ -86,6 +91,7 @@ notBits ri a = do
       let y = complement a''
       setRegisterValue ri y
       setConditionFlag (conditionToFlag (y == 0))
+      incrementProgramCounter
     Nothing -> return ()
 
 
@@ -101,6 +107,7 @@ addUnsigned ri rj a = do
       let y = a'' + rj''
       setRegisterValue ri (unUnsignedInt y .&. wsb)
       setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb /= 0))
+      incrementProgramCounter
     _ -> return ()
 
 
@@ -118,6 +125,7 @@ subtractUnsigned ri rj a = do
           y = rj'' + k - a''
       setRegisterValue ri (unUnsignedInt y .&. wsb)
       setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb /= 0))
+      incrementProgramCounter
     _ -> return ()
 
 
@@ -133,6 +141,7 @@ multiplyUnsignedLSB ri rj a = do
       let y = rj'' * a''
       setRegisterValue ri (unUnsignedInt y .&. wsb)
       setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb /= 0))
+      incrementProgramCounter
     _ -> return ()
 
 
@@ -148,6 +157,7 @@ multiplyUnsignedMSB ri rj a = do
       let y = rj'' * a''
       setRegisterValue ri (shift (unUnsignedInt y) (negate (unWordSize ws)))
       setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb /= 0))
+      incrementProgramCounter
     _ -> return ()
 
 
@@ -172,6 +182,7 @@ multiplySignedMSB ri rj a = do
           y        = signBit .&. (shift (unUnsignedInt yAbs) (negate (unWordSize ws)))
       setRegisterValue ri y
       setConditionFlag (conditionToFlag (unUnsignedInt yAbs .&. msb /= 0))
+      incrementProgramCounter
     _ -> return ()
 
 
@@ -185,6 +196,7 @@ divideUnsigned ri rj a = do
       let y = if a'' == 0 then 0 else rj'' `div` a''
       setRegisterValue ri (unUnsignedInt y)
       setConditionFlag (conditionToFlag (a'' == 0))
+      incrementProgramCounter
     _ -> return ()
 
 
@@ -198,6 +210,7 @@ modulusUnsigned ri rj a = do
       let y = if a'' == 0 then 0 else rj'' `mod` a''
       setRegisterValue ri (unUnsignedInt y)
       setConditionFlag (conditionToFlag (a'' == 0))
+      incrementProgramCounter
     _ -> return ()
 
 
@@ -212,6 +225,7 @@ shiftLeft ri rj a = do
     (Just a'', Just rj'') -> do
       setRegisterValue ri $ (rj'' `shift` (fromIntegral a'')) .&. wsb
       setConditionFlag . Flag . fromIntegral $ rj'' .&. (2 ^ (fromIntegral ws - 1 :: Integer))
+      incrementProgramCounter
     _ -> return ()
 
 
@@ -224,6 +238,7 @@ shiftRight ri rj a = do
     (Just a'', Just rj'') -> do
       setRegisterValue ri $ rj'' `shift` (negate (fromIntegral a''))
       setConditionFlag . Flag . fromIntegral $ rj'' .&. 1
+      incrementProgramCounter
     _ -> return ()
 
 
@@ -233,8 +248,9 @@ compareEqual ri a = do
   a'  <- getImmediateOrRegister a
   ri' <- getRegisterValue ri
   case (a', ri') of
-    (Just a'', Just ri'') ->
+    (Just a'', Just ri'') -> do
       setConditionFlag . conditionToFlag $ a'' == ri''
+      incrementProgramCounter
     _ -> return ()
 
 
@@ -244,8 +260,9 @@ compareGreaterUnsigned ri a = do
   a'  <- UnsignedInt <$$> getImmediateOrRegister a
   ri' <- UnsignedInt <$$> getRegisterValue ri
   case (a', ri') of
-    (Just a'', Just ri'') ->
+    (Just a'', Just ri'') -> do
       setConditionFlag . conditionToFlag $ ri'' > a''
+      incrementProgramCounter
     _ -> return ()
 
 
@@ -255,8 +272,9 @@ compareGreaterOrEqualUnsigned ri a = do
   a'  <- UnsignedInt <$$> getImmediateOrRegister a
   ri' <- UnsignedInt <$$> getRegisterValue ri
   case (a', ri') of
-    (Just a'', Just ri'') ->
+    (Just a'', Just ri'') -> do
       setConditionFlag . conditionToFlag $ ri'' >= a''
+      incrementProgramCounter
     _ -> return ()
 
 
@@ -267,8 +285,9 @@ compareGreaterSigned ri a = do
   a'  <- (decodeSignedInt ws . SignedInt) <$$> getImmediateOrRegister a
   ri' <- (decodeSignedInt ws . SignedInt) <$$> getRegisterValue ri
   case (a', ri') of
-    (Just a'', Just ri'') ->
+    (Just a'', Just ri'') -> do
       setConditionFlag . conditionToFlag $ ri'' > a''
+      incrementProgramCounter
     _ -> return ()
 
 
@@ -279,6 +298,27 @@ compareGreaterOrEqualSigned ri a = do
   a'  <- (decodeSignedInt ws . SignedInt) <$$> getImmediateOrRegister a
   ri' <- (decodeSignedInt ws . SignedInt) <$$> getRegisterValue ri
   case (a', ri') of
-    (Just a'', Just ri'') ->
+    (Just a'', Just ri'') -> do
       setConditionFlag . conditionToFlag $ ri'' >= a''
+      incrementProgramCounter
     _ -> return ()
+
+
+move :: ( Monad m, HasMachineState m )
+  => Register -> ImmediateOrRegister -> m ()
+move ri a = do
+  a' <- getImmediateOrRegister a
+  case a' of
+    Just a'' -> do
+      setRegisterValue ri a''
+      incrementProgramCounter
+    _ -> return ()
+
+
+conditionalMove :: ( Monad m, HasMachineState m )
+  => Register -> ImmediateOrRegister -> m ()
+conditionalMove ri a = do
+  flag <- getConditionFlag
+  case flag of
+    1 -> move ri a
+    _ -> incrementProgramCounter

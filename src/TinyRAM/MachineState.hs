@@ -4,6 +4,7 @@
 module TinyRAM.MachineState
   ( getImmediateOrRegister
   , conditionToFlag
+  , incrementProgramCounter
   ) where
 
 
@@ -23,3 +24,8 @@ getImmediateOrRegister (IsRegister r) = getRegisterValue r
 conditionToFlag :: Bool -> Flag
 conditionToFlag True = 1
 conditionToFlag False = 0
+
+
+incrementProgramCounter :: ( Monad m, HasMachineState m )
+  => m ()
+incrementProgramCounter = setProgramCounter . (+1) =<< getProgramCounter
