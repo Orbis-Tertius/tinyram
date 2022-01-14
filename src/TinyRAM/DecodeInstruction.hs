@@ -48,8 +48,11 @@ registerBitmask rc = 2 ^ (bitsPerRegister rc) - 1
 
 
 decodeA :: (Word, Word) -> ImmediateOrRegister
-decodeA = todo
+decodeA (i0, i1) =
+  case i0 .&. flagBitmask of
+    0 -> IsRegister . Register . fromIntegral $ i1
+    _ -> IsImmediate i1
 
 
-todo :: a
-todo = todo
+flagBitmask :: Word
+flagBitmask = 32
