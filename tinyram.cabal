@@ -9,6 +9,7 @@ maintainer:    morgan.thomas@platonic.systems
 
 library
   exposed-modules:
+    TinyRAM.DecodeInstruction
     TinyRAM.Instructions
     TinyRAM.MachineState
     TinyRAM.Params
