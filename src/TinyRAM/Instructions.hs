@@ -15,6 +15,7 @@ module TinyRAM.Instructions
   , modulusUnsigned
   , shiftLeft
   , shiftRight
+  , compareEqual
   ) where
 
 
@@ -219,4 +220,15 @@ shiftRight ri rj a = do
     (Just a'', Just rj'') -> do
       setRegisterValue ri $ rj'' `shift` (negate (fromIntegral a''))
       setConditionFlag . Flag . fromIntegral $ rj'' .&. 1
+    _ -> return ()
+
+
+compareEqual :: ( Monad m, HasMachineState m )
+  => Register -> ImmediateOrRegister -> m ()
+compareEqual ri a = do
+  a'  <- getImmediateOrRegister a
+  ri' <- getRegisterValue ri
+  case (a', ri') of
+    (Just a'', Just ri'') -> do
+      setConditionFlag . conditionToFlag $ a'' == ri''
     _ -> return ()
