@@ -1,22 +1,27 @@
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE OverloadedLabels #-}
 
 
 module TinyRAM.ExecuteInstruction ( executeInstruction ) where
 
 
+import TinyRAM.Instructions (andBits, orBits)
 import TinyRAM.Prelude
 import TinyRAM.Types.HasMachineState (HasMachineState (..))
-import TinyRAM.Types.HasParams (HasParams (..))
+import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
 import TinyRAM.Types.Instruction (Instruction)
+import TinyRAM.Types.Register (Register)
 
 
-executeInstruction :: ( Monad m, HasMachineState m, HasParams m )
+executeInstruction :: ( Monad m, HasMachineState m )
   => Instruction -> m ()
-executeInstruction _ = do
-  _ <- getParams
-  _ <- getProgramCounter
-  todo
+executeInstruction i =
+  case i ^. #opcode of
+    0 -> threeArgOpcode andBits i
+    1 -> threeArgOpcode orBits i
+    _ -> return ()
 
 
-todo :: a
-todo = todo
+threeArgOpcode :: (Register -> Register -> ImmediateOrRegister -> a) -> Instruction -> a
+threeArgOpcode f i =
+  f (i ^. #ri) (i ^. #rj) (i ^. #a)
