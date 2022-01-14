@@ -13,6 +13,7 @@ library
     TinyRAM.MachineState
     TinyRAM.Params
     TinyRAM.Prelude
+    TinyRAM.SignedArithmetic
     TinyRAM.Types.Address
     TinyRAM.Types.Flag
     TinyRAM.Types.HasMachineState
@@ -26,6 +27,7 @@ library
     TinyRAM.Types.RegisterCount
     TinyRAM.Types.Register
     TinyRAM.Types.RegisterValues
+    TinyRAM.Types.Sign
     TinyRAM.Types.SignedInt
     TinyRAM.Types.TinyRAMT
     TinyRAM.Types.UnsignedInt

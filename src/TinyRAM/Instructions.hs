@@ -10,17 +10,21 @@ module TinyRAM.Instructions
   , subtractUnsigned
   , multiplyUnsignedLSB
   , multiplyUnsignedMSB
+  , multiplySignedMSB
   ) where
 
 
 import TinyRAM.MachineState (conditionToFlag, getImmediateOrRegister)
 import TinyRAM.Params (getWordSize, getWordSizeBitmask, getWordSizeBitmaskMSB)
 import TinyRAM.Prelude
+import TinyRAM.SignedArithmetic (getSign, getUnsignedComponent)
 import TinyRAM.Types.HasParams (HasParams)
 import TinyRAM.Types.HasMachineState (HasMachineState (..))
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
 import TinyRAM.Types.Register (Register)
+import TinyRAM.Types.SignedInt (SignedInt (..))
 import TinyRAM.Types.UnsignedInt (UnsignedInt (..))
+import TinyRAM.Types.Word (Word)
 import TinyRAM.Types.WordSize (WordSize (..))
 
 
@@ -132,6 +136,30 @@ multiplyUnsignedMSB ri rj a = do
   case (a', rj') of
     (Just a'', Just rj'') -> do
       let y = rj'' * a''
-      setRegisterValue ri (shift (unUnsignedInt y .&. msb) (negate (unWordSize ws)))
+      setRegisterValue ri (shift (unUnsignedInt y) (negate (unWordSize ws)))
       setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb /= 0))
+    _ -> return ()
+
+
+multiplySignedMSB :: ( Monad m, HasMachineState m, HasParams m )
+  => Register -> Register -> ImmediateOrRegister -> m ()
+multiplySignedMSB ri rj a = do
+  a'  <- SignedInt <$$> getImmediateOrRegister a
+  rj' <- SignedInt <$$> getRegisterValue rj
+  ws  <- getWordSize
+  msb <- getWordSizeBitmaskMSB
+  case (a', rj') of
+    (Just a'', Just rj'') -> do
+      let aSign   = getSign ws a''
+          rjSign  = getSign ws rj''
+          aAbs    = getUnsignedComponent ws a''
+          rjAbs   = getUnsignedComponent ws rj''
+          ySign   = aSign * rjSign
+          yAbs    = aAbs * rjAbs
+          signBit = case ySign of
+                      -1 -> 2 ^ (fromIntegral ws - 1 :: Word)
+                      _  -> 0
+          y        = signBit .&. (shift (unUnsignedInt yAbs) (negate (unWordSize ws)))
+      setRegisterValue ri y
+      setConditionFlag (conditionToFlag (unUnsignedInt yAbs .&. msb /= 0))
     _ -> return ()
