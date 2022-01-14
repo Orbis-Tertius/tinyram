@@ -11,6 +11,7 @@ module TinyRAM.Instructions
   , multiplyUnsignedLSB
   , multiplyUnsignedMSB
   , multiplySignedMSB
+  , divideUnsigned
   ) where
 
 
@@ -162,4 +163,17 @@ multiplySignedMSB ri rj a = do
           y        = signBit .&. (shift (unUnsignedInt yAbs) (negate (unWordSize ws)))
       setRegisterValue ri y
       setConditionFlag (conditionToFlag (unUnsignedInt yAbs .&. msb /= 0))
+    _ -> return ()
+
+
+divideUnsigned :: ( Monad m, HasMachineState m )
+  => Register -> Register -> ImmediateOrRegister -> m ()
+divideUnsigned ri rj a = do
+  a'  <- UnsignedInt <$$> getImmediateOrRegister a
+  rj' <- UnsignedInt <$$> getRegisterValue rj
+  case (a', rj') of
+    (Just a'', Just rj'') -> do
+      let y = if a'' == 0 then 0 else rj'' `div` a''
+      setRegisterValue ri (unUnsignedInt y)
+      setConditionFlag (conditionToFlag (a'' == 0))
     _ -> return ()
