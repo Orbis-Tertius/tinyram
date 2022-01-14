@@ -13,6 +13,7 @@ module TinyRAM.Instructions
   , multiplySignedMSB
   , divideUnsigned
   , modulusUnsigned
+  , shiftLeft
   ) where
 
 
@@ -20,6 +21,7 @@ import TinyRAM.MachineState (conditionToFlag, getImmediateOrRegister)
 import TinyRAM.Params (getWordSize, getWordSizeBitmask, getWordSizeBitmaskMSB)
 import TinyRAM.Prelude
 import TinyRAM.SignedArithmetic (getSign, getUnsignedComponent)
+import TinyRAM.Types.Flag (Flag (..))
 import TinyRAM.Types.HasParams (HasParams)
 import TinyRAM.Types.HasMachineState (HasMachineState (..))
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
@@ -190,4 +192,18 @@ modulusUnsigned ri rj a = do
       let y = if a'' == 0 then 0 else rj'' `mod` a''
       setRegisterValue ri (unUnsignedInt y)
       setConditionFlag (conditionToFlag (a'' == 0))
+    _ -> return ()
+
+
+shiftLeft :: ( Monad m, HasMachineState m, HasParams m )
+  => Register -> Register -> ImmediateOrRegister -> m ()
+shiftLeft ri rj a = do
+  a'  <- UnsignedInt <$$> getImmediateOrRegister a
+  rj' <- getRegisterValue rj
+  ws  <- getWordSize
+  wsb <- getWordSizeBitmask
+  case (a', rj') of
+    (Just a'', Just rj'') -> do
+      setRegisterValue ri $ (rj'' `shift` (fromIntegral a'')) .&. wsb
+      setConditionFlag . Flag . fromIntegral $ rj'' .&. (2 ^ (fromIntegral ws - 1 :: Integer))
     _ -> return ()
