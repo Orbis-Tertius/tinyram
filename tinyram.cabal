@@ -13,7 +13,6 @@ library
     TinyRAM.ExecuteInstruction
     TinyRAM.Instructions
     TinyRAM.MachineState
-    TinyRAM.MaxSteps
     TinyRAM.Params
     TinyRAM.Prelude
     TinyRAM.Run
@@ -26,6 +25,7 @@ library
     TinyRAM.Types.InputTape
     TinyRAM.Types.Instruction
     TinyRAM.Types.MachineState
+    TinyRAM.Types.MaxSteps
     TinyRAM.Types.MemoryValues
     TinyRAM.Types.Opcode
     TinyRAM.Types.Params
