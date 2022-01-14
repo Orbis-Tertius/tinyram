@@ -23,4 +23,11 @@ getSign ws x =
 
 getUnsignedComponent :: WordSize -> SignedInt -> UnsignedInt
 getUnsignedComponent ws x =
-  UnsignedInt $ Word (2 ^ (fromIntegral ws - 1 :: Integer) - 1) .&. unSignedInt x
+  UnsignedInt . Word $ abs (decodeSignedInt ws x)
+
+-- Decode the two's complement representation to get the value of the SignedInt.
+decodeSignedInt :: WordSize -> SignedInt -> Integer
+decodeSignedInt ws (SignedInt (Word x)) =
+  (x .&. (2 ^ (fromIntegral ws - 2 :: Integer) - 1))
+  -
+  (x .&. (2 ^ (fromIntegral ws - 1 :: Integer)))
