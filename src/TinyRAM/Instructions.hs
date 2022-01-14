@@ -14,6 +14,7 @@ module TinyRAM.Instructions
   , divideUnsigned
   , modulusUnsigned
   , shiftLeft
+  , shiftRight
   ) where
 
 
@@ -206,4 +207,16 @@ shiftLeft ri rj a = do
     (Just a'', Just rj'') -> do
       setRegisterValue ri $ (rj'' `shift` (fromIntegral a'')) .&. wsb
       setConditionFlag . Flag . fromIntegral $ rj'' .&. (2 ^ (fromIntegral ws - 1 :: Integer))
+    _ -> return ()
+
+
+shiftRight :: ( Monad m, HasMachineState m )
+  => Register -> Register -> ImmediateOrRegister -> m ()
+shiftRight ri rj a = do
+  a'  <- UnsignedInt <$$> getImmediateOrRegister a
+  rj' <- getRegisterValue rj
+  case (a', rj') of
+    (Just a'', Just rj'') -> do
+      setRegisterValue ri $ rj'' `shift` (negate (fromIntegral a''))
+      setConditionFlag . Flag . fromIntegral $ rj'' .&. 1
     _ -> return ()
