@@ -16,8 +16,8 @@ import TinyRAM.Types.ProgramCounter (ProgramCounter (..))
 import TinyRAM.Types.Word (Word)
 
 
-run :: ( Monad m, HasMachineState m, HasParams m ) => Maybe MaxSteps -> m Word
-run (Just 0) = return ()
+run :: ( Monad m, HasMachineState m, HasParams m ) => Maybe MaxSteps -> m (Maybe Word)
+run (Just 0) = return Nothing
 run n = do
   pc <- unProgramCounter <$> getProgramCounter
   i0 <- getMemoryValue pc
@@ -29,7 +29,7 @@ run n = do
         then do
           a <- getImmediateOrRegister (i ^. #a)
           case a of
-            Just a' -> return a'
+            Just a' -> return (Just a')
             _ -> run ((-1) <$> n)
         else do
           executeInstruction i
