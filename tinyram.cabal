@@ -15,6 +15,7 @@ library
     TinyRAM.MachineState
     TinyRAM.Params
     TinyRAM.Prelude
+    TinyRAM.Run
     TinyRAM.SignedArithmetic
     TinyRAM.Types.Address
     TinyRAM.Types.Flag

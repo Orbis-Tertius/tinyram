@@ -14,4 +14,4 @@ newtype Opcode = Opcode { unOpcode :: Int }
 
 instance Bounded Opcode where
   minBound = 0
-  maxBound = 26
+  maxBound = 31
