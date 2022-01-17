@@ -19,6 +19,9 @@ data MachineState =
   { programCounter :: ProgramCounter
   , registerValues :: RegisterValues
   , conditionFlag  :: Flag
+  -- memory in this VM covers the whole address space
+  -- based on the word size, with all memory
+  -- implicitly initialized to zero on program start.
   , memoryValues   :: MemoryValues
   , primaryInput   :: InputTape Primary
   , auxiliaryInput :: InputTape Auxiliary

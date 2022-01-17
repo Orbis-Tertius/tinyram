@@ -6,6 +6,7 @@ module TinyRAM.Prelude
   , module Control.Lens
   , module Control.Monad.Trans.Class
   , module Data.Bits
+  , module Data.ByteString
   , module Data.Map
   , module Data.Maybe
   , module GHC.Generics
@@ -17,6 +18,7 @@ import Prelude hiding (Word)
 import Control.Lens ((^.), (.~), _1, _2)
 import Control.Monad.Trans.Class (MonadTrans (lift))
 import Data.Bits (Bits ((.&.), (.|.), xor, complement, shift))
+import Data.ByteString (ByteString)
 import Data.Generics.Labels ()
 import Data.Map (Map)
 import Data.Maybe (fromMaybe)

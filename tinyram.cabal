@@ -11,6 +11,7 @@ library
   exposed-modules:
     TinyRAM.DecodeInstruction
     TinyRAM.ExecuteInstruction
+    TinyRAM.ExecuteProgram
     TinyRAM.Instructions
     TinyRAM.MachineState
     TinyRAM.Params
@@ -29,6 +30,7 @@ library
     TinyRAM.Types.MemoryValues
     TinyRAM.Types.Opcode
     TinyRAM.Types.Params
+    TinyRAM.Types.Program
     TinyRAM.Types.ProgramCounter
     TinyRAM.Types.RegisterCount
     TinyRAM.Types.Register
