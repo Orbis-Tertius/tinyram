@@ -9,6 +9,7 @@ module TinyRAM.Prelude
   , module Data.ByteString
   , module Data.Map
   , module Data.Maybe
+  , module Data.Text
   , module GHC.Generics
   , (<$$>)
   ) where
@@ -22,6 +23,7 @@ import Data.ByteString (ByteString)
 import Data.Generics.Labels ()
 import Data.Map (Map)
 import Data.Maybe (fromMaybe)
+import Data.Text (Text)
 import GHC.Generics (Generic)
 
 
