@@ -9,7 +9,9 @@ maintainer:    morgan.thomas@platonic.systems
 
 library
   exposed-modules:
+    TinyRAM.Bytes
     TinyRAM.DecodeInstruction
+    TinyRAM.EntryPoint
     TinyRAM.ExecuteInstruction
     TinyRAM.ExecuteProgram
     TinyRAM.Instructions
@@ -19,11 +21,13 @@ library
     TinyRAM.Run
     TinyRAM.SignedArithmetic
     TinyRAM.Types.Address
+    TinyRAM.Types.Command
     TinyRAM.Types.Flag
     TinyRAM.Types.HasMachineState
     TinyRAM.Types.HasParams
     TinyRAM.Types.ImmediateOrRegister
     TinyRAM.Types.InputTape
+    TinyRAM.Types.InputTapePath
     TinyRAM.Types.Instruction
     TinyRAM.Types.MachineState
     TinyRAM.Types.MaxSteps
@@ -32,6 +36,7 @@ library
     TinyRAM.Types.Params
     TinyRAM.Types.Program
     TinyRAM.Types.ProgramCounter
+    TinyRAM.Types.ProgramFilePath
     TinyRAM.Types.RegisterCount
     TinyRAM.Types.Register
     TinyRAM.Types.RegisterValues
@@ -53,6 +58,7 @@ library
     ghc-prim,
     hedgehog -any,
     lens,
+    optparse-applicative,
     text -any,
     transformers,
     mtl
@@ -69,20 +75,6 @@ executable tinyram
     Main.hs
 
   build-depends:
-    base >= 4.9 && < 5,
-    aeson,
-    bytestring,
-    containers,
-    either,
-    extra,
-    generic-lens,
-    ghc-prim,
-    hedgehog -any,
-    lens,
-    text -any,
-    transformers,
-    mtl,
-
     tinyram
 
   hs-source-dirs: app

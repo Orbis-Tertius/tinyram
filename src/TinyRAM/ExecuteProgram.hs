@@ -13,6 +13,7 @@ import qualified Data.ByteString as BS
 import qualified Data.Map as Map
 import Data.Text (pack)
 
+import TinyRAM.Bytes (bytesToWords)
 import TinyRAM.Run (run)
 import TinyRAM.Prelude
 import TinyRAM.Types.Flag (Flag)
@@ -28,7 +29,6 @@ import TinyRAM.Types.RegisterCount (RegisterCount (..))
 import TinyRAM.Types.RegisterValues (RegisterValues (..))
 import TinyRAM.Types.TinyRAMT (TinyRAMT (..))
 import TinyRAM.Types.Word (Word)
-import TinyRAM.Types.WordSize (WordSize (..))
 
 
 executeProgram
@@ -85,28 +85,3 @@ programToMemoryValues params (Program p) =
             else Left "program must consist of an even number of words"
           _ -> Left "length of program in bytes must be a multiple of the word size in bytes"
       _ -> Left $ "word size must be a multiple of 8 but it is " <> pack (show (params ^. #wordSize . #unWordSize))
-
-
-bytesToWords :: WordSize -> ByteString -> [Word]
-bytesToWords (WordSize ws) bytes =
-    bytesToWord <$> wordBytes
-  where
-    bytesPerWord = ws `quot` 8
-
-    -- decode word from little endian format
-    bytesToWord :: ByteString -> Word
-    bytesToWord =
-      BS.foldr
-      (\a x -> x * (2 ^ ws) + fromIntegral a)
-      0
-
-    wordBytes :: [ByteString]
-    wordBytes = f bytes
-
-    f :: ByteString -> [ByteString]
-    f bs =
-      if BS.length bs < bytesPerWord
-      then []
-      else
-        let (wb,bs') = BS.splitAt bytesPerWord bs
-        in wb : f bs'

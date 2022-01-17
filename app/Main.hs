@@ -4,8 +4,4 @@
 module Main ( main ) where
 
 
-import TinyRAM.Prelude
-
-
-main :: IO ()
-main = putStrLn "hello world"
+import TinyRAM.EntryPoint (main)

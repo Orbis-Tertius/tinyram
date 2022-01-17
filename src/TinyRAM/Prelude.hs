@@ -11,6 +11,7 @@ module TinyRAM.Prelude
   , module Data.Maybe
   , module Data.Text
   , module GHC.Generics
+  , module System.IO
   , (<$$>)
   ) where
 
@@ -25,6 +26,7 @@ import Data.Map (Map)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import GHC.Generics (Generic)
+import System.IO (FilePath)
 
 
 (<$$>) :: ( Functor f, Functor g ) => (a -> b) -> f (g a) -> f (g b)
