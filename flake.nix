@@ -4,12 +4,18 @@
   inputs.haskellNix.url = "github:input-output-hk/haskell.nix";
   inputs.nixpkgs.follows = "haskellNix/nixpkgs-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
-  outputs = { self, nixpkgs, flake-utils, haskellNix }:
+  inputs.sydtest-src = {
+      url = "github:NorfairKing/sydtest/a230bf791b0bced918092bbc9c3b54608b2a3a48";
+      flake = false;
+    };
+
+  outputs = { self, nixpkgs, flake-utils, sydtest-src, haskellNix }:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
         deferPluginErrors = true;
         overlays = [
           haskellNix.overlay
+          (import "${sydtest-src}/nix/overlay.nix")
           (final: prev: {
             # This overlay adds our project to pkgs
             tinyram =
@@ -27,6 +33,7 @@
                   hlint = { };
                   haskell-language-server = { };
                   stylish-haskell = { };
+                  sydtest-discover = { };
                 };
                 # Non-Haskell shell tools go here
                 shell.buildInputs = with pkgs; [

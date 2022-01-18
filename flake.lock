@@ -303,7 +303,8 @@
         "nixpkgs": [
           "haskellNix",
           "nixpkgs-unstable"
-        ]
+        ],
+        "sydtest-src": "sydtest-src"
       }
     },
     "stackage": {
@@ -319,6 +320,23 @@
       "original": {
         "owner": "input-output-hk",
         "repo": "stackage.nix",
+        "type": "github"
+      }
+    },
+    "sydtest-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1630579197,
+        "narHash": "sha256-92TSXtIYyewN1yoFuwPrReAcH3vbD5SVTBuIUq7GktE=",
+        "owner": "NorfairKing",
+        "repo": "sydtest",
+        "rev": "a230bf791b0bced918092bbc9c3b54608b2a3a48",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NorfairKing",
+        "repo": "sydtest",
+        "rev": "a230bf791b0bced918092bbc9c3b54608b2a3a48",
         "type": "github"
       }
     }

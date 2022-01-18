@@ -68,6 +68,7 @@ library
   ghc-options:
           -Wall -Werror -Wcompat -fwarn-redundant-constraints -fwarn-incomplete-uni-patterns
           -fwarn-tabs -fwarn-incomplete-record-updates -fwarn-identities -Wmissing-export-lists
+          -threaded -rtsopts -with-rtsopts=-N
 
 
 test-suite spec
@@ -75,7 +76,12 @@ test-suite spec
   main-is: Spec.hs
 
   other-modules:
+    TinyRAM.Spec.BytesSpec
     TinyRAM.Spec.Gen
+    TinyRAM.Spec.Prelude
+
+  build-tools:
+    sydtest-discover
 
   build-depends:
     base >= 4.9 && < 5,
@@ -88,10 +94,12 @@ test-suite spec
     ghc-prim,
     hedgehog -any,
     lens,
+    mtl,
     optparse-applicative,
+    sydtest,
+    sydtest-discover,
     text -any,
     transformers,
-    mtl,
 
     tinyram
 
@@ -100,6 +108,7 @@ test-suite spec
   ghc-options:
           -Wall -Werror -Wcompat -fwarn-redundant-constraints -fwarn-incomplete-uni-patterns
           -fwarn-tabs -fwarn-incomplete-record-updates -fwarn-identities -Wmissing-export-lists
+          -threaded -rtsopts -with-rtsopts=-N
 
 
 executable tinyram
