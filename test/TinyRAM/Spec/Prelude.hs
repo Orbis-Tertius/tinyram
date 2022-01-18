@@ -6,6 +6,7 @@ module TinyRAM.Spec.Prelude
   , module Data.GenValidity
   , module Test.QuickCheck
   , module Test.Syd
+  , module Test.Syd.Validity
   ) where
 
 
@@ -14,3 +15,4 @@ import Test.QuickCheck (choose)
 
 import TinyRAM.Prelude
 import Test.Syd (Spec, describe, it, shouldBe)
+import Test.Syd.Validity (forAllValid)

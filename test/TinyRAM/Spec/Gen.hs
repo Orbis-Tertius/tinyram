@@ -7,6 +7,8 @@ module TinyRAM.Spec.Gen
   ) where
 
 
+import Data.GenValidity.ByteString ()
+
 import TinyRAM.Spec.Prelude
 import TinyRAM.Types.WordSize (WordSize (..))
 
