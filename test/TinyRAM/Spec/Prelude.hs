@@ -3,9 +3,14 @@
 
 module TinyRAM.Spec.Prelude
   ( module TinyRAM.Prelude
+  , module Data.GenValidity
+  , module Test.QuickCheck
   , module Test.Syd
   ) where
 
+
+import Data.GenValidity (GenValid (..), genValidStructurally, shrinkValidStructurally)
+import Test.QuickCheck (choose)
 
 import TinyRAM.Prelude
 import Test.Syd (Spec, describe, it, shouldBe)

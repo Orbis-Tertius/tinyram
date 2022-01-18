@@ -304,7 +304,8 @@
           "haskellNix",
           "nixpkgs-unstable"
         ],
-        "sydtest-src": "sydtest-src"
+        "sydtest-src": "sydtest-src",
+        "validity-src": "validity-src"
       }
     },
     "stackage": {
@@ -337,6 +338,23 @@
         "owner": "NorfairKing",
         "repo": "sydtest",
         "rev": "a230bf791b0bced918092bbc9c3b54608b2a3a48",
+        "type": "github"
+      }
+    },
+    "validity-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1624197181,
+        "narHash": "sha256-4ssmCY0OxCaHlJDaqum4H0NJIFqHaISSKmyQ7Xs9YKo=",
+        "owner": "NorfairKing",
+        "repo": "validity",
+        "rev": "f5e5d69b3502cdd9243b412c31ba9619b9e89462",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NorfairKing",
+        "repo": "validity",
+        "rev": "f5e5d69b3502cdd9243b412c31ba9619b9e89462",
         "type": "github"
       }
     }

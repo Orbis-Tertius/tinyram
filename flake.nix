@@ -8,14 +8,19 @@
       url = "github:NorfairKing/sydtest/a230bf791b0bced918092bbc9c3b54608b2a3a48";
       flake = false;
     };
+  inputs.validity-src = {
+      url = "github:NorfairKing/validity/f5e5d69b3502cdd9243b412c31ba9619b9e89462";
+      flake = false;
+    };
 
-  outputs = { self, nixpkgs, flake-utils, sydtest-src, haskellNix }:
+  outputs = { self, nixpkgs, flake-utils, sydtest-src, validity-src, haskellNix }:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
         deferPluginErrors = true;
         overlays = [
           haskellNix.overlay
           (import "${sydtest-src}/nix/overlay.nix")
+          (import "${validity-src}/nix/overlay.nix")
           (final: prev: {
             # This overlay adds our project to pkgs
             tinyram =

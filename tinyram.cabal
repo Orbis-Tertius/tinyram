@@ -58,10 +58,12 @@ library
     ghc-prim,
     hedgehog -any,
     lens,
+    mtl,
     optparse-applicative,
     text -any,
     transformers,
-    mtl
+    validity,
+    validity-bytestring
 
   hs-source-dirs: src
   default-language: Haskell2010
@@ -91,15 +93,21 @@ test-suite spec
     either,
     extra,
     generic-lens,
+    genvalidity,
+    genvalidity-bytestring,
+    genvalidity-sydtest,
+    genvalidity-sydtest-aeson,
     ghc-prim,
     hedgehog -any,
     lens,
     mtl,
     optparse-applicative,
+    QuickCheck,
     sydtest,
     sydtest-discover,
     text -any,
     transformers,
+    validity,
 
     tinyram
 

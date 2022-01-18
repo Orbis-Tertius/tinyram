@@ -10,6 +10,7 @@ module TinyRAM.Prelude
   , module Data.Map
   , module Data.Maybe
   , module Data.Text
+  , module Data.Validity
   , module GHC.Generics
   , module System.IO
   , (<$$>)
@@ -25,6 +26,8 @@ import Data.Generics.Labels ()
 import Data.Map (Map)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
+import Data.Validity (Validity (validate), Validation (Validation, unValidation), ValidationChain (Violated, Location))
+import Data.Validity.ByteString ()
 import GHC.Generics (Generic)
 import System.IO (FilePath)
 
