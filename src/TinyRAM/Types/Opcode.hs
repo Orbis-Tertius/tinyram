@@ -15,3 +15,9 @@ newtype Opcode = Opcode { unOpcode :: Int }
 instance Bounded Opcode where
   minBound = 0
   maxBound = 31
+
+instance Validity Opcode where
+  validate o =
+    if (0 <= o && o <= 22) || (28 <= o && o <= 30)
+    then mempty
+    else Validation [Violated "Opcode must be valid"]

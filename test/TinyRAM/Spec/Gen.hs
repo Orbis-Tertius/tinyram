@@ -4,11 +4,14 @@
 
 module TinyRAM.Spec.Gen
   ( genAddress
+  , genImmediateOrRegister
   , genInputTape
+  , genInstruction
   , genMachineState
   , genMemoryValues
   , genParamsMachineState
   , genProgramCounter
+  , genRegister
   , genRegisterValues
   , genUnsignedInteger
   , genWord
@@ -21,9 +24,12 @@ import qualified Data.Map as Map
 import TinyRAM.Spec.Prelude
 import TinyRAM.Types.Address (Address (..))
 import TinyRAM.Types.Flag (Flag)
+import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (..))
 import TinyRAM.Types.InputTape (InputTape (..))
+import TinyRAM.Types.Instruction (Instruction (..))
 import TinyRAM.Types.MachineState (MachineState (..))
 import TinyRAM.Types.MemoryValues (MemoryValues (..))
+import TinyRAM.Types.Opcode (Opcode (..))
 import TinyRAM.Types.Params (Params (..))
 import TinyRAM.Types.ProgramCounter (ProgramCounter (..))
 import TinyRAM.Types.Register (Register (..))
@@ -32,6 +38,11 @@ import TinyRAM.Types.RegisterValues (RegisterValues (..))
 import TinyRAM.Types.Sign (Sign)
 import TinyRAM.Types.WordSize (WordSize (..))
 import TinyRAM.Types.Word (Word (..))
+
+
+instance GenValid Opcode where
+  genValid = Opcode <$> oneof [choose (0, 22), choose (28, 30)]
+  shrinkValid = shrinkValidStructurally
 
 
 instance GenValid Flag where
@@ -60,6 +71,24 @@ genAddress ws = Address <$> genWord ws
 
 genInputTape :: WordSize -> Gen (InputTape a)
 genInputTape ws = InputTape <$> listOf (genWord ws)
+
+
+genInstruction :: WordSize -> RegisterCount -> Gen Instruction
+genInstruction ws rc =
+  Instruction
+  <$> genValid
+  <*> genImmediateOrRegister ws rc
+  <*> genRegister rc
+  <*> genRegister rc
+
+
+genRegister :: RegisterCount -> Gen Register
+genRegister (RegisterCount rc) = Register <$> choose (0, rc - 1)
+
+
+genImmediateOrRegister :: WordSize -> RegisterCount -> Gen ImmediateOrRegister
+genImmediateOrRegister ws rc =
+  oneof [IsImmediate <$> genWord ws, IsRegister <$> genRegister rc]
 
 
 genMachineState :: WordSize -> RegisterCount -> Gen MachineState
