@@ -47,7 +47,7 @@ maxSteps = O.option (Just . MaxSteps <$> O.auto)
   (O.short 'm' <>
    O.long "max-steps" <>
    O.value Nothing <>
-   O.help "The maximum number of instructions to execute before giving up")
+   O.help "The maximum number of instructions to execute before giving up (default: no maximum)")
 
 
 programFilePath :: O.Parser ProgramFilePath
