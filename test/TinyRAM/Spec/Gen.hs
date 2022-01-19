@@ -7,6 +7,7 @@ module TinyRAM.Spec.Gen
   , genInputTape
   , genMachineState
   , genMemoryValues
+  , genParamsMachineState
   , genProgramCounter
   , genRegisterValues
   , genUnsignedInteger
@@ -23,6 +24,7 @@ import TinyRAM.Types.Flag (Flag)
 import TinyRAM.Types.InputTape (InputTape (..))
 import TinyRAM.Types.MachineState (MachineState (..))
 import TinyRAM.Types.MemoryValues (MemoryValues (..))
+import TinyRAM.Types.Params (Params (..))
 import TinyRAM.Types.ProgramCounter (ProgramCounter (..))
 import TinyRAM.Types.Register (Register (..))
 import TinyRAM.Types.RegisterCount (RegisterCount (..))
@@ -34,6 +36,11 @@ import TinyRAM.Types.Word (Word (..))
 
 instance GenValid Flag where
   genValid = elements [0, 1]
+  shrinkValid = shrinkValidStructurally
+
+
+instance GenValid RegisterCount where
+  genValid = RegisterCount <$> choose (1, 128)
   shrinkValid = shrinkValidStructurally
 
 
@@ -70,6 +77,14 @@ genMemoryValues :: WordSize -> Gen MemoryValues
 genMemoryValues ws =
   fmap (MemoryValues . Map.fromList) . listOf
     $ (,) <$> genAddress ws <*> genWord ws
+
+
+genParamsMachineState :: Gen (Params, MachineState)
+genParamsMachineState = do
+  ws <- genValid
+  rc <- genValid
+  ms <- genMachineState ws rc
+  return (Params ws rc, ms)
 
 
 genProgramCounter :: WordSize -> Gen ProgramCounter
