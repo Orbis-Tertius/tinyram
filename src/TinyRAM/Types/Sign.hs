@@ -16,3 +16,9 @@ newtype Sign = Sign { unSign :: Int }
 instance Bounded Sign where
   minBound = -1
   maxBound = 1
+
+instance Validity Sign where
+  validate (Sign (-1)) = mempty
+  validate (Sign 1) = mempty
+  validate (Sign 0) = Validation [Violated "Sign must be nonzero"]
+  validate (Sign _) = Validation [Violated "Sign must be in the range [-1,1]"]

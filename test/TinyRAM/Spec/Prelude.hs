@@ -11,7 +11,7 @@ module TinyRAM.Spec.Prelude
 
 
 import Data.GenValidity (GenValid (..), genValidStructurally, shrinkValidStructurally)
-import Test.QuickCheck (choose)
+import Test.QuickCheck (Gen, forAll, choose, elements)
 
 import TinyRAM.Prelude
 import Test.Syd (Spec, describe, it, shouldBe)

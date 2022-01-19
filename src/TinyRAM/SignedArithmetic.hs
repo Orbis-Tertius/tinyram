@@ -29,6 +29,6 @@ getUnsignedComponent ws x =
 -- Decode the two's complement representation to get the value of the SignedInt.
 decodeSignedInt :: WordSize -> SignedInt -> Integer
 decodeSignedInt ws (SignedInt (Word x)) =
-  (x .&. (2 ^ (fromIntegral ws - 2 :: Integer) - 1))
+  (x .&. (2 ^ (fromIntegral ws - 1 :: Integer) - 1))
   -
   (x .&. (2 ^ (fromIntegral ws - 1 :: Integer)))

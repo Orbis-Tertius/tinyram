@@ -81,6 +81,7 @@ test-suite spec
     TinyRAM.Spec.BytesSpec
     TinyRAM.Spec.Gen
     TinyRAM.Spec.Prelude
+    TinyRAM.Spec.SignedArithmeticSpec
 
   build-tools:
     sydtest-discover
