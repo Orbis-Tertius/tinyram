@@ -106,4 +106,4 @@ genUnsignedInteger (WordSize ws) = choose (0, 2 ^ ws - 1)
 
 
 genWord :: WordSize -> Gen Word
-genWord (WordSize ws) = Word <$> choose (0, 2 ^ ws)
+genWord ws = Word <$> genUnsignedInteger ws
