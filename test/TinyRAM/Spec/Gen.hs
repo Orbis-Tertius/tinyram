@@ -12,6 +12,7 @@ module TinyRAM.Spec.Gen
   , genParamsMachineState
   , genProgramCounter
   , genRegister
+  , genRegisterCount
   , genRegisterValues
   , genUnsignedInteger
   , genWord
@@ -50,18 +51,13 @@ instance GenValid Flag where
   shrinkValid = shrinkValidStructurally
 
 
-instance GenValid RegisterCount where
-  genValid = RegisterCount <$> choose (1, 128)
-  shrinkValid = shrinkValidStructurally
-
-
 instance GenValid Sign where
   genValid = elements [-1, 1]
   shrinkValid = shrinkValidStructurally
 
 
 instance GenValid WordSize where
-  genValid = WordSize . (8*) <$> choose (1, 32)
+  genValid = WordSize . (8*) <$> choose (2, 16)
   shrinkValid = shrinkValidStructurally
 
 
@@ -111,13 +107,18 @@ genMemoryValues ws =
 genParamsMachineState :: Gen (Params, MachineState)
 genParamsMachineState = do
   ws <- genValid
-  rc <- genValid
+  rc <- genRegisterCount ws
   ms <- genMachineState ws rc
   return (Params ws rc, ms)
 
 
 genProgramCounter :: WordSize -> Gen ProgramCounter
 genProgramCounter ws = ProgramCounter <$> genAddress ws
+
+
+genRegisterCount :: WordSize -> Gen RegisterCount
+genRegisterCount (WordSize ws) =
+  RegisterCount <$> choose (2, 2 ^ ((ws - 6) `quot` 2))
 
 
 genRegisterValues :: WordSize -> RegisterCount -> Gen RegisterValues

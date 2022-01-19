@@ -1,7 +1,10 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
 
-module TinyRAM.DecodeInstruction ( decodeInstruction ) where
+module TinyRAM.DecodeInstruction
+  ( decodeInstruction
+  , bitsPerRegister
+  ) where
 
 
 import TinyRAM.Prelude
@@ -34,13 +37,14 @@ decodeRI :: RegisterCount -> Word -> Register
 decodeRI rc (Word w) = Register . fromIntegral
   $ (w `shift` (-6)) .&. registerBitmask rc
 
+
 decodeRJ :: RegisterCount -> Word -> Register
 decodeRJ rc (Word w) = Register . fromIntegral
   $ (w `shift` negate (6 + bitsPerRegister rc)) .&. registerBitmask rc
 
 
 bitsPerRegister :: RegisterCount -> Int
-bitsPerRegister (RegisterCount rc) = ceiling (fromIntegral rc `logBase` 2 :: Double)
+bitsPerRegister (RegisterCount rc) = ceiling (logBase 2 (fromIntegral rc) :: Double)
 
 
 registerBitmask :: RegisterCount -> Integer

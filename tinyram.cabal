@@ -79,6 +79,7 @@ test-suite spec
 
   other-modules:
     TinyRAM.Spec.BytesSpec
+    TinyRAM.Spec.DecodeInstructionSpec
     TinyRAM.Spec.Gen
     TinyRAM.Spec.Prelude
     TinyRAM.Spec.SignedArithmeticSpec
