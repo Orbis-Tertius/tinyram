@@ -82,6 +82,7 @@ test-suite spec
     TinyRAM.Spec.DecodeInstructionSpec
     TinyRAM.Spec.Gen
     TinyRAM.Spec.Prelude
+    TinyRAM.Spec.RunSpec
     TinyRAM.Spec.SignedArithmeticSpec
 
   build-tools:

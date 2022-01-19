@@ -327,17 +327,17 @@
     "sydtest-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1630579197,
-        "narHash": "sha256-92TSXtIYyewN1yoFuwPrReAcH3vbD5SVTBuIUq7GktE=",
+        "lastModified": 1641334290,
+        "narHash": "sha256-WrtOkLnT9CtnzJV7+d5q+2o6cXTKCP4ka6SNjKdvgGg=",
         "owner": "NorfairKing",
         "repo": "sydtest",
-        "rev": "a230bf791b0bced918092bbc9c3b54608b2a3a48",
+        "rev": "314d53ae175b540817a24d4211dab24fe6cb9232",
         "type": "github"
       },
       "original": {
         "owner": "NorfairKing",
         "repo": "sydtest",
-        "rev": "a230bf791b0bced918092bbc9c3b54608b2a3a48",
+        "rev": "314d53ae175b540817a24d4211dab24fe6cb9232",
         "type": "github"
       }
     },

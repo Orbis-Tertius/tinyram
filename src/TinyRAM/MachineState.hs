@@ -7,6 +7,7 @@ module TinyRAM.MachineState
   , conditionToFlag
   , incrementProgramCounter
   , validateMachineState
+  , validateWord
   ) where
 
 
