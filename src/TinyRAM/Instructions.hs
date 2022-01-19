@@ -34,7 +34,7 @@ module TinyRAM.Instructions
 import TinyRAM.MachineState (conditionToFlag, getImmediateOrRegister, incrementProgramCounter)
 import TinyRAM.Params (getWordSize, getWordSizeBitmask, getWordSizeBitmaskMSB)
 import TinyRAM.Prelude
-import TinyRAM.SignedArithmetic (getSign, getUnsignedComponent, decodeSignedInt)
+import TinyRAM.SignedArithmetic (getUnsignedComponent, decodeSignedInt, signedMultiplyHigh)
 import TinyRAM.Types.Address (Address (..))
 import TinyRAM.Types.Flag (Flag (..))
 import TinyRAM.Types.HasParams (HasParams)
@@ -44,7 +44,6 @@ import TinyRAM.Types.ProgramCounter (ProgramCounter (..))
 import TinyRAM.Types.Register (Register)
 import TinyRAM.Types.SignedInt (SignedInt (..))
 import TinyRAM.Types.UnsignedInt (UnsignedInt (..))
-import TinyRAM.Types.Word (Word)
 import TinyRAM.Types.WordSize (WordSize (..))
 
 
@@ -178,17 +177,11 @@ multiplySignedMSB ri rj a = do
   msb <- getWordSizeBitmaskMSB
   case (a', rj') of
     (Just a'', Just rj'') -> do
-      let aSign   = getSign ws a''
-          rjSign  = getSign ws rj''
-          aAbs    = getUnsignedComponent ws a''
+      let aAbs    = getUnsignedComponent ws a''
           rjAbs   = getUnsignedComponent ws rj''
-          ySign   = aSign * rjSign
           yAbs    = aAbs * rjAbs
-          signBit = case ySign of
-                      -1 -> 2 ^ (fromIntegral ws - 1 :: Word)
-                      _  -> 0
-          y        = signBit .&. (shift (unUnsignedInt yAbs) (negate (unWordSize ws)))
-      setRegisterValue ri y
+      setRegisterValue ri . unSignedInt
+        $ signedMultiplyHigh ws a'' rj''
       setConditionFlag (conditionToFlag (unUnsignedInt yAbs .&. msb /= 0))
       incrementProgramCounter
     _ -> return ()

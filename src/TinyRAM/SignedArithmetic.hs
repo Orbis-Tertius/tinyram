@@ -5,6 +5,7 @@ module TinyRAM.SignedArithmetic
   ( getSign
   , getUnsignedComponent
   , decodeSignedInt
+  , signedMultiplyHigh
   ) where
 
 
@@ -32,3 +33,17 @@ decodeSignedInt ws (SignedInt (Word x)) =
   (x .&. (2 ^ (fromIntegral ws - 1 :: Integer) - 1))
   -
   (x .&. (2 ^ (fromIntegral ws - 1 :: Integer)))
+
+
+signedMultiplyHigh :: WordSize -> SignedInt -> SignedInt -> SignedInt
+signedMultiplyHigh ws x y =
+  let xSign   = getSign ws x
+      ySign   = getSign ws y
+      xAbs    = getUnsignedComponent ws x
+      yAbs    = getUnsignedComponent ws y
+      zSign   = xSign * ySign
+      zAbs    = xAbs * yAbs
+      signBit = case zSign of
+                  -1 -> 2 ^ (fromIntegral ws - 1 :: Word)
+                  _  -> 0
+  in SignedInt $ signBit .&. (unUnsignedInt zAbs `shift` negate (unWordSize ws))
