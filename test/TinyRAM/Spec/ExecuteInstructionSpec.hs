@@ -96,39 +96,39 @@ instructionStateTransition ps i =
     16 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) < decodeSignedInt ws (SignedInt y)) i
     -- cmpge
     17 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) <= decodeSignedInt ws (SignedInt y)) i
---    -- mov
---    18 -> incrementPC
---        . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
---              .~ Just (getA i s)
---              $ s)
---    -- cmov
---    19 -> incrementPC
---        . (\s ->
---            if s ^. #conditionFlag == 0
---            then s
---            else #registerValues . #unRegisterValues . at (i ^. #ri)
---              .~ Just (getA i s)
---              $ s)
---    -- jmp
---    20 -> \s -> #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
---    -- cjmp
---    21 -> \s -> if s ^. #conditionFlag == 0
---                then incrementPC s
---                else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
---    -- cnjmp
---    22 -> \s -> if s ^. #conditionFlag == 1
---                then incrementPC s
---                else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
---    -- store
---    28 -> incrementPC
---        . (\s -> #memoryValues . #unMemoryValues . at (Address (getA i s))
---              .~ Just (getRI i s)
---               $ s)
---    -- load
---    29 -> incrementPC
---        . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
---              .~ Just (getA i s)
---               $ s)
+    -- mov
+    18 -> incrementPC
+        . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
+              .~ Just (getA i s)
+              $ s)
+    -- cmov
+    19 -> incrementPC
+        . (\s ->
+            if s ^. #conditionFlag == 0
+            then s
+            else #registerValues . #unRegisterValues . at (i ^. #ri)
+              .~ Just (getA i s)
+              $ s)
+    -- jmp
+    20 -> \s -> #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
+    -- cjmp
+    21 -> \s -> if s ^. #conditionFlag == 0
+                then incrementPC s
+                else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
+    -- cnjmp
+    22 -> \s -> if s ^. #conditionFlag == 1
+                then incrementPC s
+                else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
+    -- store
+    28 -> incrementPC
+        . (\s -> #memoryValues . #unMemoryValues . at (Address (getA i s))
+              .~ Just (getRI i s)
+               $ s)
+    -- load
+    29 -> incrementPC
+        . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
+              .~ Just (fromMaybe 0 (s ^. #memoryValues . #unMemoryValues . at (Address (getA i s))))
+               $ s)
 --    -- read
 --    30 -> incrementPC . readInputTape i
     _  -> id

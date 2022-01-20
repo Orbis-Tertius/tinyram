@@ -358,11 +358,11 @@ jumpIfNotFlag a = do
 store :: ( Monad m, HasMachineState m )
   => ImmediateOrRegister -> Register -> m ()
 store a ri = do
-  a'  <- getImmediateOrRegister a
-  ri' <- Address <$$> getRegisterValue ri
+  a'  <- Address <$$> getImmediateOrRegister a
+  ri' <- getRegisterValue ri
   case (a', ri') of
     (Just a'', Just ri'') -> do
-      setMemoryValue ri'' a''
+      setMemoryValue a'' ri''
       incrementProgramCounter
     _ -> return ()
 
