@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedLabels #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-redundant-constraints -Wno-unused-top-binds #-}
 
 
 module TinyRAM.ExecuteInstruction ( executeInstruction ) where
@@ -30,20 +31,20 @@ executeInstruction i =
     9  -> threeArgOpcode divideUnsigned i
     10 -> threeArgOpcode modulusUnsigned i
     11 -> threeArgOpcode shiftLeft i
-    12 -> threeArgOpcode shiftRight i
-    13 -> twoArgOpcode compareEqual i
-    14 -> twoArgOpcode compareGreaterUnsigned i
-    15 -> twoArgOpcode compareGreaterOrEqualUnsigned i
-    16 -> twoArgOpcode compareGreaterSigned i
-    17 -> twoArgOpcode compareGreaterOrEqualSigned i
-    18 -> twoArgOpcode move i
-    19 -> twoArgOpcode conditionalMove i
-    20 -> oneArgOpcode jump i
-    21 -> oneArgOpcode jumpIfFlag i
-    22 -> oneArgOpcode jumpIfNotFlag i
-    28 -> twoArgOpcode (flip store) i
-    29 -> twoArgOpcode load i
-    30 -> twoArgOpcode readInputTape i
+    --12 -> threeArgOpcode shiftRight i
+    --13 -> twoArgOpcode compareEqual i
+    --14 -> twoArgOpcode compareGreaterUnsigned i
+    --15 -> twoArgOpcode compareGreaterOrEqualUnsigned i
+    --16 -> twoArgOpcode compareGreaterSigned i
+    --17 -> twoArgOpcode compareGreaterOrEqualSigned i
+    --18 -> twoArgOpcode move i
+    --19 -> twoArgOpcode conditionalMove i
+    --20 -> oneArgOpcode jump i
+    --21 -> oneArgOpcode jumpIfFlag i
+    --22 -> oneArgOpcode jumpIfNotFlag i
+    --28 -> twoArgOpcode (flip store) i
+    --29 -> twoArgOpcode load i
+    --30 -> twoArgOpcode readInputTape i
     _  -> return ()
 
 

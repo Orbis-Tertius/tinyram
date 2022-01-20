@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedLabels #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-redundant-constraints -Wno-unused-top-binds -Wno-unused-local-binds #-}
 
 
 module TinyRAM.Spec.ExecuteInstructionSpec ( spec ) where
@@ -78,58 +79,58 @@ instructionStateTransition ps i =
                          (\x _ -> conditionToFlag (x == 0))
                          i
     -- shl
-    11 -> functionOpcode (\x y -> (y `shift` fromIntegral x) .&. wordSizeBitmask)
+    11 -> functionOpcode (\x y -> (y `shift` min (ws ^. #unWordSize) (fromIntegral x)) .&. wordSizeBitmask)
                          (\_ y -> conditionToFlag $ y .&. (2 ^ (ws ^. #unWordSize - 1)) /= 0)
                          i
-    -- shr
-    12 -> functionOpcode (\x y -> (y `shift` negate (fromIntegral x)) .&. wordSizeBitmask)
-                         (\_ y -> conditionToFlag $ y .&. 1 /= 0)
-                         i
-    -- cmpe
-    13 -> comparisonOpcode (==) i
-    -- cmpa
-    14 -> comparisonOpcode (<) i
-    -- cmpae
-    15 -> comparisonOpcode (<=) i
-    -- cmpg
-    16 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) < decodeSignedInt ws (SignedInt y)) i
-    -- cmpge
-    17 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) <= decodeSignedInt ws (SignedInt y)) i
-    -- mov
-    18 -> incrementPC
-        . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
-              .~ Just (getA i s)
-              $ s)
-    -- cmov
-    19 -> incrementPC
-        . (\s ->
-            if s ^. #conditionFlag == 0
-            then s
-            else #registerValues . #unRegisterValues . at (i ^. #ri)
-              .~ Just (getA i s)
-              $ s)
-    -- jmp
-    20 -> \s -> #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
-    -- cjmp
-    21 -> \s -> if s ^. #conditionFlag == 0
-                then incrementPC s
-                else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
-    -- cnjmp
-    22 -> \s -> if s ^. #conditionFlag == 1
-                then incrementPC s
-                else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
-    -- store
-    28 -> incrementPC
-        . (\s -> #memoryValues . #unMemoryValues . at (Address (getA i s))
-              .~ Just (getRI i s)
-               $ s)
-    -- load
-    29 -> incrementPC
-        . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
-              .~ Just (getA i s)
-               $ s)
-    -- read
-    30 -> incrementPC . readInputTape i
+--    -- shr
+--    12 -> functionOpcode (\x y -> (y `shift` negate (min (ws ^. #unWordSize) (fromIntegral x))) .&. wordSizeBitmask)
+--                         (\_ y -> conditionToFlag $ y .&. 1 /= 0)
+--                         i
+--    -- cmpe
+--    13 -> comparisonOpcode (==) i
+--    -- cmpa
+--    14 -> comparisonOpcode (<) i
+--    -- cmpae
+--    15 -> comparisonOpcode (<=) i
+--    -- cmpg
+--    16 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) < decodeSignedInt ws (SignedInt y)) i
+--    -- cmpge
+--    17 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) <= decodeSignedInt ws (SignedInt y)) i
+--    -- mov
+--    18 -> incrementPC
+--        . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
+--              .~ Just (getA i s)
+--              $ s)
+--    -- cmov
+--    19 -> incrementPC
+--        . (\s ->
+--            if s ^. #conditionFlag == 0
+--            then s
+--            else #registerValues . #unRegisterValues . at (i ^. #ri)
+--              .~ Just (getA i s)
+--              $ s)
+--    -- jmp
+--    20 -> \s -> #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
+--    -- cjmp
+--    21 -> \s -> if s ^. #conditionFlag == 0
+--                then incrementPC s
+--                else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
+--    -- cnjmp
+--    22 -> \s -> if s ^. #conditionFlag == 1
+--                then incrementPC s
+--                else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
+--    -- store
+--    28 -> incrementPC
+--        . (\s -> #memoryValues . #unMemoryValues . at (Address (getA i s))
+--              .~ Just (getRI i s)
+--               $ s)
+--    -- load
+--    29 -> incrementPC
+--        . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
+--              .~ Just (getA i s)
+--               $ s)
+--    -- read
+--    30 -> incrementPC . readInputTape i
     _  -> id
   where
     ws :: WordSize

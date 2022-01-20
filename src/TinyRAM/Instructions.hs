@@ -1,4 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE OverloadedLabels #-}
 
 
 module TinyRAM.Instructions
@@ -224,21 +225,22 @@ shiftLeft ri rj a = do
   wsb <- getWordSizeBitmask
   case (a', rj') of
     (Just a'', Just rj'') -> do
-      setRegisterValue ri $ (rj'' `shift` (fromIntegral a'')) .&. wsb
+      setRegisterValue ri $ (rj'' `shift` min (ws ^. #unWordSize) (fromIntegral a'')) .&. wsb
       setConditionFlag . conditionToFlag
         $ (rj'' .&. (2 ^ (fromIntegral ws - 1 :: Integer))) /= 0
       incrementProgramCounter
     _ -> return ()
 
 
-shiftRight :: ( Monad m, HasMachineState m )
+shiftRight :: ( Monad m, HasMachineState m, HasParams m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 shiftRight ri rj a = do
   a'  <- UnsignedInt <$$> getImmediateOrRegister a
   rj' <- getRegisterValue rj
+  ws  <- getWordSize
   case (a', rj') of
     (Just a'', Just rj'') -> do
-      setRegisterValue ri $ rj'' `shift` (negate (fromIntegral a''))
+      setRegisterValue ri $ rj'' `shift` (negate (min (ws ^. #unWordSize) (fromIntegral a'')))
       setConditionFlag . Flag . fromIntegral $ rj'' .&. 1
       incrementProgramCounter
     _ -> return ()
