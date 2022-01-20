@@ -32,8 +32,8 @@ run n = do
           a <- getImmediateOrRegister (i ^. #a)
           case a of
             Just a' -> return (Just a')
-            _ -> run ((subtract 1) <$> n)
+            _ -> run (subtract 1 <$> n)
         else do
           executeInstruction i
-          run ((subtract 1) <$> n)
-    _ -> run ((subtract 1) <$> n)
+          run (subtract 1 <$> n)
+    _ -> run (subtract 1 <$> n)

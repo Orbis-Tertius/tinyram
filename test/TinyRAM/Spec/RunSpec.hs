@@ -40,4 +40,4 @@ spec = describe "run" $ do
 
 
 run' :: (Params, MachineState) -> (Maybe Word, (Params, MachineState))
-run' = runIdentity . runStateT (unTinyRAMT (run (Just 1000)))
+run' = runIdentity . runStateT (unTinyRAMT (run (Just 100)))
