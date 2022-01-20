@@ -81,6 +81,7 @@ test-suite spec
     TinyRAM.Spec.BytesSpec
     TinyRAM.Spec.DecodeInstructionSpec
     TinyRAM.Spec.EncodeInstruction
+    TinyRAM.Spec.ExecuteInstructionSpec
     TinyRAM.Spec.Gen
     TinyRAM.Spec.Prelude
     TinyRAM.Spec.RunSpec
