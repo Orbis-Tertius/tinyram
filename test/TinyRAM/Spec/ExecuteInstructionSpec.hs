@@ -10,6 +10,7 @@ import Data.Functor.Identity (Identity (runIdentity))
 
 import TinyRAM.ExecuteInstruction (executeInstruction)
 import TinyRAM.MachineState (conditionToFlag)
+import TinyRAM.SignedArithmetic (signedMultiplyHigh, getUnsignedComponent)
 import TinyRAM.Spec.Gen (genParamsMachineState, genInstruction)
 import TinyRAM.Spec.Prelude
 import TinyRAM.Types.Flag (Flag)
@@ -17,8 +18,11 @@ import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (IsImmediate, IsRe
 import TinyRAM.Types.Instruction (Instruction)
 import TinyRAM.Types.MachineState (MachineState)
 import TinyRAM.Types.Params (Params)
+import TinyRAM.Types.SignedInt (SignedInt (..))
 import TinyRAM.Types.TinyRAMT (TinyRAMT (..))
+import TinyRAM.Types.UnsignedInt (UnsignedInt (..))
 import TinyRAM.Types.Word (Word)
+import TinyRAM.Types.WordSize (WordSize)
 
 
 spec :: Spec
@@ -54,11 +58,20 @@ instructionStateTransition ps i =
                         (\x y -> conditionToFlag ((x * y) .&. wordSizeBitmaskMSB /= 0))
                         i
     -- umulh
-    7 -> functionOpcode (\x y -> ((x * y) `shift` (negate (ps ^. #wordSize . #unWordSize))))
+    7 -> functionOpcode (\x y -> ((x * y) `shift` (negate (ws ^. #unWordSize))))
                         (\x y -> conditionToFlag ((x * y) .&. wordSizeBitmaskMSB /= 0))
+                        i
+    -- smulh
+    8 -> functionOpcode (\x y -> unSignedInt $ signedMultiplyHigh ws (SignedInt x) (SignedInt y))
+                        (\x y -> conditionToFlag (unUnsignedInt (getUnsignedComponent ws (SignedInt x)
+                                                               * getUnsignedComponent ws (SignedInt y))
+                                                    /= 0))
                         i
     _ -> id
   where
+    ws :: WordSize
+    ws = ps ^. #wordSize
+
     wordStrictBound :: Word
     wordStrictBound = 2 ^ (ps ^. #wordSize)
 
