@@ -15,7 +15,7 @@ import TinyRAM.SignedArithmetic (signedMultiplyHigh, getUnsignedComponent, decod
 import TinyRAM.Spec.Gen (genParamsMachineState, genInstruction)
 import TinyRAM.Spec.Prelude
 import TinyRAM.Types.Address (Address (..))
-import TinyRAM.Types.Flag (Flag)
+import TinyRAM.Types.Flag (Flag (..))
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (IsImmediate, IsRegister))
 import TinyRAM.Types.Instruction (Instruction)
 import TinyRAM.Types.MachineState (MachineState)
@@ -79,13 +79,13 @@ instructionStateTransition ps i =
                          (\x _ -> conditionToFlag (x == 0))
                          i
     -- shl
-    11 -> functionOpcode (\x y -> (y `shift` min (ws ^. #unWordSize) (fromIntegral x)) .&. wordSizeBitmask)
+    11 -> functionOpcode (\x y -> (y `shift` fromIntegral (min (fromIntegral ws) x)) .&. wordSizeBitmask)
                          (\_ y -> conditionToFlag $ y .&. (2 ^ (ws ^. #unWordSize - 1)) /= 0)
                          i
---    -- shr
---    12 -> functionOpcode (\x y -> (y `shift` negate (min (ws ^. #unWordSize) (fromIntegral x))) .&. wordSizeBitmask)
---                         (\_ y -> conditionToFlag $ y .&. 1 /= 0)
---                         i
+    -- shr
+    12 -> functionOpcode (\x y -> (y `shift` negate (fromIntegral (min (fromIntegral ws) x))) .&. wordSizeBitmask)
+                         (\_ y -> Flag . fromIntegral $ y .&. 1)
+                         i
 --    -- cmpe
 --    13 -> comparisonOpcode (==) i
 --    -- cmpa

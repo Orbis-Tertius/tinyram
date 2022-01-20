@@ -225,7 +225,7 @@ shiftLeft ri rj a = do
   wsb <- getWordSizeBitmask
   case (a', rj') of
     (Just a'', Just rj'') -> do
-      setRegisterValue ri $ (rj'' `shift` min (ws ^. #unWordSize) (fromIntegral a'')) .&. wsb
+      setRegisterValue ri $ (rj'' `shift` fromIntegral (min (fromIntegral ws) a'')) .&. wsb
       setConditionFlag . conditionToFlag
         $ (rj'' .&. (2 ^ (fromIntegral ws - 1 :: Integer))) /= 0
       incrementProgramCounter
@@ -240,7 +240,7 @@ shiftRight ri rj a = do
   ws  <- getWordSize
   case (a', rj') of
     (Just a'', Just rj'') -> do
-      setRegisterValue ri $ rj'' `shift` (negate (min (ws ^. #unWordSize) (fromIntegral a'')))
+      setRegisterValue ri $ rj'' `shift` fromIntegral (negate (min (fromIntegral ws) a''))
       setConditionFlag . Flag . fromIntegral $ rj'' .&. 1
       incrementProgramCounter
     _ -> return ()
