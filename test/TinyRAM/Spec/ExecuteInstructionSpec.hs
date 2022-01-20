@@ -38,37 +38,45 @@ instructionStateTransition :: Params -> Instruction -> MachineState -> MachineSt
 instructionStateTransition ps i =
   case i ^. #opcode of
     -- and
-    0 -> functionOpcode (.&.) (\x y -> conditionToFlag (x .&. y == 0)) i
+    0  -> functionOpcode (.&.) (\x y -> conditionToFlag (x .&. y == 0)) i
     -- or
-    1 -> functionOpcode (.|.) (\x y -> conditionToFlag (x .|. y == 0)) i
+    1  -> functionOpcode (.|.) (\x y -> conditionToFlag (x .|. y == 0)) i
     -- xor
-    2 -> functionOpcode xor   (\x y -> conditionToFlag (x `xor` y == 0)) i
+    2  -> functionOpcode xor   (\x y -> conditionToFlag (x `xor` y == 0)) i
     -- not
-    3 -> functionOpcode (\a _ -> complement a) (\a _ -> conditionToFlag (complement a == 0)) i
+    3  -> functionOpcode (\a _ -> complement a) (\a _ -> conditionToFlag (complement a == 0)) i
     -- add
-    4 -> functionOpcode (\x y -> (x + y) .&. wordSizeBitmask)
-                        (\x y -> conditionToFlag $ (x + y) .&. wordSizeBitmaskMSB /= 0)
-                        i
+    4  -> functionOpcode (\x y -> (x + y) .&. wordSizeBitmask)
+                         (\x y -> conditionToFlag $ (x + y) .&. wordSizeBitmaskMSB /= 0)
+                         i
     -- sub
-    5 -> functionOpcode (\x y -> (y + wordStrictBound - x) .&. wordSizeBitmask)
-                        (\x y -> conditionToFlag ((y + wordStrictBound - x) .&. wordSizeBitmaskMSB /= 0))
-                        i
+    5  -> functionOpcode (\x y -> (y + wordStrictBound - x) .&. wordSizeBitmask)
+                         (\x y -> conditionToFlag ((y + wordStrictBound - x) .&. wordSizeBitmaskMSB /= 0))
+                         i
     -- mull
-    6 -> functionOpcode (\x y -> ((x * y) .&. wordSizeBitmask))
-                        (\x y -> conditionToFlag ((x * y) .&. wordSizeBitmaskMSB /= 0))
-                        i
+    6  -> functionOpcode (\x y -> ((x * y) .&. wordSizeBitmask))
+                         (\x y -> conditionToFlag ((x * y) .&. wordSizeBitmaskMSB /= 0))
+                         i
     -- umulh
-    7 -> functionOpcode (\x y -> ((x * y) `shift` (negate (ws ^. #unWordSize))))
-                        (\x y -> conditionToFlag ((x * y) .&. wordSizeBitmaskMSB /= 0))
-                        i
+    7  -> functionOpcode (\x y -> ((x * y) `shift` (negate (ws ^. #unWordSize))))
+                         (\x y -> conditionToFlag ((x * y) .&. wordSizeBitmaskMSB /= 0))
+                         i
     -- smulh
-    8 -> functionOpcode (\x y -> unSignedInt $ signedMultiplyHigh ws (SignedInt x) (SignedInt y))
-                        (\x y -> conditionToFlag $ (unUnsignedInt ( (getUnsignedComponent ws (SignedInt x))
-                                                                   * getUnsignedComponent ws (SignedInt y) )
-                                                      .&. wordSizeBitmaskMSB)
-                                                    /= 0)
-                        i
-    _ -> id
+    8  -> functionOpcode (\x y -> unSignedInt $ signedMultiplyHigh ws (SignedInt x) (SignedInt y))
+                         (\x y -> conditionToFlag $ (unUnsignedInt ( (getUnsignedComponent ws (SignedInt x))
+                                                                    * getUnsignedComponent ws (SignedInt y) )
+                                                       .&. wordSizeBitmaskMSB)
+                                                     /= 0)
+                         i
+    -- udiv
+    9  -> functionOpcode (\x y -> if x == 0 then 0 else (y `div` x) .&. wordSizeBitmask)
+                         (\x _ -> conditionToFlag (x == 0))
+                         i
+    -- umod
+    10 -> functionOpcode (\x y -> if x == 0 then 0 else (y `mod` x) .&. wordSizeBitmask)
+                         (\x _ -> conditionToFlag (x == 0))
+                         i
+    _  -> id
   where
     ws :: WordSize
     ws = ps ^. #wordSize
