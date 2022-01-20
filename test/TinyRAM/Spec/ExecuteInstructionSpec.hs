@@ -86,16 +86,16 @@ instructionStateTransition ps i =
     12 -> functionOpcode (\x y -> (y `shift` negate (fromIntegral (min (fromIntegral ws) x))) .&. wordSizeBitmask)
                          (\_ y -> Flag . fromIntegral $ y .&. 1)
                          i
---    -- cmpe
---    13 -> comparisonOpcode (==) i
---    -- cmpa
---    14 -> comparisonOpcode (<) i
---    -- cmpae
---    15 -> comparisonOpcode (<=) i
---    -- cmpg
---    16 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) < decodeSignedInt ws (SignedInt y)) i
---    -- cmpge
---    17 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) <= decodeSignedInt ws (SignedInt y)) i
+    -- cmpe
+    13 -> comparisonOpcode (==) i
+    -- cmpa
+    14 -> comparisonOpcode (<)  i
+    -- cmpae
+    15 -> comparisonOpcode (<=) i
+    -- cmpg
+    16 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) < decodeSignedInt ws (SignedInt y)) i
+    -- cmpge
+    17 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) <= decodeSignedInt ws (SignedInt y)) i
 --    -- mov
 --    18 -> incrementPC
 --        . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
@@ -176,11 +176,11 @@ comparisonOpcode
 comparisonOpcode p i s =
   (#programCounter .~ (s ^. #programCounter + 1))
   .
-  (#conditionFlag .~ conditionToFlag (p a rj))
+  (#conditionFlag .~ conditionToFlag (p a ri))
   $
   s
   where a  = getA i s
-        rj = getRJ i s
+        ri = getRI i s
 
 
 getA :: Instruction -> MachineState -> Word

@@ -32,11 +32,11 @@ executeInstruction i =
     10 -> threeArgOpcode modulusUnsigned i
     11 -> threeArgOpcode shiftLeft i
     12 -> threeArgOpcode shiftRight i
-    --13 -> twoArgOpcode compareEqual i
-    --14 -> twoArgOpcode compareGreaterUnsigned i
-    --15 -> twoArgOpcode compareGreaterOrEqualUnsigned i
-    --16 -> twoArgOpcode compareGreaterSigned i
-    --17 -> twoArgOpcode compareGreaterOrEqualSigned i
+    13 -> twoArgOpcode compareEqual i
+    14 -> twoArgOpcode compareGreaterUnsigned i
+    15 -> twoArgOpcode compareGreaterOrEqualUnsigned i
+    16 -> twoArgOpcode compareGreaterSigned i
+    17 -> twoArgOpcode compareGreaterOrEqualSigned i
     --18 -> twoArgOpcode move i
     --19 -> twoArgOpcode conditionalMove i
     --20 -> oneArgOpcode jump i
