@@ -5,7 +5,7 @@
   inputs.nixpkgs.follows = "haskellNix/nixpkgs-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.sydtest-src = {
-      url = "github:NorfairKing/sydtest/a230bf791b0bced918092bbc9c3b54608b2a3a48";
+      url = "github:NorfairKing/sydtest/314d53ae175b540817a24d4211dab24fe6cb9232";
       flake = false;
     };
   inputs.validity-src = {

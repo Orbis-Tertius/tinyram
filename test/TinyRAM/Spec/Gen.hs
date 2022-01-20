@@ -1,4 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE TupleSections #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 
@@ -118,17 +119,18 @@ genProgramCounter ws = ProgramCounter <$> genAddress ws
 
 genRegisterCount :: WordSize -> Gen RegisterCount
 genRegisterCount (WordSize ws) =
-  RegisterCount <$> choose (2, 2 ^ ((ws - 6) `quot` 2))
+  RegisterCount <$> choose (2, min 256 (2 ^ ((ws - 6) `quot` 2)))
 
 
 genRegisterValues :: WordSize -> RegisterCount -> Gen RegisterValues
 genRegisterValues ws (RegisterCount n) =
-  RegisterValues
+  RegisterValues . Map.fromList
   <$>
   sequence
-  (Map.fromList
-    (zip (Register <$> [0..n-1])
-         (repeat (genWord ws))))
+    (zipWith
+      (\a b -> (a,) <$> b)
+      (Register <$> [0..n-1])
+      (repeat (genWord ws)))
 
 
 genUnsignedInteger :: WordSize -> Gen Integer

@@ -6,7 +6,15 @@ module TinyRAM.MachineState
   ( getImmediateOrRegister
   , conditionToFlag
   , incrementProgramCounter
+  , validateProgramCounter
+  , validateRegisterKeys
+  , validateRegister
+  , validateRegisterValues
+  , validateMemoryKeys
+  , validateMemoryValues
+  , validateInputTape
   , validateMachineState
+  , validateWord
   ) where
 
 
