@@ -49,6 +49,14 @@ instructionStateTransition ps i =
     5 -> functionOpcode (\x y -> (y + wordStrictBound - x) .&. wordSizeBitmask)
                         (\x y -> conditionToFlag ((y + wordStrictBound - x) .&. wordSizeBitmaskMSB /= 0))
                         i
+    -- mull
+    6 -> functionOpcode (\x y -> ((x * y) .&. wordSizeBitmask))
+                        (\x y -> conditionToFlag ((x * y) .&. wordSizeBitmaskMSB /= 0))
+                        i
+    -- umulh
+    7 -> functionOpcode (\x y -> ((x * y) `shift` (negate (ps ^. #wordSize . #unWordSize))))
+                        (\x y -> conditionToFlag ((x * y) .&. wordSizeBitmaskMSB /= 0))
+                        i
     _ -> id
   where
     wordStrictBound :: Word
