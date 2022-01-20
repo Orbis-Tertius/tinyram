@@ -10,7 +10,7 @@ import Data.Functor.Identity (Identity (runIdentity))
 
 import TinyRAM.ExecuteInstruction (executeInstruction)
 import TinyRAM.MachineState (conditionToFlag)
-import TinyRAM.SignedArithmetic (signedMultiplyHigh, getUnsignedComponent)
+import TinyRAM.SignedArithmetic (signedMultiplyHigh, getUnsignedComponent, decodeSignedInt)
 import TinyRAM.Spec.Gen (genParamsMachineState, genInstruction)
 import TinyRAM.Spec.Prelude
 import TinyRAM.Types.Flag (Flag)
@@ -84,6 +84,16 @@ instructionStateTransition ps i =
     12 -> functionOpcode (\x y -> (y `shift` negate (fromIntegral x)) .&. wordSizeBitmask)
                          (\_ y -> conditionToFlag $ y .&. 1 /= 0)
                          i
+    -- cmpe
+    13 -> comparisonOpcode (==) i
+    -- cmpa
+    14 -> comparisonOpcode (<) i
+    -- cmpae
+    15 -> comparisonOpcode (<=) i
+    -- cmpg
+    16 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) < decodeSignedInt ws (SignedInt y)) i
+    -- cmpge
+    17 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) <= decodeSignedInt ws (SignedInt y)) i
     _  -> id
   where
     ws :: WordSize
@@ -112,6 +122,21 @@ functionOpcode f p i s =
      .~ Just (f a rj))
   .
   (#conditionFlag .~ p a rj)
+  $
+  s
+  where a  = getA i s
+        rj = getRJ i s
+
+
+comparisonOpcode
+  :: (Word -> Word -> Bool)
+  -> Instruction
+  -> MachineState
+  -> MachineState
+comparisonOpcode p i s =
+  (#programCounter .~ (s ^. #programCounter + 1))
+  .
+  (#conditionFlag .~ conditionToFlag (p a rj))
   $
   s
   where a  = getA i s
