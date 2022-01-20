@@ -44,7 +44,7 @@ executeInstruction i =
     22 -> oneArgOpcode jumpIfNotFlag i
     28 -> twoArgOpcode (flip store) i
     29 -> twoArgOpcode load i
-    --30 -> twoArgOpcode readInputTape i
+    30 -> twoArgOpcode readInputTape i
     _  -> return ()
 
 

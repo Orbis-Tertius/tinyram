@@ -129,8 +129,8 @@ instructionStateTransition ps i =
         . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
               .~ Just (fromMaybe 0 (s ^. #memoryValues . #unMemoryValues . at (Address (getA i s))))
                $ s)
---    -- read
---    30 -> incrementPC . readInputTape i
+    -- read
+    30 -> incrementPC . readInputTape i
     _  -> id
   where
     ws :: WordSize
@@ -209,7 +209,12 @@ readInputTape i s =
   case getA i s of
     0 -> readPrimaryInputTape i s
     1 -> readAuxiliaryInputTape i s
-    _ -> #conditionFlag .~ 1 $ s
+    _ ->
+      (#registerValues . #unRegisterValues . at (i ^. #ri) .~ Just 0)
+      .
+      (#conditionFlag .~ 1)
+      $
+      s
 
 
 readPrimaryInputTape :: Instruction -> MachineState -> MachineState
@@ -223,7 +228,12 @@ readPrimaryInputTape i s =
       (#conditionFlag .~ 0)
       $
       s
-    [] -> #conditionFlag .~ 1 $ s
+    [] ->
+      (#registerValues . #unRegisterValues . at (i ^. #ri) .~ Just 0)
+      .
+      (#conditionFlag .~ 1)
+      $
+      s
 
 
 readAuxiliaryInputTape :: Instruction -> MachineState -> MachineState
@@ -237,4 +247,9 @@ readAuxiliaryInputTape i s =
       (#conditionFlag .~ 0)
       $
       s
-    [] -> #conditionFlag .~ 1 $ s
+    [] ->
+      (#registerValues . #unRegisterValues . at (i ^. #ri) .~ Just 0)
+      .
+      (#conditionFlag .~ 1)
+      $
+      s
