@@ -225,7 +225,8 @@ shiftLeft ri rj a = do
   case (a', rj') of
     (Just a'', Just rj'') -> do
       setRegisterValue ri $ (rj'' `shift` (fromIntegral a'')) .&. wsb
-      setConditionFlag . Flag . fromIntegral $ rj'' .&. (2 ^ (fromIntegral ws - 1 :: Integer))
+      setConditionFlag . Flag . conditionToFlag
+        $ rj'' .&. (2 ^ (fromIntegral ws - 1 :: Integer)) /= 0
       incrementProgramCounter
     _ -> return ()
 

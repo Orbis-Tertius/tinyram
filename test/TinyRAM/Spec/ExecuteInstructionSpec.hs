@@ -76,6 +76,14 @@ instructionStateTransition ps i =
     10 -> functionOpcode (\x y -> if x == 0 then 0 else (y `mod` x) .&. wordSizeBitmask)
                          (\x _ -> conditionToFlag (x == 0))
                          i
+    -- shl
+    11 -> functionOpcode (\x y -> (y `shift` fromIntegral x) .&. wordSizeBitmask)
+                         (\_ y -> conditionToFlag $ y .&. (2 ^ (ws ^. #unWordSize - 1)) /= 0)
+                         i
+    -- shr
+    12 -> functionOpcode (\x y -> (y `shift` negate (fromIntegral x)) .&. wordSizeBitmask)
+                         (\_ y -> conditionToFlag $ y .&. 1 /= 0)
+                         i
     _  -> id
   where
     ws :: WordSize
