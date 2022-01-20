@@ -107,6 +107,16 @@ instructionStateTransition ps i =
             else #registerValues . #unRegisterValues . at (i ^. #ri)
               .~ Just (getA i s)
               $ s)
+    -- jmp
+    20 -> \s -> #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
+    -- cjmp
+    21 -> \s -> if s ^. #conditionFlag == 0
+                then incrementPC s
+                else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
+    -- cnjmp
+    22 -> \s -> if s ^. #conditionFlag == 1
+                then incrementPC s
+                else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
     _  -> id
   where
     ws :: WordSize
