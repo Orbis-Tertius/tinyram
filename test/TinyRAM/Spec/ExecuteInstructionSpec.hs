@@ -31,10 +31,34 @@ spec = describe "executeInstruction" $
 
 
 instructionStateTransition :: Params -> Instruction -> MachineState -> MachineState
-instructionStateTransition _ps i =
+instructionStateTransition ps i =
   case i ^. #opcode of
+    -- and
     0 -> functionOpcode (.&.) (\x y -> conditionToFlag (x .&. y == 0)) i
+    -- or
+    1 -> functionOpcode (.|.) (\x y -> conditionToFlag (x .|. y == 0)) i
+    -- xor
+    2 -> functionOpcode xor   (\x y -> conditionToFlag (x `xor` y == 0)) i
+    -- not
+    3 -> functionOpcode (\a _ -> complement a) (\a _ -> conditionToFlag (complement a == 0)) i
+    -- add
+    4 -> functionOpcode (\x y -> (x + y) .&. wordSizeBitmask)
+                        (\x y -> conditionToFlag $ (x + y) .&. wordSizeBitmaskMSB /= 0)
+                        i
+    -- sub
+    5 -> functionOpcode (\x y -> (y + wordStrictBound - x) .&. wordSizeBitmask)
+                        (\x y -> conditionToFlag ((y + wordStrictBound - x) .&. wordSizeBitmaskMSB /= 0))
+                        i
     _ -> id
+  where
+    wordStrictBound :: Word
+    wordStrictBound = 2 ^ (ps ^. #wordSize)
+
+    wordSizeBitmask :: Word
+    wordSizeBitmask = 2 ^ (ps ^. #wordSize) - 1
+
+    wordSizeBitmaskMSB :: Word
+    wordSizeBitmaskMSB = wordSizeBitmask `shift` (ps ^. #wordSize . #unWordSize)
 
 
 functionOpcode
