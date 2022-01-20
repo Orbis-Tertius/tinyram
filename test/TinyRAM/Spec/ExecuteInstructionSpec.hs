@@ -13,6 +13,7 @@ import TinyRAM.MachineState (conditionToFlag)
 import TinyRAM.SignedArithmetic (signedMultiplyHigh, getUnsignedComponent, decodeSignedInt)
 import TinyRAM.Spec.Gen (genParamsMachineState, genInstruction)
 import TinyRAM.Spec.Prelude
+import TinyRAM.Types.Address (Address (..))
 import TinyRAM.Types.Flag (Flag)
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (IsImmediate, IsRegister))
 import TinyRAM.Types.Instruction (Instruction)
@@ -117,6 +118,18 @@ instructionStateTransition ps i =
     22 -> \s -> if s ^. #conditionFlag == 1
                 then incrementPC s
                 else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
+    -- store
+    28 -> incrementPC
+        . (\s -> #memoryValues . #unMemoryValues . at (Address (getA i s))
+              .~ Just (getRI i s)
+               $ s)
+    -- load
+    29 -> incrementPC
+        . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
+              .~ Just (getA i s)
+               $ s)
+    -- read
+    30 -> incrementPC . readInputTape i
     _  -> id
   where
     ws :: WordSize
@@ -182,3 +195,45 @@ getRJ :: Instruction -> MachineState -> Word
 getRJ i s =
   fromMaybe (error "getRJ failed")
   $ s ^. #registerValues . #unRegisterValues . at (i ^. #rj)
+
+
+getRI :: Instruction -> MachineState -> Word
+getRI i s =
+  fromMaybe (error "getRI failed")
+  $ s ^. #registerValues . #unRegisterValues . at (i ^. #ri)
+
+
+readInputTape :: Instruction -> MachineState -> MachineState
+readInputTape i s =
+  case getA i s of
+    0 -> readPrimaryInputTape i s
+    1 -> readAuxiliaryInputTape i s
+    _ -> #conditionFlag .~ 1 $ s
+
+
+readPrimaryInputTape :: Instruction -> MachineState -> MachineState
+readPrimaryInputTape i s =
+  case s ^. #primaryInput . #unInputTape of
+    x:xs ->
+      (#registerValues . #unRegisterValues . at (i ^. #ri) .~ Just x)
+      .
+      (#primaryInput . #unInputTape .~ xs)
+      .
+      (#conditionFlag .~ 0)
+      $
+      s
+    [] -> #conditionFlag .~ 1 $ s
+
+
+readAuxiliaryInputTape :: Instruction -> MachineState -> MachineState
+readAuxiliaryInputTape i s =
+  case s ^. #auxiliaryInput . #unInputTape of
+    x:xs ->
+      (#registerValues . #unRegisterValues . at (i ^. #ri) .~ Just x)
+      .
+      (#primaryInput . #unInputTape .~ xs)
+      .
+      (#conditionFlag .~ 0)
+      $
+      s
+    [] -> #conditionFlag .~ 1 $ s
