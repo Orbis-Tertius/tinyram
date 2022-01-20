@@ -94,6 +94,19 @@ instructionStateTransition ps i =
     16 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) < decodeSignedInt ws (SignedInt y)) i
     -- cmpge
     17 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) <= decodeSignedInt ws (SignedInt y)) i
+    -- mov
+    18 -> incrementPC
+        . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
+              .~ Just (getA i s)
+              $ s)
+    -- cmov
+    19 -> incrementPC
+        . (\s ->
+            if s ^. #conditionFlag == 0
+            then s
+            else #registerValues . #unRegisterValues . at (i ^. #ri)
+              .~ Just (getA i s)
+              $ s)
     _  -> id
   where
     ws :: WordSize
@@ -107,6 +120,9 @@ instructionStateTransition ps i =
 
     wordSizeBitmaskMSB :: Word
     wordSizeBitmaskMSB = wordSizeBitmask `shift` (ps ^. #wordSize . #unWordSize)
+
+    incrementPC :: MachineState -> MachineState
+    incrementPC s = #programCounter .~ (s ^. #programCounter + 1) $ s
 
 
 functionOpcode
