@@ -63,9 +63,10 @@ instructionStateTransition ps i =
                         i
     -- smulh
     8 -> functionOpcode (\x y -> unSignedInt $ signedMultiplyHigh ws (SignedInt x) (SignedInt y))
-                        (\x y -> conditionToFlag (unUnsignedInt (getUnsignedComponent ws (SignedInt x)
-                                                               * getUnsignedComponent ws (SignedInt y))
-                                                    /= 0))
+                        (\x y -> conditionToFlag $ (unUnsignedInt ( (getUnsignedComponent ws (SignedInt x))
+                                                                   * getUnsignedComponent ws (SignedInt y) )
+                                                      .&. wordSizeBitmaskMSB)
+                                                    /= 0)
                         i
     _ -> id
   where
