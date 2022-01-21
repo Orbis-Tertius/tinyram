@@ -1,14 +1,14 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 
 
 module TinyRAM.Types.Instruction ( Instruction (Instruction) ) where
 
 
-import TinyRAM.Prelude
-import TinyRAM.Types.Opcode (Opcode)
-import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
-import TinyRAM.Types.Register (Register)
+import           TinyRAM.Prelude
+import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
+import           TinyRAM.Types.Opcode              (Opcode)
+import           TinyRAM.Types.Register            (Register)
 
 
 data Instruction =

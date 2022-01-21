@@ -1,5 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TupleSections     #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 
@@ -21,27 +21,27 @@ module TinyRAM.Spec.Gen
   ) where
 
 
-import Data.GenValidity.ByteString ()
-import qualified Data.Map as Map
+import           Data.GenValidity.ByteString       ()
+import qualified Data.Map                          as Map
 
-import TinyRAM.Spec.Prelude
-import TinyRAM.Types.Address (Address (..))
-import TinyRAM.Types.Flag (Flag)
-import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (..))
-import TinyRAM.Types.InputTape (InputTape (..))
-import TinyRAM.Types.Instruction (Instruction (..))
-import TinyRAM.Types.MachineState (MachineState (..))
-import TinyRAM.Types.MemoryValues (MemoryValues (..))
-import TinyRAM.Types.Opcode (Opcode (..))
-import TinyRAM.Types.Params (Params (..))
-import TinyRAM.Types.ProgramCounter (ProgramCounter (..))
-import TinyRAM.Types.Register (Register (..))
-import TinyRAM.Types.RegisterCount (RegisterCount (..))
-import TinyRAM.Types.RegisterValues (RegisterValues (..))
-import TinyRAM.Types.Sign (Sign)
-import TinyRAM.Types.SignedInt (SignedInt (..))
-import TinyRAM.Types.WordSize (WordSize (..))
-import TinyRAM.Types.Word (Word (..))
+import           TinyRAM.Spec.Prelude
+import           TinyRAM.Types.Address             (Address (..))
+import           TinyRAM.Types.Flag                (Flag)
+import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (..))
+import           TinyRAM.Types.InputTape           (InputTape (..))
+import           TinyRAM.Types.Instruction         (Instruction (..))
+import           TinyRAM.Types.MachineState        (MachineState (..))
+import           TinyRAM.Types.MemoryValues        (MemoryValues (..))
+import           TinyRAM.Types.Opcode              (Opcode (..))
+import           TinyRAM.Types.Params              (Params (..))
+import           TinyRAM.Types.ProgramCounter      (ProgramCounter (..))
+import           TinyRAM.Types.Register            (Register (..))
+import           TinyRAM.Types.RegisterCount       (RegisterCount (..))
+import           TinyRAM.Types.RegisterValues      (RegisterValues (..))
+import           TinyRAM.Types.Sign                (Sign)
+import           TinyRAM.Types.SignedInt           (SignedInt (..))
+import           TinyRAM.Types.Word                (Word (..))
+import           TinyRAM.Types.WordSize            (WordSize (..))
 
 
 instance GenValid Opcode where

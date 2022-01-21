@@ -1,12 +1,12 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoImplicitPrelude          #-}
 
 
 module TinyRAM.Types.Flag ( Flag (..) ) where
 
 
-import TinyRAM.Prelude
+import           TinyRAM.Prelude
 
 
 -- A flag value (either 1 or 0).

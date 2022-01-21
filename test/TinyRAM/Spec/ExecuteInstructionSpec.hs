@@ -1,29 +1,32 @@
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE OverloadedLabels  #-}
 
 
 module TinyRAM.Spec.ExecuteInstructionSpec ( spec ) where
 
 
-import Control.Monad.Trans.State (StateT (runStateT))
-import Data.Functor.Identity (Identity (runIdentity))
+import           Control.Monad.Trans.State         (StateT (runStateT))
+import           Data.Functor.Identity             (Identity (runIdentity))
 
-import TinyRAM.ExecuteInstruction (executeInstruction)
-import TinyRAM.MachineState (conditionToFlag)
-import TinyRAM.SignedArithmetic (signedMultiplyHigh, getUnsignedComponent, decodeSignedInt)
-import TinyRAM.Spec.Gen (genParamsMachineState, genInstruction)
-import TinyRAM.Spec.Prelude
-import TinyRAM.Types.Address (Address (..))
-import TinyRAM.Types.Flag (Flag (..))
-import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (IsImmediate, IsRegister))
-import TinyRAM.Types.Instruction (Instruction)
-import TinyRAM.Types.MachineState (MachineState)
-import TinyRAM.Types.Params (Params)
-import TinyRAM.Types.SignedInt (SignedInt (..))
-import TinyRAM.Types.TinyRAMT (TinyRAMT (..))
-import TinyRAM.Types.UnsignedInt (UnsignedInt (..))
-import TinyRAM.Types.Word (Word)
-import TinyRAM.Types.WordSize (WordSize (..))
+import           TinyRAM.ExecuteInstruction        (executeInstruction)
+import           TinyRAM.MachineState              (conditionToFlag)
+import           TinyRAM.SignedArithmetic          (decodeSignedInt,
+                                                    getUnsignedComponent,
+                                                    signedMultiplyHigh)
+import           TinyRAM.Spec.Gen                  (genInstruction,
+                                                    genParamsMachineState)
+import           TinyRAM.Spec.Prelude
+import           TinyRAM.Types.Address             (Address (..))
+import           TinyRAM.Types.Flag                (Flag (..))
+import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (IsImmediate, IsRegister))
+import           TinyRAM.Types.Instruction         (Instruction)
+import           TinyRAM.Types.MachineState        (MachineState)
+import           TinyRAM.Types.Params              (Params)
+import           TinyRAM.Types.SignedInt           (SignedInt (..))
+import           TinyRAM.Types.TinyRAMT            (TinyRAMT (..))
+import           TinyRAM.Types.UnsignedInt         (UnsignedInt (..))
+import           TinyRAM.Types.Word                (Word)
+import           TinyRAM.Types.WordSize            (WordSize (..))
 
 
 spec :: Spec

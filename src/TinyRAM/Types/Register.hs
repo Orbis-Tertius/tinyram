@@ -1,12 +1,12 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoImplicitPrelude          #-}
 
 
 module TinyRAM.Types.Register ( Register (..) ) where
 
 
-import TinyRAM.Prelude
+import           TinyRAM.Prelude
 
 
 -- A register, represented by its zero-based index.

@@ -1,13 +1,13 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoImplicitPrelude          #-}
 
 
 module TinyRAM.Types.ProgramCounter ( ProgramCounter (..) ) where
 
 
-import TinyRAM.Prelude
-import TinyRAM.Types.Address (Address)
+import           TinyRAM.Prelude
+import           TinyRAM.Types.Address (Address)
 
 
 -- An address representing a value of the program counter.

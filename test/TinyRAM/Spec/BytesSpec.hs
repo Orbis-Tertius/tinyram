@@ -1,16 +1,16 @@
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoImplicitPrelude   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 
 module TinyRAM.Spec.BytesSpec ( spec ) where
 
 
-import qualified Data.ByteString as BS
+import qualified Data.ByteString        as BS
 
-import TinyRAM.Bytes (bytesToWords)
-import TinyRAM.Spec.Gen ()
-import TinyRAM.Spec.Prelude
-import TinyRAM.Types.WordSize (WordSize (..))
+import           TinyRAM.Bytes          (bytesToWords)
+import           TinyRAM.Spec.Gen       ()
+import           TinyRAM.Spec.Prelude
+import           TinyRAM.Types.WordSize (WordSize (..))
 
 
 spec :: Spec

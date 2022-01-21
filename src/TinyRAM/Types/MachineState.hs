@@ -1,17 +1,17 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoImplicitPrelude          #-}
 
 
 module TinyRAM.Types.MachineState ( MachineState (MachineState) ) where
 
 
-import TinyRAM.Prelude
-import TinyRAM.Types.Flag (Flag)
-import TinyRAM.Types.MemoryValues (MemoryValues)
-import TinyRAM.Types.InputTape (InputTape, Primary, Auxiliary)
-import TinyRAM.Types.ProgramCounter (ProgramCounter)
-import TinyRAM.Types.RegisterValues (RegisterValues)
+import           TinyRAM.Prelude
+import           TinyRAM.Types.Flag           (Flag)
+import           TinyRAM.Types.InputTape      (Auxiliary, InputTape, Primary)
+import           TinyRAM.Types.MemoryValues   (MemoryValues)
+import           TinyRAM.Types.ProgramCounter (ProgramCounter)
+import           TinyRAM.Types.RegisterValues (RegisterValues)
 
 
 data MachineState =

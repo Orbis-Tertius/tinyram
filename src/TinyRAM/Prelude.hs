@@ -17,19 +17,21 @@ module TinyRAM.Prelude
   ) where
 
 
-import Prelude hiding (Word)
-import Control.Lens ((^.), (.~), _1, _2, at)
-import Control.Monad.Trans.Class (MonadTrans (lift))
-import Data.Bits (Bits ((.&.), (.|.), xor, complement, shift))
-import Data.ByteString (ByteString)
-import Data.Generics.Labels ()
-import Data.Map (Map)
-import Data.Maybe (fromMaybe)
-import Data.Text (Text)
-import Data.Validity (Validity (validate), Validation (Validation, unValidation), ValidationChain (Violated, Location))
-import Data.Validity.ByteString ()
-import GHC.Generics (Generic)
-import System.IO (FilePath)
+import           Control.Lens              (_1, _2, at, (.~), (^.))
+import           Control.Monad.Trans.Class (MonadTrans (lift))
+import           Data.Bits                 (Bits (complement, shift, xor, (.&.), (.|.)))
+import           Data.ByteString           (ByteString)
+import           Data.Generics.Labels      ()
+import           Data.Map                  (Map)
+import           Data.Maybe                (fromMaybe)
+import           Data.Text                 (Text)
+import           Data.Validity             (Validation (Validation, unValidation),
+                                            ValidationChain (Location, Violated),
+                                            Validity (validate))
+import           Data.Validity.ByteString  ()
+import           GHC.Generics              (Generic)
+import           Prelude                   hiding (Word)
+import           System.IO                 (FilePath)
 
 
 (<$$>) :: ( Functor f, Functor g ) => (a -> b) -> f (g a) -> f (g b)

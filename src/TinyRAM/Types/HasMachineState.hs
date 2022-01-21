@@ -1,17 +1,17 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoImplicitPrelude          #-}
 
 
 module TinyRAM.Types.HasMachineState ( HasMachineState (..) ) where
 
 
-import TinyRAM.Prelude
-import TinyRAM.Types.Address (Address)
-import TinyRAM.Types.Flag (Flag)
-import TinyRAM.Types.ProgramCounter (ProgramCounter)
-import TinyRAM.Types.Register (Register)
-import TinyRAM.Types.Word (Word)
+import           TinyRAM.Prelude
+import           TinyRAM.Types.Address        (Address)
+import           TinyRAM.Types.Flag           (Flag)
+import           TinyRAM.Types.ProgramCounter (ProgramCounter)
+import           TinyRAM.Types.Register       (Register)
+import           TinyRAM.Types.Word           (Word)
 
 
 class HasMachineState m where

@@ -1,18 +1,21 @@
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoImplicitPrelude   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 
 module TinyRAM.Spec.SignedArithmeticSpec ( spec ) where
 
 
-import TinyRAM.SignedArithmetic (getSign, getUnsignedComponent, decodeSignedInt, signedMultiplyHigh)
-import TinyRAM.Spec.Gen (genUnsignedInteger, genSignedInteger)
-import TinyRAM.Spec.Prelude
-import TinyRAM.Types.Sign (Sign)
-import TinyRAM.Types.SignedInt (SignedInt (..))
-import TinyRAM.Types.UnsignedInt (UnsignedInt (..))
-import TinyRAM.Types.Word (Word (..))
-import TinyRAM.Types.WordSize (WordSize)
+import           TinyRAM.SignedArithmetic  (decodeSignedInt, getSign,
+                                            getUnsignedComponent,
+                                            signedMultiplyHigh)
+import           TinyRAM.Spec.Gen          (genSignedInteger,
+                                            genUnsignedInteger)
+import           TinyRAM.Spec.Prelude
+import           TinyRAM.Types.Sign        (Sign)
+import           TinyRAM.Types.SignedInt   (SignedInt (..))
+import           TinyRAM.Types.UnsignedInt (UnsignedInt (..))
+import           TinyRAM.Types.Word        (Word (..))
+import           TinyRAM.Types.WordSize    (WordSize)
 
 
 spec :: Spec

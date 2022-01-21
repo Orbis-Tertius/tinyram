@@ -1,30 +1,33 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE NoImplicitPrelude   #-}
+{-# LANGUAGE OverloadedLabels    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 
 module TinyRAM.Spec.RunSpec ( spec ) where
 
 
-import Control.Monad.Trans.State (StateT (runStateT))
-import Data.Functor.Identity (Identity (runIdentity))
+import           Control.Monad.Trans.State         (StateT (runStateT))
+import           Data.Functor.Identity             (Identity (runIdentity))
 
-import TinyRAM.DecodeInstruction (decodeInstruction)
-import TinyRAM.ExecuteInstruction (executeInstruction)
-import TinyRAM.MachineState (validateMachineState, validateWord, getImmediateOrRegister)
-import TinyRAM.Run (run)
-import TinyRAM.Spec.EncodeInstruction (encodeInstruction)
-import TinyRAM.Spec.Gen (genParamsMachineState, genImmediateOrRegister)
-import TinyRAM.Spec.Prelude
-import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
-import TinyRAM.Types.Instruction (Instruction (..))
-import TinyRAM.Types.HasMachineState (HasMachineState (getProgramCounter, setMemoryValue))
-import TinyRAM.Types.MachineState (MachineState)
-import TinyRAM.Types.MaxSteps (MaxSteps (..))
-import TinyRAM.Types.Params (Params)
-import TinyRAM.Types.ProgramCounter (ProgramCounter (..))
-import TinyRAM.Types.TinyRAMT (TinyRAMT (..))
-import TinyRAM.Types.Word (Word)
+import           TinyRAM.DecodeInstruction         (decodeInstruction)
+import           TinyRAM.ExecuteInstruction        (executeInstruction)
+import           TinyRAM.MachineState              (getImmediateOrRegister,
+                                                    validateMachineState,
+                                                    validateWord)
+import           TinyRAM.Run                       (run)
+import           TinyRAM.Spec.EncodeInstruction    (encodeInstruction)
+import           TinyRAM.Spec.Gen                  (genImmediateOrRegister,
+                                                    genParamsMachineState)
+import           TinyRAM.Spec.Prelude
+import           TinyRAM.Types.HasMachineState     (HasMachineState (getProgramCounter, setMemoryValue))
+import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
+import           TinyRAM.Types.Instruction         (Instruction (..))
+import           TinyRAM.Types.MachineState        (MachineState)
+import           TinyRAM.Types.MaxSteps            (MaxSteps (..))
+import           TinyRAM.Types.Params              (Params)
+import           TinyRAM.Types.ProgramCounter      (ProgramCounter (..))
+import           TinyRAM.Types.TinyRAMT            (TinyRAMT (..))
+import           TinyRAM.Types.Word                (Word)
 
 
 spec :: Spec
@@ -33,7 +36,7 @@ spec = describe "run" $ do
     forAll genParamsMachineState $ \x@(ps, _state) ->
       let (answer, _) = run' x
       in case answer of
-           Nothing -> return ()
+           Nothing      -> return ()
            Just answer' -> validateWord "Answer" ps answer' `shouldBe` mempty
 
   it "does not change the params" $

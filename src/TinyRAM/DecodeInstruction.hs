@@ -7,13 +7,13 @@ module TinyRAM.DecodeInstruction
   ) where
 
 
-import TinyRAM.Prelude
-import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (..))
-import TinyRAM.Types.Instruction (Instruction (..))
-import TinyRAM.Types.Opcode (Opcode (..))
-import TinyRAM.Types.Register (Register (..))
-import TinyRAM.Types.RegisterCount (RegisterCount (..))
-import TinyRAM.Types.Word (Word (..))
+import           TinyRAM.Prelude
+import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (..))
+import           TinyRAM.Types.Instruction         (Instruction (..))
+import           TinyRAM.Types.Opcode              (Opcode (..))
+import           TinyRAM.Types.Register            (Register (..))
+import           TinyRAM.Types.RegisterCount       (RegisterCount (..))
+import           TinyRAM.Types.Word                (Word (..))
 
 
 decodeInstruction :: RegisterCount -> (Word, Word) -> Instruction

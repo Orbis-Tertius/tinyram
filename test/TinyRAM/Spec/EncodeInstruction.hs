@@ -1,16 +1,16 @@
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE OverloadedLabels  #-}
 
 
 module TinyRAM.Spec.EncodeInstruction ( encodeInstruction ) where
 
 
-import TinyRAM.DecodeInstruction (bitsPerRegister)
-import TinyRAM.Prelude
-import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (IsImmediate, IsRegister))
-import TinyRAM.Types.Instruction (Instruction)
-import TinyRAM.Types.RegisterCount (RegisterCount)
-import TinyRAM.Types.Word (Word (..))
+import           TinyRAM.DecodeInstruction         (bitsPerRegister)
+import           TinyRAM.Prelude
+import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (IsImmediate, IsRegister))
+import           TinyRAM.Types.Instruction         (Instruction)
+import           TinyRAM.Types.RegisterCount       (RegisterCount)
+import           TinyRAM.Types.Word                (Word (..))
 
 
 encodeInstruction :: RegisterCount -> Instruction -> (Word, Word)
@@ -29,4 +29,4 @@ encodeInstruction rc i =
     aVal =
       case i ^. #a of
         IsImmediate w -> w
-        IsRegister r -> fromIntegral r
+        IsRegister r  -> fromIntegral r

@@ -1,18 +1,19 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE NoImplicitPrelude   #-}
+{-# LANGUAGE OverloadedLabels    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 
 module TinyRAM.Spec.DecodeInstructionSpec ( spec ) where
 
 
-import TinyRAM.DecodeInstruction (decodeInstruction)
-import TinyRAM.Spec.EncodeInstruction (encodeInstruction)
-import TinyRAM.Spec.Gen (genInstruction, genRegisterCount)
-import TinyRAM.Spec.Prelude
-import TinyRAM.Types.Instruction (Instruction)
-import TinyRAM.Types.RegisterCount (RegisterCount (..))
-import TinyRAM.Types.WordSize (WordSize (..))
+import           TinyRAM.DecodeInstruction      (decodeInstruction)
+import           TinyRAM.Spec.EncodeInstruction (encodeInstruction)
+import           TinyRAM.Spec.Gen               (genInstruction,
+                                                 genRegisterCount)
+import           TinyRAM.Spec.Prelude
+import           TinyRAM.Types.Instruction      (Instruction)
+import           TinyRAM.Types.RegisterCount    (RegisterCount (..))
+import           TinyRAM.Types.WordSize         (WordSize (..))
 
 
 spec :: Spec

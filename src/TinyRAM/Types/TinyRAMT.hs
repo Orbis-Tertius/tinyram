@@ -1,24 +1,25 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLabels #-}
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE NoImplicitPrelude          #-}
+{-# LANGUAGE OverloadedLabels           #-}
+{-# LANGUAGE TypeApplications           #-}
 
 
 module TinyRAM.Types.TinyRAMT ( TinyRAMT (..) ) where
 
 
-import Control.Monad.Trans.State (StateT, gets, modify)
-import qualified Data.Map as Map
+import           Control.Monad.Trans.State     (StateT, gets, modify)
+import qualified Data.Map                      as Map
 
-import TinyRAM.Prelude
-import TinyRAM.Types.HasMachineState (HasMachineState (..))
-import TinyRAM.Types.HasParams (HasParams (getParams))
-import TinyRAM.Types.InputTape (InputTape (InputTape), Primary, Auxiliary)
-import TinyRAM.Types.MachineState (MachineState)
-import TinyRAM.Types.Params (Params)
-import TinyRAM.Types.MemoryValues (MemoryValues (..))
-import TinyRAM.Types.RegisterValues (RegisterValues (..))
+import           TinyRAM.Prelude
+import           TinyRAM.Types.HasMachineState (HasMachineState (..))
+import           TinyRAM.Types.HasParams       (HasParams (getParams))
+import           TinyRAM.Types.InputTape       (Auxiliary,
+                                                InputTape (InputTape), Primary)
+import           TinyRAM.Types.MachineState    (MachineState)
+import           TinyRAM.Types.MemoryValues    (MemoryValues (..))
+import           TinyRAM.Types.Params          (Params)
+import           TinyRAM.Types.RegisterValues  (RegisterValues (..))
 
 
 newtype TinyRAMT m a = TinyRAMT { unTinyRAMT :: StateT (Params, MachineState) m a }

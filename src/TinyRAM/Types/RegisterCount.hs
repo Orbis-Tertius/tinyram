@@ -1,12 +1,12 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoImplicitPrelude          #-}
 
 
 module TinyRAM.Types.RegisterCount ( RegisterCount (..) ) where
 
 
-import TinyRAM.Prelude
+import           TinyRAM.Prelude
 
 
 -- The total number of registers, a positive integer.
