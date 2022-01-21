@@ -22,18 +22,15 @@ run (Just 0) = return Nothing
 run n = do
   rc <- getRegisterCount
   pc <- unProgramCounter <$> getProgramCounter
-  i0 <- getMemoryValue pc
-  i1 <- getMemoryValue (pc+1)
-  case (i0, i1) of
-    (Just i0', Just i1') ->
-      let i = decodeInstruction rc (i0', i1') in
-        if i ^. #opcode == 31
-        then do
-          a <- getImmediateOrRegister (i ^. #a)
-          case a of
-            Just a' -> return (Just a')
-            _ -> run (subtract 1 <$> n)
-        else do
-          executeInstruction i
-          run (subtract 1 <$> n)
-    _ -> run (subtract 1 <$> n)
+  i0 <- fromMaybe 0 <$> getMemoryValue pc
+  i1 <- fromMaybe 0 <$> getMemoryValue (pc+1)
+  let i = decodeInstruction rc (i0, i1) in
+    if i ^. #opcode == 31
+    then do
+      a <- getImmediateOrRegister (i ^. #a)
+      case a of
+        Just a' -> return (Just a')
+        _ -> run (subtract 1 <$> n)
+    else do
+      executeInstruction i
+      run (subtract 1 <$> n)
