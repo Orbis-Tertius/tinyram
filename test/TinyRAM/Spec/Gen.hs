@@ -15,6 +15,7 @@ module TinyRAM.Spec.Gen
   , genRegister
   , genRegisterCount
   , genRegisterValues
+  , genSignedInteger
   , genUnsignedInteger
   , genWord
   ) where
@@ -38,6 +39,7 @@ import TinyRAM.Types.Register (Register (..))
 import TinyRAM.Types.RegisterCount (RegisterCount (..))
 import TinyRAM.Types.RegisterValues (RegisterValues (..))
 import TinyRAM.Types.Sign (Sign)
+import TinyRAM.Types.SignedInt (SignedInt (..))
 import TinyRAM.Types.WordSize (WordSize (..))
 import TinyRAM.Types.Word (Word (..))
 
@@ -131,6 +133,10 @@ genRegisterValues ws (RegisterCount n) =
       (\a b -> (a,) <$> b)
       (Register <$> [0..n-1])
       (repeat (genWord ws)))
+
+
+genSignedInteger :: WordSize -> Gen SignedInt
+genSignedInteger ws = SignedInt <$> genWord ws
 
 
 genUnsignedInteger :: WordSize -> Gen Integer
