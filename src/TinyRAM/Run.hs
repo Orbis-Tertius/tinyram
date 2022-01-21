@@ -22,8 +22,8 @@ run (Just 0) = return Nothing
 run n = do
   rc <- getRegisterCount
   pc <- unProgramCounter <$> getProgramCounter
-  i0 <- fromMaybe 0 <$> getMemoryValue pc
-  i1 <- fromMaybe 0 <$> getMemoryValue (pc+1)
+  i0 <- getMemoryValue pc
+  i1 <- getMemoryValue (pc+1)
   let i = decodeInstruction rc (i0, i1) in
     if i ^. #opcode == 31
     then do

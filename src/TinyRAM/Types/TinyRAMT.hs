@@ -56,7 +56,7 @@ instance Monad m => HasMachineState (TinyRAMT m) where
   setConditionFlag flag = TinyRAMT $ modify (_2 . #conditionFlag .~ flag)
   getMemoryValue addr =
     TinyRAMT $ gets
-      (Map.lookup addr . (^. _2 . #memoryValues . #unMemoryValues))
+      (Map.findWithDefault 0 addr . (^. _2 . #memoryValues . #unMemoryValues))
   setMemoryValue addr w =
     TinyRAMT $  modify
       (\s -> _2 . #memoryValues

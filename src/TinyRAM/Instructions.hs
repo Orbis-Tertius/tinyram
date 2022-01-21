@@ -373,7 +373,7 @@ load ri a = do
   a' <- Address <$$> getImmediateOrRegister a
   case a' of
     Just a'' -> do
-      v <- fromMaybe 0 <$> getMemoryValue a''
+      v <- getMemoryValue a''
       setRegisterValue ri v
       incrementProgramCounter
     Nothing -> return ()

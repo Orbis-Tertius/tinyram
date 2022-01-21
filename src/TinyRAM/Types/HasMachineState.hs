@@ -21,7 +21,7 @@ class HasMachineState m where
   setRegisterValue :: Register -> Word -> m ()
   getConditionFlag :: m Flag
   setConditionFlag :: Flag -> m ()
-  getMemoryValue :: Address -> m (Maybe Word)
+  getMemoryValue :: Address -> m Word
   setMemoryValue :: Address -> Word -> m ()
   readPrimaryInput :: m (Maybe Word)
   readAuxiliaryInput :: m (Maybe Word)
