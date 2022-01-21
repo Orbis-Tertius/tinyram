@@ -48,7 +48,7 @@ import TinyRAM.Types.UnsignedInt (UnsignedInt (..))
 import TinyRAM.Types.WordSize (WordSize (..))
 
 
-andBits :: ( Monad m, HasMachineState m, HasParams m )
+andBits :: ( Monad m, HasMachineState m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 andBits ri rj a = do
   a'  <- getImmediateOrRegister a
@@ -62,7 +62,7 @@ andBits ri rj a = do
     _ -> return ()
 
 
-orBits :: ( Monad m, HasMachineState m, HasParams m )
+orBits :: ( Monad m, HasMachineState m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 orBits ri rj a = do
   a'  <- getImmediateOrRegister a
@@ -76,7 +76,7 @@ orBits ri rj a = do
     _ -> return ()
 
 
-xorBits :: ( Monad m, HasMachineState m, HasParams m )
+xorBits :: ( Monad m, HasMachineState m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 xorBits ri rj a = do
   a'  <- getImmediateOrRegister a
@@ -90,7 +90,7 @@ xorBits ri rj a = do
     _ -> return ()
 
 
-notBits :: ( Monad m, HasMachineState m, HasParams m )
+notBits :: ( Monad m, HasMachineState m )
   => Register -> ImmediateOrRegister -> m ()
 notBits ri a = do
   a' <- getImmediateOrRegister a
@@ -188,7 +188,7 @@ multiplySignedMSB ri rj a = do
     _ -> return ()
 
 
-divideUnsigned :: ( Monad m, HasMachineState m, HasParams m )
+divideUnsigned :: ( Monad m, HasMachineState m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 divideUnsigned ri rj a = do
   a'  <- UnsignedInt <$$> getImmediateOrRegister a
@@ -202,7 +202,7 @@ divideUnsigned ri rj a = do
     _ -> return ()
 
 
-modulusUnsigned :: ( Monad m, HasMachineState m, HasParams m )
+modulusUnsigned :: ( Monad m, HasMachineState m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 modulusUnsigned ri rj a = do
   a'  <- UnsignedInt <$$> getImmediateOrRegister a
@@ -246,7 +246,7 @@ shiftRight ri rj a = do
     _ -> return ()
 
 
-compareEqual :: ( Monad m, HasMachineState m, HasParams m )
+compareEqual :: ( Monad m, HasMachineState m )
   => Register -> ImmediateOrRegister -> m ()
 compareEqual ri a = do
   a'  <- getImmediateOrRegister a
@@ -258,7 +258,7 @@ compareEqual ri a = do
     _ -> return ()
 
 
-compareGreaterUnsigned :: ( Monad m, HasMachineState m, HasParams m )
+compareGreaterUnsigned :: ( Monad m, HasMachineState m )
   => Register -> ImmediateOrRegister -> m ()
 compareGreaterUnsigned ri a = do
   a'  <- UnsignedInt <$$> getImmediateOrRegister a
@@ -270,7 +270,7 @@ compareGreaterUnsigned ri a = do
     _ -> return ()
 
 
-compareGreaterOrEqualUnsigned :: ( Monad m, HasMachineState m, HasParams m )
+compareGreaterOrEqualUnsigned :: ( Monad m, HasMachineState m )
   => Register -> ImmediateOrRegister -> m ()
 compareGreaterOrEqualUnsigned ri a = do
   a'  <- UnsignedInt <$$> getImmediateOrRegister a
@@ -308,7 +308,7 @@ compareGreaterOrEqualSigned ri a = do
     _ -> return ()
 
 
-move :: ( Monad m, HasMachineState m, HasParams m )
+move :: ( Monad m, HasMachineState m )
   => Register -> ImmediateOrRegister -> m ()
 move ri a = do
   a' <- getImmediateOrRegister a
@@ -319,7 +319,7 @@ move ri a = do
     _ -> return ()
 
 
-conditionalMove :: ( Monad m, HasMachineState m, HasParams m )
+conditionalMove :: ( Monad m, HasMachineState m )
   => Register -> ImmediateOrRegister -> m ()
 conditionalMove ri a = do
   flag <- getConditionFlag
@@ -337,7 +337,7 @@ jump a = do
     _ -> return ()
 
 
-jumpIfFlag :: ( Monad m, HasMachineState m, HasParams m )
+jumpIfFlag :: ( Monad m, HasMachineState m )
   => ImmediateOrRegister -> m ()
 jumpIfFlag a = do
   flag <- getConditionFlag
@@ -346,7 +346,7 @@ jumpIfFlag a = do
     _ -> incrementProgramCounter
 
 
-jumpIfNotFlag :: ( Monad m, HasMachineState m, HasParams m )
+jumpIfNotFlag :: ( Monad m, HasMachineState m )
   => ImmediateOrRegister -> m ()
 jumpIfNotFlag a = do
   flag <- getConditionFlag
@@ -355,7 +355,7 @@ jumpIfNotFlag a = do
     _ -> incrementProgramCounter
 
 
-store :: ( Monad m, HasMachineState m, HasParams m )
+store :: ( Monad m, HasMachineState m )
   => ImmediateOrRegister -> Register -> m ()
 store a ri = do
   a'  <- Address <$$> getImmediateOrRegister a
@@ -367,7 +367,7 @@ store a ri = do
     _ -> return ()
 
 
-load :: ( Monad m, HasMachineState m, HasParams m )
+load :: ( Monad m, HasMachineState m )
   => Register -> ImmediateOrRegister -> m ()
 load ri a = do
   a' <- Address <$$> getImmediateOrRegister a
@@ -379,7 +379,7 @@ load ri a = do
     Nothing -> return ()
 
 
-readInputTape :: ( Monad m, HasMachineState m, HasParams m )
+readInputTape :: ( Monad m, HasMachineState m )
   => Register -> ImmediateOrRegister -> m ()
 readInputTape ri a = do
   a' <- getImmediateOrRegister a

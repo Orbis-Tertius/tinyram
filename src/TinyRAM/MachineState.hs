@@ -20,18 +20,15 @@ module TinyRAM.MachineState
 
 import qualified Data.Map as Map
 
-import TinyRAM.Params (getWordSize)
 import TinyRAM.Prelude
 import TinyRAM.Types.Flag (Flag)
 import TinyRAM.Types.HasMachineState (HasMachineState (..))
-import TinyRAM.Types.HasParams (HasParams)
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (IsImmediate, IsRegister))
 import TinyRAM.Types.InputTape (InputTape (..))
 import TinyRAM.Types.MachineState (MachineState)
 import TinyRAM.Types.Params (Params)
 import TinyRAM.Types.Register (Register (..))
 import TinyRAM.Types.Word (Word)
-import TinyRAM.Types.WordSize (WordSize (..))
 
 
 getImmediateOrRegister :: ( Monad m, HasMachineState m )
@@ -45,11 +42,9 @@ conditionToFlag True = 1
 conditionToFlag False = 0
 
 
-incrementProgramCounter :: ( Monad m, HasMachineState m, HasParams m )
+incrementProgramCounter :: ( Monad m, HasMachineState m )
   => m ()
-incrementProgramCounter = do
-  bytes <- (`quot` 8) . unWordSize <$> getWordSize
-  setProgramCounter . (+ fromIntegral bytes) =<< getProgramCounter
+incrementProgramCounter = setProgramCounter . (+ 2) =<< getProgramCounter
 
 
 validateMachineState :: Params -> MachineState -> Validation

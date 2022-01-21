@@ -39,69 +39,69 @@ instructionStateTransition :: Params -> Instruction -> MachineState -> MachineSt
 instructionStateTransition ps i =
   case i ^. #opcode of
     -- and
-    0  -> functionOpcode ws (.&.) (\x y -> conditionToFlag (x .&. y == 0)) i
+    0  -> functionOpcode (.&.) (\x y -> conditionToFlag (x .&. y == 0)) i
     -- or
-    1  -> functionOpcode ws (.|.) (\x y -> conditionToFlag (x .|. y == 0)) i
+    1  -> functionOpcode (.|.) (\x y -> conditionToFlag (x .|. y == 0)) i
     -- xor
-    2  -> functionOpcode ws xor   (\x y -> conditionToFlag (x `xor` y == 0)) i
+    2  -> functionOpcode xor   (\x y -> conditionToFlag (x `xor` y == 0)) i
     -- not
-    3  -> functionOpcode ws (\a _ -> complement a) (\a _ -> conditionToFlag (complement a == 0)) i
+    3  -> functionOpcode (\a _ -> complement a) (\a _ -> conditionToFlag (complement a == 0)) i
     -- add
-    4  -> functionOpcode ws (\x y -> (x + y) .&. wordSizeBitmask)
+    4  -> functionOpcode (\x y -> (x + y) .&. wordSizeBitmask)
                          (\x y -> conditionToFlag $ (x + y) .&. wordSizeBitmaskMSB /= 0)
                          i
     -- sub
-    5  -> functionOpcode ws (\x y -> (y + wordStrictBound - x) .&. wordSizeBitmask)
+    5  -> functionOpcode (\x y -> (y + wordStrictBound - x) .&. wordSizeBitmask)
                          (\x y -> conditionToFlag ((y + wordStrictBound - x) .&. wordSizeBitmaskMSB /= 0))
                          i
     -- mull
-    6  -> functionOpcode ws (\x y -> ((x * y) .&. wordSizeBitmask))
+    6  -> functionOpcode (\x y -> ((x * y) .&. wordSizeBitmask))
                          (\x y -> conditionToFlag ((x * y) .&. wordSizeBitmaskMSB /= 0))
                          i
     -- umulh
-    7  -> functionOpcode ws (\x y -> ((x * y) `shift` (negate (ws ^. #unWordSize))))
+    7  -> functionOpcode (\x y -> ((x * y) `shift` (negate (ws ^. #unWordSize))))
                          (\x y -> conditionToFlag ((x * y) .&. wordSizeBitmaskMSB /= 0))
                          i
     -- smulh
-    8  -> functionOpcode ws (\x y -> unSignedInt $ signedMultiplyHigh ws (SignedInt x) (SignedInt y))
+    8  -> functionOpcode (\x y -> unSignedInt $ signedMultiplyHigh ws (SignedInt x) (SignedInt y))
                          (\x y -> conditionToFlag $ (unUnsignedInt ( (getUnsignedComponent ws (SignedInt x))
                                                                     * getUnsignedComponent ws (SignedInt y) )
                                                        .&. wordSizeBitmaskMSB)
                                                      /= 0)
                          i
     -- udiv
-    9  -> functionOpcode ws (\x y -> if x == 0 then 0 else (y `div` x) .&. wordSizeBitmask)
+    9  -> functionOpcode (\x y -> if x == 0 then 0 else (y `div` x) .&. wordSizeBitmask)
                          (\x _ -> conditionToFlag (x == 0))
                          i
     -- umod
-    10 -> functionOpcode ws (\x y -> if x == 0 then 0 else (y `mod` x) .&. wordSizeBitmask)
+    10 -> functionOpcode (\x y -> if x == 0 then 0 else (y `mod` x) .&. wordSizeBitmask)
                          (\x _ -> conditionToFlag (x == 0))
                          i
     -- shl
-    11 -> functionOpcode ws (\x y -> (y `shift` fromIntegral (min (fromIntegral ws) x)) .&. wordSizeBitmask)
+    11 -> functionOpcode (\x y -> (y `shift` fromIntegral (min (fromIntegral ws) x)) .&. wordSizeBitmask)
                          (\_ y -> conditionToFlag $ y .&. (2 ^ (ws ^. #unWordSize - 1)) /= 0)
                          i
     -- shr
-    12 -> functionOpcode ws (\x y -> (y `shift` negate (fromIntegral (min (fromIntegral ws) x))) .&. wordSizeBitmask)
+    12 -> functionOpcode (\x y -> (y `shift` negate (fromIntegral (min (fromIntegral ws) x))) .&. wordSizeBitmask)
                          (\_ y -> Flag . fromIntegral $ y .&. 1)
                          i
     -- cmpe
-    13 -> comparisonOpcode ws (==) i
+    13 -> comparisonOpcode (==) i
     -- cmpa
-    14 -> comparisonOpcode ws (<)  i
+    14 -> comparisonOpcode (<)  i
     -- cmpae
-    15 -> comparisonOpcode ws (<=) i
+    15 -> comparisonOpcode (<=) i
     -- cmpg
-    16 -> comparisonOpcode ws (\x y -> decodeSignedInt ws (SignedInt x) < decodeSignedInt ws (SignedInt y)) i
+    16 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) < decodeSignedInt ws (SignedInt y)) i
     -- cmpge
-    17 -> comparisonOpcode ws (\x y -> decodeSignedInt ws (SignedInt x) <= decodeSignedInt ws (SignedInt y)) i
+    17 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) <= decodeSignedInt ws (SignedInt y)) i
     -- mov
-    18 -> incrementPC ws
+    18 -> incrementPC
         . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
               .~ Just (getA i s)
               $ s)
     -- cmov
-    19 -> incrementPC ws
+    19 -> incrementPC
         . (\s ->
             if s ^. #conditionFlag == 0
             then s
@@ -112,24 +112,24 @@ instructionStateTransition ps i =
     20 -> \s -> #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
     -- cjmp
     21 -> \s -> if s ^. #conditionFlag == 0
-                then incrementPC ws s
+                then incrementPC s
                 else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
     -- cnjmp
     22 -> \s -> if s ^. #conditionFlag == 1
-                then incrementPC ws s
+                then incrementPC s
                 else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
     -- store
-    28 -> incrementPC ws
+    28 -> incrementPC
         . (\s -> #memoryValues . #unMemoryValues . at (Address (getA i s))
               .~ Just (getRI i s)
                $ s)
     -- load
-    29 -> incrementPC ws
+    29 -> incrementPC
         . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
               .~ Just (fromMaybe 0 (s ^. #memoryValues . #unMemoryValues . at (Address (getA i s))))
                $ s)
     -- read
-    30 -> incrementPC ws . readInputTape i
+    30 -> incrementPC . readInputTape i
     _  -> id
   where
     ws :: WordSize
@@ -145,22 +145,18 @@ instructionStateTransition ps i =
     wordSizeBitmaskMSB = wordSizeBitmask `shift` (ps ^. #wordSize . #unWordSize)
 
 
-incrementPC :: WordSize -> MachineState -> MachineState
-incrementPC ws s = #programCounter .~ (s ^. #programCounter + fromIntegral bytesPerWord) $ s
-  where
-    bytesPerWord :: Int
-    bytesPerWord = unWordSize ws `quot` 8
+incrementPC :: MachineState -> MachineState
+incrementPC s = #programCounter .~ (s ^. #programCounter + 2) $ s
 
 
 functionOpcode
-  :: WordSize
-  -> (Word -> Word -> Word)
+  :: (Word -> Word -> Word)
   -> (Word -> Word -> Flag)
   -> Instruction
   -> MachineState
   -> MachineState
-functionOpcode ws f p i s =
-  incrementPC ws
+functionOpcode f p i s =
+  incrementPC
   .
   (#registerValues . #unRegisterValues . at (i ^. #ri)
      .~ Just (f a rj))
@@ -173,13 +169,12 @@ functionOpcode ws f p i s =
 
 
 comparisonOpcode
-  :: WordSize
-  -> (Word -> Word -> Bool)
+  :: (Word -> Word -> Bool)
   -> Instruction
   -> MachineState
   -> MachineState
-comparisonOpcode ws p i s =
-  incrementPC ws
+comparisonOpcode p i s =
+  incrementPC
   .
   (#conditionFlag .~ conditionToFlag (p a ri))
   $
