@@ -18,6 +18,7 @@ import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
 import TinyRAM.Types.Instruction (Instruction (..))
 import TinyRAM.Types.HasMachineState (HasMachineState (getProgramCounter, setMemoryValue))
 import TinyRAM.Types.MachineState (MachineState)
+import TinyRAM.Types.MaxSteps (MaxSteps (..))
 import TinyRAM.Types.Params (Params)
 import TinyRAM.Types.ProgramCounter (ProgramCounter (..))
 import TinyRAM.Types.TinyRAMT (TinyRAMT (..))
@@ -42,6 +43,14 @@ spec = describe "run" $ do
     forAll genParamsMachineState $ \x@(ps, _state) ->
       let (_, (_, s)) = run' x
       in validateMachineState ps s `shouldBe` mempty
+
+  it "produces the same result when split into multiple runs" $
+    forAll genParamsMachineState $ \x ->
+      forAll (MaxSteps <$> choose (0, 100)) $ \(i :: MaxSteps) ->
+        forAll (MaxSteps <$> choose (0, 100)) $ \(j :: MaxSteps) ->
+          let a = runIdentity . runStateT (unTinyRAMT (run (Just (i+j))))
+              b = runIdentity . runStateT (unTinyRAMT (run (Just i) >> run (Just j)))
+          in a x `shouldBe` b x
 
   it "halts on an answer instruction" $
     forAll genParamsMachineState $ \x@(ps, _state) ->
