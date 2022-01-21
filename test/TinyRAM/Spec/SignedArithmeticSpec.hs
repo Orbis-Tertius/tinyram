@@ -1,12 +1,13 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# OPTIONS_GHC -Wno-unused-local-binds -Wno-type-defaults #-}
 
 
 module TinyRAM.Spec.SignedArithmeticSpec ( spec ) where
 
 
-import TinyRAM.SignedArithmetic (getSign, getUnsignedComponent, decodeSignedInt)
-import TinyRAM.Spec.Gen (genUnsignedInteger)
+import TinyRAM.SignedArithmetic (getSign, getUnsignedComponent, decodeSignedInt, signedMultiplyHigh)
+import TinyRAM.Spec.Gen (genUnsignedInteger, genSignedInteger)
 import TinyRAM.Spec.Prelude
 import TinyRAM.Types.Sign (Sign)
 import TinyRAM.Types.SignedInt (SignedInt (..))
@@ -20,6 +21,7 @@ spec = describe "SignedArithmetic" $ do
   getSignSpec
   getUnsignedComponentSpec
   decodeSignedIntSpec
+  signedMultiplyHighSpec
 
 
 getSignSpec :: Spec
@@ -50,6 +52,27 @@ decodeSignedIntSpec = describe "decodeSignedInt" $
         forAllValid $ \(sign :: Sign) ->
           decodeSignedInt ws (twosComplement ws sign u)
             `shouldBe` answer sign u
+
+
+signedMultiplyHighSpec :: Spec
+signedMultiplyHighSpec = describe "signedMultiplyHigh" $
+  it "results in the correct output" $
+    forAllValid $ \(ws :: WordSize) ->
+      forAll (genSignedInteger ws) $ \x ->
+        forAll (genSignedInteger ws) $ \y -> do
+          let x' = decodeSignedInt ws x
+              y' = decodeSignedInt ws y
+              z  = x' * y'
+              zA = abs z
+              zL = zA .&. (2 ^ ws - 1)
+              zH = zA `shift` negate (fromIntegral ws)
+              zS = if z < 0 then -1 else 1
+              a  = signedMultiplyHigh ws x y
+              aS = if unSignedInt a >= 2^(ws - 1) then -1 else 1
+              aA = unWord $ unSignedInt a .&. (2 ^ (ws - 1) - 1)
+          aS `shouldBe` zS
+          aA `shouldBe` zH
+          aS * ((aA * (2 ^ ws)) .|. zL) `shouldBe` z
 
 
 twosComplement :: WordSize -> Sign -> Integer -> SignedInt

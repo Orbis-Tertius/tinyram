@@ -44,6 +44,6 @@ signedMultiplyHigh ws x y =
       zSign   = xSign * ySign
       zAbs    = xAbs * yAbs
       signBit = case zSign of
-                  -1 -> 2 ^ (fromIntegral ws - 1 :: Word)
+                  -1 -> 2 ^ (ws - 1)
                   _  -> 0
-  in SignedInt $ signBit .&. (unUnsignedInt zAbs `shift` negate (unWordSize ws))
+  in SignedInt $ signBit .|. (unUnsignedInt zAbs `shift` negate (unWordSize ws))
