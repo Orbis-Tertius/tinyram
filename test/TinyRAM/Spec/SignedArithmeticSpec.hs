@@ -1,6 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# OPTIONS_GHC -Wno-unused-local-binds -Wno-type-defaults #-}
 
 
 module TinyRAM.Spec.SignedArithmeticSpec ( spec ) where

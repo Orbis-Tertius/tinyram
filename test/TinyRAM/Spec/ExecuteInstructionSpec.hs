@@ -1,6 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedLabels #-}
-{-# OPTIONS_GHC -Wno-unused-imports -Wno-redundant-constraints -Wno-unused-top-binds -Wno-unused-local-binds #-}
 
 
 module TinyRAM.Spec.ExecuteInstructionSpec ( spec ) where
