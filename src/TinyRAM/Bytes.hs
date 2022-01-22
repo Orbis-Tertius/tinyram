@@ -16,12 +16,14 @@ bytesToWords (WordSize ws) bytes =
   where
     bytesPerWord = ws `quot` 8
 
+    shiftValue = (2 :: Word) ^ (8 :: Word)
+
     -- decode word from little endian format
-    bytesToWord :: ByteString -> TinyRAM.Types.Word.Word
+    bytesToWord :: ByteString -> Word
     bytesToWord =
-      snd . BS.foldr
-            (\a (c, x) -> (c+1, x * (2 ^ (8 * c)) + fromIntegral a))
-            (1, 0)
+      BS.foldr
+      (\a x -> x * shiftValue + fromIntegral a)
+      0
 
     wordBytes :: [ByteString]
     wordBytes = f bytes
@@ -40,12 +42,12 @@ wordsToBytes (WordSize ws) wrds =
   where
     bytesPerWord = ws `quot` 8
 
+    shiftValue = (2 :: Word) ^ (8 :: Word)
+
     -- encode words to little endian format
     wordsToByte :: Word -> ByteString
     wordsToByte wrd =
-      foldr
-      (\x a -> if x == 1
-                  then BS.cons (fromIntegral $ wrd .&. (2 ^ 8 - 1)) a
-                  else BS.cons (fromIntegral $ (wrd `div` (2 ^ (8 * x))) .&. (2 ^ 8 - 1)) a)
-      BS.empty
-      [1..bytesPerWord]
+      fst $ foldr
+              (\_ (a, cw) -> (BS.snoc a (fromIntegral $ cw .&. (shiftValue - 1)), cw `div` shiftValue))
+              (BS.empty, wrd)
+              [1..bytesPerWord]
