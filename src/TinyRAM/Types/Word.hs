@@ -15,3 +15,6 @@ import TinyRAM.Prelude
 -- is the integer's binary representation.
 newtype Word = Word { unWord :: Integer }
   deriving (Eq, Ord, Read, Show, Generic, Enum, Num, Real, Integral, Bits)
+
+instance Validity Word where
+  validate (Word ws) = validate ws
