@@ -1,5 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE OverloadedLabels  #-}
 
 
 module TinyRAM.Params
@@ -10,11 +10,11 @@ module TinyRAM.Params
   ) where
 
 
-import TinyRAM.Prelude
-import TinyRAM.Types.HasParams (HasParams (getParams))
-import TinyRAM.Types.RegisterCount (RegisterCount)
-import TinyRAM.Types.Word (Word)
-import TinyRAM.Types.WordSize (WordSize (..))
+import           TinyRAM.Prelude
+import           TinyRAM.Types.HasParams     (HasParams (getParams))
+import           TinyRAM.Types.RegisterCount (RegisterCount)
+import           TinyRAM.Types.Word          (Word)
+import           TinyRAM.Types.WordSize      (WordSize (..))
 
 
 getWordSize :: ( Functor m, HasParams m ) => m WordSize

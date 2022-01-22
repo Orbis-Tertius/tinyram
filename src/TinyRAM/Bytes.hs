@@ -4,11 +4,11 @@
 module TinyRAM.Bytes (bytesToWords, wordsToBytes) where
 
 
-import qualified Data.ByteString as BS
+import qualified Data.ByteString        as BS
 
-import TinyRAM.Prelude
-import TinyRAM.Types.Word (Word)
-import TinyRAM.Types.WordSize (WordSize (..))
+import           TinyRAM.Prelude
+import           TinyRAM.Types.Word     (Word)
+import           TinyRAM.Types.WordSize (WordSize (..))
 
 bytesToWords :: WordSize -> ByteString -> [Word]
 bytesToWords (WordSize ws) bytes =

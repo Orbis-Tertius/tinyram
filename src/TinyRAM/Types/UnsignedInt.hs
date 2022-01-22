@@ -1,13 +1,13 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoImplicitPrelude          #-}
 
 
 module TinyRAM.Types.UnsignedInt ( UnsignedInt (..) ) where
 
 
-import TinyRAM.Prelude
-import TinyRAM.Types.Word (Word)
+import           TinyRAM.Prelude
+import           TinyRAM.Types.Word (Word)
 
 
 newtype UnsignedInt = UnsignedInt { unUnsignedInt :: Word }

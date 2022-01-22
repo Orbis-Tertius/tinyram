@@ -1,4 +1,4 @@
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoImplicitPrelude   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE OverloadedStrings #-}
 
@@ -7,13 +7,12 @@ module TinyRAM.Spec.BytesSpec ( spec ) where
 
 
 import Control.Monad
-import qualified Data.ByteString as BS
+import qualified Data.ByteString        as BS
 
-import TinyRAM.Bytes (bytesToWords, wordsToBytes)
-import TinyRAM.Spec.Gen ()
-import TinyRAM.Spec.Prelude
-import TinyRAM.Types.Word ()
-import TinyRAM.Types.WordSize (WordSize (..))
+import           TinyRAM.Bytes          (bytesToWords, wordsToBytes)
+import           TinyRAM.Spec.Gen       ()
+import           TinyRAM.Spec.Prelude
+import           TinyRAM.Types.WordSize (WordSize (..))
 
 spec :: Spec
 spec = describe "bytesToWords" $ do
@@ -34,4 +33,3 @@ spec = describe "bytesToWords" $ do
                 in wordsToBytes ws wrds
                   `shouldBe`
                   bs
-

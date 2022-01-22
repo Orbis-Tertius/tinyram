@@ -1,34 +1,34 @@
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE OverloadedLabels  #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TupleSections     #-}
 
 
 module TinyRAM.ExecuteProgram ( executeProgram ) where
 
 
-import Control.Monad.Trans.State (StateT (runStateT))
-import Data.Functor.Identity (Identity (runIdentity))
-import qualified Data.ByteString as BS
-import qualified Data.Map as Map
-import Data.Text (pack)
+import           Control.Monad.Trans.State    (StateT (runStateT))
+import qualified Data.ByteString              as BS
+import           Data.Functor.Identity        (Identity (runIdentity))
+import qualified Data.Map                     as Map
+import           Data.Text                    (pack)
 
-import TinyRAM.Bytes (bytesToWords)
-import TinyRAM.Run (run)
-import TinyRAM.Prelude
-import TinyRAM.Types.Flag (Flag)
-import TinyRAM.Types.InputTape (InputTape, Primary, Auxiliary)
-import TinyRAM.Types.MachineState (MachineState (..))
-import TinyRAM.Types.MaxSteps (MaxSteps)
-import TinyRAM.Types.MemoryValues (MemoryValues (..))
-import TinyRAM.Types.Params (Params)
-import TinyRAM.Types.Program (Program (..))
-import TinyRAM.Types.ProgramCounter (ProgramCounter)
-import TinyRAM.Types.Register (Register (..))
-import TinyRAM.Types.RegisterCount (RegisterCount (..))
-import TinyRAM.Types.RegisterValues (RegisterValues (..))
-import TinyRAM.Types.TinyRAMT (TinyRAMT (..))
-import TinyRAM.Types.Word (Word)
+import           TinyRAM.Bytes                (bytesToWords)
+import           TinyRAM.Prelude
+import           TinyRAM.Run                  (run)
+import           TinyRAM.Types.Flag           (Flag)
+import           TinyRAM.Types.InputTape      (Auxiliary, InputTape, Primary)
+import           TinyRAM.Types.MachineState   (MachineState (..))
+import           TinyRAM.Types.MaxSteps       (MaxSteps)
+import           TinyRAM.Types.MemoryValues   (MemoryValues (..))
+import           TinyRAM.Types.Params         (Params)
+import           TinyRAM.Types.Program        (Program (..))
+import           TinyRAM.Types.ProgramCounter (ProgramCounter)
+import           TinyRAM.Types.Register       (Register (..))
+import           TinyRAM.Types.RegisterCount  (RegisterCount (..))
+import           TinyRAM.Types.RegisterValues (RegisterValues (..))
+import           TinyRAM.Types.TinyRAMT       (TinyRAMT (..))
+import           TinyRAM.Types.Word           (Word)
 
 
 executeProgram
@@ -48,7 +48,7 @@ executeProgram params maxSteps program primaryInput auxInput = do
     (params, initialMachineState params memoryValues primaryInput auxInput)
 
 
-initialMachineState 
+initialMachineState
   :: Params
   -> MemoryValues
   -> InputTape Primary

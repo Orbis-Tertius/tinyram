@@ -1,5 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE OverloadedLabels  #-}
 
 
 module TinyRAM.Instructions
@@ -32,20 +32,26 @@ module TinyRAM.Instructions
   ) where
 
 
-import TinyRAM.MachineState (conditionToFlag, getImmediateOrRegister, incrementProgramCounter)
-import TinyRAM.Params (getWordSize, getWordSizeBitmask, getWordSizeBitmaskMSB)
-import TinyRAM.Prelude
-import TinyRAM.SignedArithmetic (getUnsignedComponent, decodeSignedInt, signedMultiplyHigh)
-import TinyRAM.Types.Address (Address (..))
-import TinyRAM.Types.Flag (Flag (..))
-import TinyRAM.Types.HasParams (HasParams)
-import TinyRAM.Types.HasMachineState (HasMachineState (..))
-import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
-import TinyRAM.Types.ProgramCounter (ProgramCounter (..))
-import TinyRAM.Types.Register (Register)
-import TinyRAM.Types.SignedInt (SignedInt (..))
-import TinyRAM.Types.UnsignedInt (UnsignedInt (..))
-import TinyRAM.Types.WordSize (WordSize (..))
+import           TinyRAM.MachineState              (conditionToFlag,
+                                                    getImmediateOrRegister,
+                                                    incrementProgramCounter)
+import           TinyRAM.Params                    (getWordSize,
+                                                    getWordSizeBitmask,
+                                                    getWordSizeBitmaskMSB)
+import           TinyRAM.Prelude
+import           TinyRAM.SignedArithmetic          (decodeSignedInt,
+                                                    getUnsignedComponent,
+                                                    signedMultiplyHigh)
+import           TinyRAM.Types.Address             (Address (..))
+import           TinyRAM.Types.Flag                (Flag (..))
+import           TinyRAM.Types.HasMachineState     (HasMachineState (..))
+import           TinyRAM.Types.HasParams           (HasParams)
+import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
+import           TinyRAM.Types.ProgramCounter      (ProgramCounter (..))
+import           TinyRAM.Types.Register            (Register)
+import           TinyRAM.Types.SignedInt           (SignedInt (..))
+import           TinyRAM.Types.UnsignedInt         (UnsignedInt (..))
+import           TinyRAM.Types.WordSize            (WordSize (..))
 
 
 andBits :: ( Monad m, HasMachineState m )
@@ -334,7 +340,7 @@ jump a = do
   a' <- (ProgramCounter . Address) <$$> getImmediateOrRegister a
   case a' of
     Just a'' -> setProgramCounter a''
-    _ -> return ()
+    _        -> return ()
 
 
 jumpIfFlag :: ( Monad m, HasMachineState m )
@@ -386,7 +392,7 @@ readInputTape ri a = do
   next <- case a' of
     Just 0 -> readPrimaryInput
     Just 1 -> readAuxiliaryInput
-    _ -> return Nothing
+    _      -> return Nothing
   case next of
     Just next' -> do
       setRegisterValue ri next'

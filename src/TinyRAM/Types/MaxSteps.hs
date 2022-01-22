@@ -1,12 +1,12 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoImplicitPrelude          #-}
 
 
 module TinyRAM.Types.MaxSteps ( MaxSteps (..) ) where
 
 
-import TinyRAM.Prelude
+import           TinyRAM.Prelude
 
 
 -- The maximum number of instructions which the emulator is allowed

@@ -1,17 +1,33 @@
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE OverloadedLabels  #-}
 
 
 module TinyRAM.ExecuteInstruction ( executeInstruction ) where
 
 
-import TinyRAM.Instructions (andBits, orBits, xorBits, notBits, addUnsigned, subtractUnsigned, multiplyUnsignedLSB, multiplyUnsignedMSB, multiplySignedMSB, divideUnsigned, modulusUnsigned, shiftLeft, shiftRight, compareEqual, compareGreaterUnsigned, compareGreaterOrEqualUnsigned, compareGreaterSigned, compareGreaterOrEqualSigned, move, conditionalMove, jump, jumpIfFlag, jumpIfNotFlag, store, load, readInputTape)
-import TinyRAM.Prelude
-import TinyRAM.Types.HasMachineState (HasMachineState (..))
-import TinyRAM.Types.HasParams (HasParams)
-import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
-import TinyRAM.Types.Instruction (Instruction)
-import TinyRAM.Types.Register (Register)
+import           TinyRAM.Instructions              (addUnsigned, andBits,
+                                                    compareEqual,
+                                                    compareGreaterOrEqualSigned,
+                                                    compareGreaterOrEqualUnsigned,
+                                                    compareGreaterSigned,
+                                                    compareGreaterUnsigned,
+                                                    conditionalMove,
+                                                    divideUnsigned, jump,
+                                                    jumpIfFlag, jumpIfNotFlag,
+                                                    load, modulusUnsigned, move,
+                                                    multiplySignedMSB,
+                                                    multiplyUnsignedLSB,
+                                                    multiplyUnsignedMSB,
+                                                    notBits, orBits,
+                                                    readInputTape, shiftLeft,
+                                                    shiftRight, store,
+                                                    subtractUnsigned, xorBits)
+import           TinyRAM.Prelude
+import           TinyRAM.Types.HasMachineState     (HasMachineState (..))
+import           TinyRAM.Types.HasParams           (HasParams)
+import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
+import           TinyRAM.Types.Instruction         (Instruction)
+import           TinyRAM.Types.Register            (Register)
 
 
 executeInstruction :: ( Monad m, HasMachineState m, HasParams m )

@@ -1,6 +1,6 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoImplicitPrelude          #-}
 
 
 module TinyRAM.Types.InputTape
@@ -10,8 +10,8 @@ module TinyRAM.Types.InputTape
   ) where
 
 
-import TinyRAM.Prelude
-import TinyRAM.Types.Word (Word)
+import           TinyRAM.Prelude
+import           TinyRAM.Types.Word (Word)
 
 
 data Auxiliary

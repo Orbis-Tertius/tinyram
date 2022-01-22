@@ -1,19 +1,19 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoImplicitPrelude          #-}
 
 
 module TinyRAM.Types.Params ( Params (Params) ) where
 
 
-import TinyRAM.Prelude
-import TinyRAM.Types.WordSize (WordSize)
-import TinyRAM.Types.RegisterCount (RegisterCount)
+import           TinyRAM.Prelude
+import           TinyRAM.Types.RegisterCount (RegisterCount)
+import           TinyRAM.Types.WordSize      (WordSize)
 
 
 data Params =
   Params
-  { wordSize :: WordSize
+  { wordSize      :: WordSize
   , registerCount :: RegisterCount
   }
   deriving (Eq, Ord, Read, Show, Generic)

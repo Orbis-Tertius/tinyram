@@ -10,9 +10,11 @@ module TinyRAM.Spec.Prelude
   ) where
 
 
-import Data.GenValidity (GenValid (..), genValidStructurally, shrinkValidStructurally)
-import Test.QuickCheck (Gen, forAll, choose, elements, listOf, oneof)
+import           Data.GenValidity  (GenValid (..), genValidStructurally,
+                                    shrinkValidStructurally)
+import           Test.QuickCheck   (Gen, choose, elements, forAll, listOf,
+                                    oneof)
 
-import TinyRAM.Prelude
-import Test.Syd (Spec, describe, it, shouldBe)
-import Test.Syd.Validity (forAllValid)
+import           Test.Syd          (Spec, describe, it, shouldBe)
+import           Test.Syd.Validity (forAllValid)
+import           TinyRAM.Prelude

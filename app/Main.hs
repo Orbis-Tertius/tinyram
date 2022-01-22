@@ -4,4 +4,4 @@
 module Main ( main ) where
 
 
-import TinyRAM.EntryPoint (main)
+import           TinyRAM.EntryPoint (main)

@@ -9,12 +9,12 @@ module TinyRAM.SignedArithmetic
   ) where
 
 
-import TinyRAM.Prelude
-import TinyRAM.Types.Sign (Sign (..))
-import TinyRAM.Types.SignedInt (SignedInt (..))
-import TinyRAM.Types.Word (Word (..))
-import TinyRAM.Types.WordSize (WordSize (..))
-import TinyRAM.Types.UnsignedInt (UnsignedInt (..))
+import           TinyRAM.Prelude
+import           TinyRAM.Types.Sign        (Sign (..))
+import           TinyRAM.Types.SignedInt   (SignedInt (..))
+import           TinyRAM.Types.UnsignedInt (UnsignedInt (..))
+import           TinyRAM.Types.Word        (Word (..))
+import           TinyRAM.Types.WordSize    (WordSize (..))
 
 
 getSign :: WordSize -> SignedInt -> Sign

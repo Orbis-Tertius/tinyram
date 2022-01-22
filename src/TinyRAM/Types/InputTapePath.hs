@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 
 
@@ -9,8 +9,8 @@ module TinyRAM.Types.InputTapePath
   ) where
 
 
-import TinyRAM.Prelude
-import TinyRAM.Types.InputTape (Primary, Auxiliary)
+import           TinyRAM.Prelude
+import           TinyRAM.Types.InputTape (Auxiliary, Primary)
 
 
 newtype InputTapePath a = InputTapePath { unInputTapePath :: FilePath }

@@ -1,28 +1,29 @@
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE OverloadedLabels  #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 
 module TinyRAM.EntryPoint ( main ) where
 
 
-import qualified Data.ByteString as BS
-import Data.Text (unpack)
-import qualified Options.Applicative as O
+import qualified Data.ByteString               as BS
+import           Data.Text                     (unpack)
+import qualified Options.Applicative           as O
 
-import TinyRAM.Bytes (bytesToWords)
-import TinyRAM.ExecuteProgram (executeProgram)
-import TinyRAM.Prelude
-import TinyRAM.Types.Command (Command (CommandRun))
-import TinyRAM.Types.InputTape (InputTape (..), Primary, Auxiliary)
-import TinyRAM.Types.InputTapePath (InputTapePath (..))
-import TinyRAM.Types.MaxSteps (MaxSteps (..))
-import TinyRAM.Types.Params (Params (..))
-import TinyRAM.Types.Program (Program (..))
-import TinyRAM.Types.ProgramFilePath (ProgramFilePath (..))
-import TinyRAM.Types.RegisterCount (RegisterCount (..))
-import TinyRAM.Types.Word (Word (..))
-import TinyRAM.Types.WordSize (WordSize (..))
+import           TinyRAM.Bytes                 (bytesToWords)
+import           TinyRAM.ExecuteProgram        (executeProgram)
+import           TinyRAM.Prelude
+import           TinyRAM.Types.Command         (Command (CommandRun))
+import           TinyRAM.Types.InputTape       (Auxiliary, InputTape (..),
+                                                Primary)
+import           TinyRAM.Types.InputTapePath   (InputTapePath (..))
+import           TinyRAM.Types.MaxSteps        (MaxSteps (..))
+import           TinyRAM.Types.Params          (Params (..))
+import           TinyRAM.Types.Program         (Program (..))
+import           TinyRAM.Types.ProgramFilePath (ProgramFilePath (..))
+import           TinyRAM.Types.RegisterCount   (RegisterCount (..))
+import           TinyRAM.Types.Word            (Word (..))
+import           TinyRAM.Types.WordSize        (WordSize (..))
 
 
 
@@ -106,5 +107,5 @@ main = do
   primaryInput <- readInputTapeFile ws (cmd ^. #primaryInputTapePath)
   auxInput <- readInputTapeFile ws (cmd ^. #auxiliaryInputTapePath)
   case executeProgram (cmd ^. #params) (cmd ^. #maxSteps) program primaryInput auxInput of
-    Left err -> putStrLn . unpack $ "Error: " <> err
+    Left err     -> putStrLn . unpack $ "Error: " <> err
     Right answer -> putStrLn $ "Answer: " <> show (unWord answer)

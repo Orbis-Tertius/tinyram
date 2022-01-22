@@ -1,14 +1,14 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoImplicitPrelude          #-}
 
 
 module TinyRAM.Types.RegisterValues ( RegisterValues (..) ) where
 
 
-import TinyRAM.Prelude
-import TinyRAM.Types.Register (Register)
-import TinyRAM.Types.Word (Word)
+import           TinyRAM.Prelude
+import           TinyRAM.Types.Register (Register)
+import           TinyRAM.Types.Word     (Word)
 
 
 -- A state of the registers, giving the word

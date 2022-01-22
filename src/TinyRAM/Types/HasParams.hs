@@ -1,6 +1,6 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoImplicitPrelude          #-}
 
 
 module TinyRAM.Types.HasParams
@@ -8,7 +8,7 @@ module TinyRAM.Types.HasParams
   ) where
 
 
-import TinyRAM.Types.Params (Params)
+import           TinyRAM.Types.Params (Params)
 
 
 class HasParams m where
