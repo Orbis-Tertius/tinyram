@@ -1,19 +1,25 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedLabels  #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards   #-}
 
 
 module TinyRAM.EntryPoint ( main ) where
 
 
+import           Control.Applicative           ((<|>))
 import qualified Data.ByteString               as BS
+import qualified Data.ByteString.Char8         as BC
 import           Data.Text                     (unpack)
 import qualified Options.Applicative           as O
+import           Text.Parsec                   (runParser)
 
 import           TinyRAM.Bytes                 (bytesToWords)
+import           TinyRAM.EncodeInstruction     (encodeInstruction)
 import           TinyRAM.ExecuteProgram        (executeProgram)
+import           TinyRAM.Parser                (firstLine, instruction)
 import           TinyRAM.Prelude
-import           TinyRAM.Types.Command         (Command (CommandRun))
+import           TinyRAM.Types.Command         (Command (..))
 import           TinyRAM.Types.InputTape       (Auxiliary, InputTape (..),
                                                 Primary)
 import           TinyRAM.Types.InputTapePath   (InputTapePath (..))
@@ -57,6 +63,11 @@ programFilePath =
   (O.metavar "PROGRAM" <>
    O.help "The path to the program binary file")
 
+programInputFilePath :: O.Parser ProgramFilePath
+programInputFilePath =
+  O.argument (ProgramFilePath <$> O.str)
+  (O.metavar "PROGRAM" <>
+   O.help "The path to the instructions program file")
 
 primaryInputTapePath :: O.Parser (InputTapePath Primary)
 primaryInputTapePath =
@@ -74,12 +85,17 @@ auxiliaryInputTapePath =
 
 runP :: O.Parser Command
 runP =
-  CommandRun
+  ( CommandParse
+  <$> programInputFilePath
+  <*> programFilePath
+  ) <|>
+  (CommandRun
   <$> (Params <$> wordSize <*> registerCount)
   <*> maxSteps
   <*> programFilePath
   <*> primaryInputTapePath
   <*> auxiliaryInputTapePath
+  )
 
 
 command :: O.ParserInfo Command
@@ -98,14 +114,35 @@ readProgramFile :: ProgramFilePath -> IO Program
 readProgramFile (ProgramFilePath path) =
   Program <$> BS.readFile path
 
+appendProgramFile :: ProgramFilePath -> ByteString -> IO ()
+appendProgramFile (ProgramFilePath path) value =
+  BS.appendFile path (value <> "\n")
+
 
 main :: IO ()
 main = do
-  cmd <- O.execParser command
-  let ws = cmd ^. #params . #wordSize
-  program <- readProgramFile (cmd ^. #programFilePath)
-  primaryInput <- readInputTapeFile ws (cmd ^. #primaryInputTapePath)
-  auxInput <- readInputTapeFile ws (cmd ^. #auxiliaryInputTapePath)
-  case executeProgram (cmd ^. #params) (cmd ^. #maxSteps) program primaryInput auxInput of
-    Left err     -> putStrLn . unpack $ "Error: " <> err
-    Right answer -> putStrLn $ "Answer: " <> show (unWord answer)
+  pCmd <- O.execParser command
+  case pCmd of
+    CommandRun params' maxSteps' pf pitp atp -> do
+      let ws = params' ^. #wordSize
+      program <- readProgramFile pf
+      primaryInput <- readInputTapeFile ws pitp
+      auxInput <- readInputTapeFile ws atp
+      case executeProgram params' maxSteps' program primaryInput auxInput of
+        Left err     -> putStrLn . unpack $ "Error: " <> err
+        Right answer -> putStrLn $ "Answer: " <> show (unWord answer)
+    CommandParse inputFile outputFile -> do
+      program <- lines . BC.unpack . unProgram <$> readProgramFile inputFile
+      case runParser firstLine () "First line" (head program) of
+        Right (ws, rcount) ->
+          mapM_
+            (\x -> case runParser instruction () ("instruction: " <> x) x of
+                    Right (Just ins) ->
+                      appendProgramFile
+                        outputFile
+                        (BC.pack . show . unWord $ encodeInstruction ins ws rcount)
+                    Right Nothing -> putStrLn $ "Parse Failed: " <> x
+                    Left err -> putStrLn $ "Error: " <> show err
+            )
+            (tail program)
+        Left err -> putStrLn $ "Error: " <> show err
