@@ -140,7 +140,7 @@ main = do
                     Right (Just ins) ->
                       appendProgramFile
                         outputFile
-                        (BC.pack . show . unWord $ encodeInstruction ins ws rcount)
+                        (BC.pack . toBinary (2 * unWordSize ws) . unWord $ encodeInstruction ins ws rcount)
                     Right Nothing -> putStrLn $ "Parse Failed: " <> x
                     Left err -> putStrLn $ "Error: " <> show err
             )
