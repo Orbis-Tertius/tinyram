@@ -1,19 +1,36 @@
 {
   nixConfig.bash-prompt = "[nix-develop-tinyram:] ";
   description = "A vnTinyRAM emulator";
-  inputs.haskellNix.url = "github:input-output-hk/haskell.nix";
-  inputs.nixpkgs.follows = "haskellNix/nixpkgs-unstable";
-  inputs.flake-utils.url = "github:numtide/flake-utils";
-  inputs.sydtest-src = {
-      url = "github:NorfairKing/sydtest/314d53ae175b540817a24d4211dab24fe6cb9232";
-      flake = false;
-    };
-  inputs.validity-src = {
-      url = "github:NorfairKing/validity/f5e5d69b3502cdd9243b412c31ba9619b9e89462";
+  inputs = {
+    # Nixpkgs set to specific URL for haskellNix
+    nixpkgs.url = "github:NixOS/nixpkgs/baaf9459d6105c243239289e1e82e3cdd5ac4809";
+    nixpkgs.follows = "haskellNix/nixpkgs-unstable";
+
+    #CI integration
+    flake-compat-ci.url = "github:hercules-ci/flake-compat-ci";
+    flake-compat = {
+      url = "github:edolstra/flake-compat";
       flake = false;
     };
 
-  outputs = { self, nixpkgs, flake-utils, sydtest-src, validity-src, haskellNix }:
+    flake-utils.url = "github:numtide/flake-utils";
+    sydtest-src = {
+        url = "github:NorfairKing/sydtest/314d53ae175b540817a24d4211dab24fe6cb9232";
+        flake = false;
+      };
+    validity-src = {
+        url = "github:NorfairKing/validity/f5e5d69b3502cdd9243b412c31ba9619b9e89462";
+        flake = false;
+      };
+
+    #HaskellNix is implemented using a set nixpkgs.follows; allowing for flake-build
+    haskellNix = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:input-output-hk/haskell.nix";
+    };
+  };
+
+  outputs = { self, nixpkgs, flake-utils, sydtest-src, validity-src, haskellNix,  flake-compat, flake-compat-ci }:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
         deferPluginErrors = true;
@@ -61,6 +78,11 @@
         pkgs = import nixpkgs { inherit system overlays; inherit (haskellNix) config; };
         flake = pkgs.tinyram.flake { };
       in flake // {
+        
+        ciNix = flake-compat-ci.lib.recurseIntoFlakeWith {
+          flake = self;
+          systems = [ "x86_64-linux" ];
+        };
         defaultPackage = flake.packages."tinyram:exe:tinyram";
       });
 }
