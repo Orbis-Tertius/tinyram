@@ -2,7 +2,7 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
 
-module TinyRAM.Types.Command ( Command (CommandRun) ) where
+module TinyRAM.Types.Command ( Command (CommandRun, CommandParse) ) where
 
 
 import           TinyRAM.Prelude
@@ -15,10 +15,14 @@ import           TinyRAM.Types.ProgramFilePath (ProgramFilePath)
 
 data Command =
   CommandRun
-  { params                 :: Params
-  , maxSteps               :: Maybe MaxSteps
-  , programFilePath        :: ProgramFilePath
-  , primaryInputTapePath   :: InputTapePath Primary
-  , auxiliaryInputTapePath :: InputTapePath Auxiliary
-  }
+    { params                 :: Params
+    , maxSteps               :: Maybe MaxSteps
+    , programFilePath        :: ProgramFilePath
+    , primaryInputTapePath   :: InputTapePath Primary
+    , auxiliaryInputTapePath :: InputTapePath Auxiliary
+    }
+  | CommandParse
+    { programFilePath :: ProgramFilePath
+    , outputFilePath  :: ProgramFilePath
+    }
   deriving Generic

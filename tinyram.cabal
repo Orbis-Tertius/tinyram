@@ -12,11 +12,14 @@ library
     TinyRAM.Bytes
     TinyRAM.DecodeInstruction
     TinyRAM.EntryPoint
+    TinyRAM.EncodeInstruction
     TinyRAM.ExecuteInstruction
     TinyRAM.ExecuteProgram
     TinyRAM.Instructions
     TinyRAM.MachineState
+    TinyRAM.Operations
     TinyRAM.Params
+    TinyRAM.Parser
     TinyRAM.Prelude
     TinyRAM.Run
     TinyRAM.SignedArithmetic
@@ -33,6 +36,7 @@ library
     TinyRAM.Types.MaxSteps
     TinyRAM.Types.MemoryValues
     TinyRAM.Types.Opcode
+    TinyRAM.Types.Operations
     TinyRAM.Types.Params
     TinyRAM.Types.Program
     TinyRAM.Types.ProgramCounter
@@ -60,6 +64,7 @@ library
     lens,
     mtl,
     optparse-applicative,
+    parsec,
     text -any,
     transformers,
     validity,
@@ -83,6 +88,7 @@ test-suite spec
     TinyRAM.Spec.EncodeInstruction
     TinyRAM.Spec.ExecuteInstructionSpec
     TinyRAM.Spec.Gen
+    TinyRAM.Spec.ParserSpec
     TinyRAM.Spec.Prelude
     TinyRAM.Spec.RunSpec
     TinyRAM.Spec.SignedArithmeticSpec
@@ -107,6 +113,7 @@ test-suite spec
     lens,
     mtl,
     optparse-applicative,
+    parsec,
     QuickCheck,
     sydtest,
     sydtest-discover,
