@@ -56,6 +56,8 @@ library
     aeson,
     bytestring,
     containers,
+    concat-classes,
+    concat-examples,
     either,
     extra,
     generic-lens,

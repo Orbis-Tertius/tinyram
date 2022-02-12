@@ -3,5 +3,14 @@ packages:
 - ./.
 
 extra-deps:
+  - git: https://github.com/conal/concat.git
+    commit: 46cdd6a95dbcece97949e9810574420d4385faef
+    subdirs:
+      - classes
+      - inline
+      - known
+      - plugin
+      - examples
+      - satisfy
 
 allow-newer: true

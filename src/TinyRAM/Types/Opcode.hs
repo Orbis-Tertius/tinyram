@@ -1,11 +1,15 @@
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE NoImplicitPrelude          #-}
+{-# LANGUAGE TypeApplications           #-}
+{-# LANGUAGE TypeFamilies               #-}
 
 
 module TinyRAM.Types.Opcode ( Opcode (..) ) where
 
 
+import           ConCat.Circuit
+import           ConCat.Rep
 import           TinyRAM.Prelude
 
 
@@ -21,3 +25,13 @@ instance Validity Opcode where
     if (0 <= o && o <= 22) || (28 <= o && o <= 30)
     then mempty
     else Validation [Violated "Opcode must be valid"]
+
+instance HasRep Opcode where
+  type Rep Opcode = Int
+  repr (Opcode a) = a
+  abst a =  Opcode a
+
+instance GenBuses Opcode where
+  genBuses' = genBusesRep'
+  ty = tyRep @Opcode
+  unflattenB' = genUnflattenB'

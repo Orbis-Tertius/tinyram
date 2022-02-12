@@ -1,10 +1,15 @@
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE NoImplicitPrelude          #-}
+{-# LANGUAGE TypeApplications           #-}
+{-# LANGUAGE TypeFamilies               #-}
 
 
 module TinyRAM.Types.Word ( Word (..) ) where
 
+
+import           ConCat.Circuit
+import           ConCat.Rep
 
 import           TinyRAM.Prelude
 
@@ -18,3 +23,13 @@ newtype Word = Word { unWord :: Integer }
 
 instance Validity Word where
   validate (Word ws) = validate ws
+
+instance HasRep Word where
+  type Rep Word = Integer
+  repr (Word a) = a
+  abst a =  Word a
+
+instance GenBuses Word where
+  genBuses' = genBusesRep'
+  ty = tyRep @Word
+  unflattenB' = genUnflattenB'
