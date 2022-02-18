@@ -16,7 +16,7 @@ import           TinyRAM.Types.Word                (Word (..))
 encodeInstruction :: RegisterCount -> Instruction -> (Word, Word)
 encodeInstruction rc i =
   ( Word $ fromIntegral (i ^. #opcode . #unOpcode)
-       .|. aBit
+       .|. aBit `shift` 5
        .|. fromIntegral (i ^. #ri . #unRegister) `shift` 6
        .|. fromIntegral (i ^. #rj . #unRegister) `shift` (6 + bitsPerRegister rc)
   , aVal
