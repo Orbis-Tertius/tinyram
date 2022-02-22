@@ -125,7 +125,7 @@ main = do
   case pCmd of
     CommandRun params' maxSteps' pf pitp atp -> do
       let ws = params' ^. #wordSize
-      program <- readProgramFile pf
+      program <- Program . BC.concat . BC.lines . unProgram <$> readProgramFile pf
       primaryInput <- readInputTapeFile ws pitp
       auxInput <- readInputTapeFile ws atp
       case executeProgram params' maxSteps' program primaryInput auxInput of
