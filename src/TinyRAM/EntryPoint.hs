@@ -101,8 +101,8 @@ runP =
 command :: O.ParserInfo Command
 command = O.info (runP O.<**> O.helper)
   (O.fullDesc <>
-   O.progDesc "Run a TinyRAM program" <>
-   O.header "tinyram - vnTinyRAM emulator")
+   O.progDesc "Assemble and run TinyRAM programs" <>
+   O.header "tinyram - vnTinyRAM emulator / assembler")
 
 
 readInputTapeFile :: WordSize -> InputTapePath a -> IO (InputTape a)
