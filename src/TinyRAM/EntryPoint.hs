@@ -14,7 +14,7 @@ import           Data.Text                     (unpack)
 import qualified Options.Applicative           as O
 import           Text.Parsec                   (runParser)
 
-import           TinyRAM.Bytes                 (bytesToWords)
+import           TinyRAM.Bytes                 (bytesToWords, wordsToBytes)
 import           TinyRAM.EncodeInstruction     (encodeInstruction)
 import           TinyRAM.ExecuteProgram        (executeProgram)
 import           TinyRAM.Parser                (firstLine, instruction)
@@ -140,7 +140,7 @@ main = do
                     Right (Just ins) ->
                       appendProgramFile
                         outputFile
-                        (BC.pack . toBinary (2 * unWordSize ws) . unWord $ encodeInstruction ins ws rcount)
+                        (wordsToBytes (2 * ws) . pure $ encodeInstruction ins ws rcount)
                     Right Nothing -> putStrLn $ "Parse Failed: " <> x
                     Left err -> putStrLn $ "Error: " <> show err
             )
