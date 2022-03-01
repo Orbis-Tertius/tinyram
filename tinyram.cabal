@@ -6,6 +6,7 @@ license-files: LICENSE
 author:        Ardana Labs
 maintainer:    morgan.thomas@platonic.systems
 
+data-files: examples/*.s
 
 library
   exposed-modules:
