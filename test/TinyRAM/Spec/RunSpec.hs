@@ -82,6 +82,5 @@ spec = describe "run" $ do
                   return (answer', expectedAnswer')
             in answer `shouldBe` expectedAnswer
 
-
 run' :: (Params, MachineState) -> (Maybe Word, (Params, MachineState))
 run' = runIdentity . runStateT (unTinyRAMT (run (Just 100)))

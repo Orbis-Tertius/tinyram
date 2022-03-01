@@ -4,7 +4,11 @@
 {-# LANGUAGE RecordWildCards   #-}
 
 
-module TinyRAM.EntryPoint ( main ) where
+module TinyRAM.EntryPoint
+  ( main
+  , handleCommand
+  , readProgramFile
+  ) where
 
 
 import           Control.Applicative           ((<|>))
@@ -118,10 +122,18 @@ appendProgramFile :: ProgramFilePath -> ByteString -> IO ()
 appendProgramFile (ProgramFilePath path) value =
   BS.appendFile path (value <> "\n")
 
+writeProgramFile :: ProgramFilePath -> ByteString -> IO ()
+writeProgramFile (ProgramFilePath path) value =
+  BS.writeFile path (value <> "\n")
+
 
 main :: IO ()
 main = do
   pCmd <- O.execParser command
+  handleCommand pCmd
+
+handleCommand :: Command -> IO ()
+handleCommand pCmd =
   case pCmd of
     CommandRun params' maxSteps' pf pitp atp -> do
       let ws = params' ^. #wordSize
@@ -134,7 +146,8 @@ main = do
     CommandParse inputFile outputFile -> do
       program <- lines . BC.unpack . unProgram <$> readProgramFile inputFile
       case runParser firstLine () "First line" (head program) of
-        Right (ws, rcount) ->
+        Right (ws, rcount) -> do
+          writeProgramFile outputFile ""
           mapM_
             (\x -> case runParser instruction () ("instruction: " <> x) x of
                     Right (Just ins) ->

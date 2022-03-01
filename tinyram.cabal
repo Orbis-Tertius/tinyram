@@ -6,6 +6,7 @@ license-files: LICENSE
 author:        Ardana Labs
 maintainer:    morgan.thomas@platonic.systems
 
+data-files: examples/*.s
 
 library
   exposed-modules:
@@ -83,6 +84,7 @@ test-suite spec
   main-is: Spec.hs
 
   other-modules:
+    TinyRAM.Spec.AssemblerSpec
     TinyRAM.Spec.BytesSpec
     TinyRAM.Spec.DecodeInstructionSpec
     TinyRAM.Spec.EncodeInstruction
