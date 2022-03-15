@@ -15,6 +15,6 @@ import           Data.GenValidity  (GenValid (..), genValidStructurally,
 import           Test.QuickCheck   (Gen, choose, elements, forAll, listOf,
                                     oneof)
 
-import           Test.Syd          (Spec, describe, it, shouldBe, before)
+import           Test.Syd          (Spec, before, describe, it, shouldBe)
 import           Test.Syd.Validity (forAllValid)
 import           TinyRAM.Prelude
