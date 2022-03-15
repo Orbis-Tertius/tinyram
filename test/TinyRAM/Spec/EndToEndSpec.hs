@@ -6,17 +6,15 @@
 module TinyRAM.Spec.EndToEndSpec ( spec ) where
 
 
-import qualified Data.ByteString.Char8         as BC
 
-import           TinyRAM.EntryPoint            (handleCommand, readProgramFile)
+import           TinyRAM.EntryPoint            (handleCommand, readObjectFile)
 import           TinyRAM.ExecuteProgram        (executeProgram)
 import           TinyRAM.Spec.Prelude
 import           TinyRAM.Types.Command         (Command (..))
 import           TinyRAM.Types.InputTape       (InputTape (..))
 import           TinyRAM.Types.Params          (Params (..))
-import           TinyRAM.Types.Program         (Program (..))
-import           TinyRAM.Types.ProgramFilePath (ProgramFilePath (..))
-
+import           TinyRAM.Types.ProgramFilePath (ObjectFilePath (..))
+import           TinyRAM.Types.ProgramFilePath (AssemblyFilePath (..))
 
 spec :: Spec
 spec = describe "TinyRAM end to end" $ do
@@ -25,10 +23,10 @@ spec = describe "TinyRAM end to end" $ do
 
 simpleTestCase :: Spec
 simpleTestCase =
-  before (handleCommand (CommandParse (ProgramFilePath "examples/simple.s") objectFilePath)) $
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/simple.s") objectFilePath)) $
     it "answers 7" $ do
-      program <- Program . BC.concat . BC.lines . unProgram <$> readProgramFile objectFilePath
+      program <- readObjectFile objectFilePath
       let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape []) (InputTape [])
       answer `shouldBe` Right 7
   where
-    objectFilePath = ProgramFilePath "examples/simple.o"
+    objectFilePath = ObjectFilePath "examples/simple.o"

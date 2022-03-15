@@ -2,11 +2,18 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
 
-module TinyRAM.Types.ProgramFilePath ( ProgramFilePath (..) ) where
+module TinyRAM.Types.ProgramFilePath
+  ( AssemblyFilePath (..)
+  , ObjectFilePath (..)
+  ) where
 
 
 import           TinyRAM.Prelude
 
 
-newtype ProgramFilePath = ProgramFilePath { unProgramFilePath :: FilePath }
+newtype AssemblyFilePath = AssemblyFilePath { unAssemblyFilePath :: FilePath }
+  deriving Generic
+
+
+newtype ObjectFilePath = ObjectFilePath { unObjectFilePath :: FilePath }
   deriving Generic

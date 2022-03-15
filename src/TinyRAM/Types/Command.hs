@@ -10,19 +10,19 @@ import           TinyRAM.Types.InputTapePath   (Auxiliary, InputTapePath,
                                                 Primary)
 import           TinyRAM.Types.MaxSteps        (MaxSteps)
 import           TinyRAM.Types.Params          (Params)
-import           TinyRAM.Types.ProgramFilePath (ProgramFilePath)
+import           TinyRAM.Types.ProgramFilePath (AssemblyFilePath, ObjectFilePath)
 
 
 data Command =
   CommandRun
     { params                 :: Params
     , maxSteps               :: Maybe MaxSteps
-    , programFilePath        :: ProgramFilePath
+    , objectFilePath        :: ObjectFilePath
     , primaryInputTapePath   :: InputTapePath Primary
     , auxiliaryInputTapePath :: InputTapePath Auxiliary
     }
   | CommandParse
-    { programFilePath :: ProgramFilePath
-    , outputFilePath  :: ProgramFilePath
+    { assemblyFilePath :: AssemblyFilePath
+    , outputFilePath  :: ObjectFilePath
     }
   deriving Generic

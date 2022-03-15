@@ -7,7 +7,8 @@
 module TinyRAM.EntryPoint
   ( main
   , handleCommand
-  , readProgramFile
+  , readAssemblyFile
+  , readObjectFile
   ) where
 
 
@@ -30,7 +31,7 @@ import           TinyRAM.Types.InputTapePath   (InputTapePath (..))
 import           TinyRAM.Types.MaxSteps        (MaxSteps (..))
 import           TinyRAM.Types.Params          (Params (..))
 import           TinyRAM.Types.Program         (Program (..))
-import           TinyRAM.Types.ProgramFilePath (ProgramFilePath (..))
+import           TinyRAM.Types.ProgramFilePath (AssemblyFilePath (..), ObjectFilePath (..))
 import           TinyRAM.Types.RegisterCount   (RegisterCount (..))
 import           TinyRAM.Types.Word            (Word (..))
 import           TinyRAM.Types.WordSize        (WordSize (..))
@@ -61,15 +62,15 @@ maxSteps = O.option (Just . MaxSteps <$> O.auto)
    O.help "The maximum number of instructions to execute before giving up (default: no maximum)")
 
 
-programFilePath :: O.Parser ProgramFilePath
+programFilePath :: O.Parser ObjectFilePath
 programFilePath =
-  O.argument (ProgramFilePath <$> O.str)
+  O.argument (ObjectFilePath <$> O.str)
   (O.metavar "PROGRAM" <>
    O.help "The path to the program binary file")
 
-programInputFilePath :: O.Parser ProgramFilePath
+programInputFilePath :: O.Parser AssemblyFilePath
 programInputFilePath =
-  O.argument (ProgramFilePath <$> O.str)
+  O.argument (AssemblyFilePath <$> O.str)
   (O.metavar "PROGRAM" <>
    O.help "The path to the instructions program file")
 
@@ -114,17 +115,21 @@ readInputTapeFile ws (InputTapePath path) =
   InputTape . bytesToWords ws <$> BS.readFile path
 
 
-readProgramFile :: ProgramFilePath -> IO Program
-readProgramFile (ProgramFilePath path) =
+readAssemblyFile :: AssemblyFilePath -> IO Program
+readAssemblyFile (AssemblyFilePath path) =
   Program <$> BS.readFile path
 
-appendProgramFile :: ProgramFilePath -> ByteString -> IO ()
-appendProgramFile (ProgramFilePath path) value =
-  BS.appendFile path (value <> "\n")
+readObjectFile :: ObjectFilePath -> IO Program
+readObjectFile (ObjectFilePath path) =
+  Program <$> BS.readFile path
 
-writeProgramFile :: ProgramFilePath -> ByteString -> IO ()
-writeProgramFile (ProgramFilePath path) value =
-  BS.writeFile path (value <> "\n")
+appendProgramFile :: ObjectFilePath -> ByteString -> IO ()
+appendProgramFile (ObjectFilePath path) value =
+  BS.appendFile path value
+
+writeProgramFile :: ObjectFilePath -> ByteString -> IO ()
+writeProgramFile (ObjectFilePath path) value =
+  BS.writeFile path value
 
 
 main :: IO ()
@@ -137,14 +142,14 @@ handleCommand pCmd =
   case pCmd of
     CommandRun params' maxSteps' pf pitp atp -> do
       let ws = params' ^. #wordSize
-      program <- Program . BC.concat . BC.lines . unProgram <$> readProgramFile pf
+      program <- readObjectFile pf
       primaryInput <- readInputTapeFile ws pitp
       auxInput <- readInputTapeFile ws atp
       case executeProgram params' maxSteps' program primaryInput auxInput of
         Left err     -> putStrLn . unpack $ "Error: " <> err
         Right answer -> putStrLn $ "Answer: " <> show (unWord answer)
     CommandParse inputFile outputFile -> do
-      program <- lines . BC.unpack . unProgram <$> readProgramFile inputFile
+      program <- lines . BC.unpack . unProgram <$> readAssemblyFile inputFile
       case runParser firstLine () "First line" (head program) of
         Right (ws, rcount) -> do
           writeProgramFile outputFile ""
