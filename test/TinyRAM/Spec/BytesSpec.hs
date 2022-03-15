@@ -1,12 +1,12 @@
 {-# LANGUAGE NoImplicitPrelude   #-}
+{-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE OverloadedStrings #-}
 
 
 module TinyRAM.Spec.BytesSpec ( spec ) where
 
 
-import Control.Monad
+import           Control.Monad
 import qualified Data.ByteString        as BS
 
 import           TinyRAM.Bytes          (bytesToWords, wordsToBytes)
