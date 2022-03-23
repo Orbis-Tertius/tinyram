@@ -19,7 +19,7 @@ import           TinyRAM.Types.ProgramFilePath (AssemblyFilePath (..))
 spec :: Spec
 spec = describe "TinyRAM end to end" $ do
   simpleTestCase
-
+  nonExistentTapeTestCase
 
 simpleTestCase :: Spec
 simpleTestCase =
@@ -30,3 +30,13 @@ simpleTestCase =
       answer `shouldBe` Right 7
   where
     objectFilePath = ObjectFilePath "examples/simple.o"
+
+nonExistentTapeTestCase :: Spec
+nonExistentTapeTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/nonexistent-tape.s") objectFilePath)) $
+    it "answers 0" $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right 0
+  where
+    objectFilePath = ObjectFilePath "examples/nonexistent-tape.o"
