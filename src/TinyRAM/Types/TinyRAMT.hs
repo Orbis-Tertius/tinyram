@@ -11,6 +11,7 @@ module TinyRAM.Types.TinyRAMT ( TinyRAMT (..) ) where
 import           Control.Monad.Trans.State     (StateT, gets, modify)
 import qualified Data.Map                      as Map
 
+import           Data.Maybe                    (fromJust)
 import           TinyRAM.Prelude
 import           TinyRAM.Types.HasMachineState (HasMachineState (..))
 import           TinyRAM.Types.HasParams       (HasParams (getParams))
@@ -45,7 +46,7 @@ instance Monad m => HasParams (TinyRAMT m) where
 instance Monad m => HasMachineState (TinyRAMT m) where
   getProgramCounter = TinyRAMT $ gets (^. _2 . #programCounter)
   setProgramCounter pc = TinyRAMT $ modify (_2 . #programCounter .~ pc)
-  getRegisterValue r = TinyRAMT $ gets (Map.lookup r . (^. _2 . #registerValues . #unRegisterValues))
+  getRegisterValue r = TinyRAMT $ gets (fromJust . Map.lookup r . (^. _2 . #registerValues . #unRegisterValues))
   setRegisterValue r w =
     TinyRAMT $ modify
       (\s -> _2 . #registerValues
@@ -55,10 +56,10 @@ instance Monad m => HasMachineState (TinyRAMT m) where
       )
   getConditionFlag = TinyRAMT $ gets (^. _2 . #conditionFlag)
   setConditionFlag flag = TinyRAMT $ modify (_2 . #conditionFlag .~ flag)
-  getMemoryValue addr =
+  getWord addr =
     TinyRAMT $ gets
       (Map.findWithDefault 0 addr . (^. _2 . #memoryValues . #unMemoryValues))
-  setMemoryValue addr w =
+  setWord addr w =
     TinyRAMT $  modify
       (\s -> _2 . #memoryValues
          .~ MemoryValues (Map.insert addr w (s ^. _2 . #memoryValues . #unMemoryValues))

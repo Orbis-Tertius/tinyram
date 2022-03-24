@@ -19,6 +19,7 @@ import           Data.Text                     (unpack)
 import qualified Options.Applicative           as O
 import           Text.Parsec                   (runParser)
 
+import           Numeric                       (showHex)
 import           TinyRAM.Bytes                 (bytesToWords, wordsToBytes)
 import           TinyRAM.EncodeInstruction     (encodeInstruction)
 import           TinyRAM.ExecuteProgram        (executeProgram)
@@ -31,7 +32,8 @@ import           TinyRAM.Types.InputTapePath   (InputTapePath (..))
 import           TinyRAM.Types.MaxSteps        (MaxSteps (..))
 import           TinyRAM.Types.Params          (Params (..))
 import           TinyRAM.Types.Program         (Program (..))
-import           TinyRAM.Types.ProgramFilePath (AssemblyFilePath (..), ObjectFilePath (..))
+import           TinyRAM.Types.ProgramFilePath (AssemblyFilePath (..),
+                                                ObjectFilePath (..))
 import           TinyRAM.Types.RegisterCount   (RegisterCount (..))
 import           TinyRAM.Types.Word            (Word (..))
 import           TinyRAM.Types.WordSize        (WordSize (..))
@@ -147,7 +149,7 @@ handleCommand pCmd =
       auxInput <- readInputTapeFile ws atp
       case executeProgram params' maxSteps' program primaryInput auxInput of
         Left err     -> putStrLn . unpack $ "Error: " <> err
-        Right answer -> putStrLn $ "Answer: " <> show (unWord answer)
+        Right answer -> putStrLn $ "Answer: 0x" <> showHex (unWord answer) ""
     CommandParse inputFile outputFile -> do
       program <- lines . BC.unpack . unProgram <$> readAssemblyFile inputFile
       case runParser firstLine () "First line" (head program) of

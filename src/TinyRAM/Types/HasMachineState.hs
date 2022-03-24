@@ -17,11 +17,11 @@ import           TinyRAM.Types.Word           (Word)
 class HasMachineState m where
   getProgramCounter :: m ProgramCounter
   setProgramCounter :: ProgramCounter -> m ()
-  getRegisterValue :: Register -> m (Maybe Word)
+  getRegisterValue :: Register -> m Word
   setRegisterValue :: Register -> Word -> m ()
   getConditionFlag :: m Flag
   setConditionFlag :: Flag -> m ()
-  getMemoryValue :: Address -> m Word
-  setMemoryValue :: Address -> Word -> m ()
+  getWord :: Address -> m Word
+  setWord :: Address -> Word -> m ()
   readPrimaryInput :: m (Maybe Word)
   readAuxiliaryInput :: m (Maybe Word)
