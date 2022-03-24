@@ -17,7 +17,7 @@ import           TinyRAM.Types.MaxSteps        (MaxSteps (..))
 import           TinyRAM.Types.ProgramCounter  (ProgramCounter (..))
 import           TinyRAM.Types.Word            (Word)
 
-run :: ( Monad m, HasMachineState m, HasParams m ) => Maybe MaxSteps -> m (Maybe Word)
+run :: ( HasMachineState m, HasParams m ) => Maybe MaxSteps -> m (Maybe Word)
 run (Just 0) = return Nothing
 run n = do
   rc <- getRegisterCount

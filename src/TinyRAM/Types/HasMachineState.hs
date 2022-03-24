@@ -1,11 +1,13 @@
 {-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE NoImplicitPrelude          #-}
 
 
-module TinyRAM.Types.HasMachineState ( HasMachineState (..) ) where
+module TinyRAM.Types.HasMachineState ( HasMachineState (..), Error (..) ) where
 
 
+import           Control.Monad.Except         (MonadError)
 import           TinyRAM.Prelude
 import           TinyRAM.Types.Address        (Address)
 import           TinyRAM.Types.Flag           (Flag)
@@ -14,7 +16,12 @@ import           TinyRAM.Types.Register       (Register)
 import           TinyRAM.Types.Word           (Word)
 
 
-class HasMachineState m where
+data Error =
+    InvalidOpcodeError
+  | InvalidRegisterError
+  deriving (Show)
+
+class (MonadError Error m) => HasMachineState m where
   getProgramCounter :: m ProgramCounter
   setProgramCounter :: ProgramCounter -> m ()
   getRegisterValue :: Register -> m Word

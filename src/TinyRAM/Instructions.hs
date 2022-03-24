@@ -58,7 +58,7 @@ import           TinyRAM.Types.Word                (Word (..))
 import           TinyRAM.Types.WordSize            (WordSize (..))
 
 
-andBits :: ( Monad m, HasMachineState m, HasParams m )
+andBits :: ( HasMachineState m, HasParams m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 andBits ri rj a = do
   a'  <- getImmediateOrRegister a
@@ -69,7 +69,7 @@ andBits ri rj a = do
   incrementProgramCounter
 
 
-orBits :: ( Monad m, HasMachineState m, HasParams m )
+orBits :: ( HasMachineState m, HasParams m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 orBits ri rj a = do
   a'  <- getImmediateOrRegister a
@@ -80,7 +80,7 @@ orBits ri rj a = do
   incrementProgramCounter
 
 
-xorBits :: ( Monad m, HasMachineState m, HasParams m )
+xorBits :: ( HasMachineState m, HasParams m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 xorBits ri rj a = do
   a'  <- getImmediateOrRegister a
@@ -91,7 +91,7 @@ xorBits ri rj a = do
   incrementProgramCounter
 
 
-notBits :: ( Monad m, HasMachineState m, HasParams m )
+notBits :: ( HasMachineState m, HasParams m )
   => Register -> ImmediateOrRegister -> m ()
 notBits ri a = do
   a' <- getImmediateOrRegister a
@@ -101,7 +101,7 @@ notBits ri a = do
   incrementProgramCounter
 
 
-addUnsigned :: ( Monad m, HasMachineState m, HasParams m )
+addUnsigned :: ( HasMachineState m, HasParams m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 addUnsigned ri rj a = do
   a'  <- UnsignedInt <$> getImmediateOrRegister a
@@ -114,7 +114,7 @@ addUnsigned ri rj a = do
   incrementProgramCounter
 
 
-subtractUnsigned :: ( Monad m, HasMachineState m, HasParams m )
+subtractUnsigned :: ( HasMachineState m, HasParams m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 subtractUnsigned ri rj a = do
   a'  <- UnsignedInt <$> getImmediateOrRegister a
@@ -129,7 +129,7 @@ subtractUnsigned ri rj a = do
   incrementProgramCounter
 
 
-multiplyUnsignedLSB :: ( Monad m, HasMachineState m, HasParams m )
+multiplyUnsignedLSB :: ( HasMachineState m, HasParams m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 multiplyUnsignedLSB ri rj a = do
   a'  <- UnsignedInt <$> getImmediateOrRegister a
@@ -142,7 +142,7 @@ multiplyUnsignedLSB ri rj a = do
   incrementProgramCounter
 
 
-multiplyUnsignedMSB :: ( Monad m, HasMachineState m, HasParams m )
+multiplyUnsignedMSB :: ( HasMachineState m, HasParams m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 multiplyUnsignedMSB ri rj a = do
   a'  <- UnsignedInt <$> getImmediateOrRegister a
@@ -155,7 +155,7 @@ multiplyUnsignedMSB ri rj a = do
   incrementProgramCounter
 
 
-multiplySignedMSB :: ( Monad m, HasMachineState m, HasParams m )
+multiplySignedMSB :: ( HasMachineState m, HasParams m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 multiplySignedMSB ri rj a = do
   a'  <- SignedInt <$> getImmediateOrRegister a
@@ -171,7 +171,7 @@ multiplySignedMSB ri rj a = do
   incrementProgramCounter
 
 
-divideUnsigned :: ( Monad m, HasMachineState m, HasParams m )
+divideUnsigned :: ( HasMachineState m, HasParams m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 divideUnsigned ri rj a = do
   a'  <- UnsignedInt <$> getImmediateOrRegister a
@@ -182,7 +182,7 @@ divideUnsigned ri rj a = do
   incrementProgramCounter
 
 
-modulusUnsigned :: ( Monad m, HasMachineState m, HasParams m )
+modulusUnsigned :: ( HasMachineState m, HasParams m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 modulusUnsigned ri rj a = do
   a'  <- UnsignedInt <$> getImmediateOrRegister a
@@ -193,7 +193,7 @@ modulusUnsigned ri rj a = do
   incrementProgramCounter
 
 
-shiftLeft :: ( Monad m, HasMachineState m, HasParams m )
+shiftLeft :: ( HasMachineState m, HasParams m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 shiftLeft ri rj a = do
   a'  <- UnsignedInt <$> getImmediateOrRegister a
@@ -207,7 +207,7 @@ shiftLeft ri rj a = do
 
 
 
-shiftRight :: ( Monad m, HasMachineState m, HasParams m )
+shiftRight :: ( HasMachineState m, HasParams m )
   => Register -> Register -> ImmediateOrRegister -> m ()
 shiftRight ri rj a = do
   a'  <- UnsignedInt <$> getImmediateOrRegister a
@@ -218,7 +218,7 @@ shiftRight ri rj a = do
   incrementProgramCounter
 
 
-compareEqual :: ( Monad m, HasMachineState m, HasParams m )
+compareEqual :: ( HasMachineState m, HasParams m )
   => Register -> ImmediateOrRegister -> m ()
 compareEqual ri a = do
   a'  <- getImmediateOrRegister a
@@ -227,7 +227,7 @@ compareEqual ri a = do
   incrementProgramCounter
 
 
-compareGreaterUnsigned :: ( Monad m, HasMachineState m, HasParams m )
+compareGreaterUnsigned :: ( HasMachineState m, HasParams m )
   => Register -> ImmediateOrRegister -> m ()
 compareGreaterUnsigned ri a = do
   a'  <- UnsignedInt <$> getImmediateOrRegister a
@@ -236,7 +236,7 @@ compareGreaterUnsigned ri a = do
   incrementProgramCounter
 
 
-compareGreaterOrEqualUnsigned :: ( Monad m, HasMachineState m, HasParams m )
+compareGreaterOrEqualUnsigned :: ( HasMachineState m, HasParams m )
   => Register -> ImmediateOrRegister -> m ()
 compareGreaterOrEqualUnsigned ri a = do
   a'  <- UnsignedInt <$> getImmediateOrRegister a
@@ -245,7 +245,7 @@ compareGreaterOrEqualUnsigned ri a = do
   incrementProgramCounter
 
 
-compareGreaterSigned :: ( Monad m, HasMachineState m, HasParams m )
+compareGreaterSigned :: ( HasMachineState m, HasParams m )
   => Register -> ImmediateOrRegister -> m ()
 compareGreaterSigned ri a = do
   ws  <- getWordSize
@@ -256,7 +256,7 @@ compareGreaterSigned ri a = do
 
 
 
-compareGreaterOrEqualSigned :: ( Monad m, HasMachineState m, HasParams m )
+compareGreaterOrEqualSigned :: ( HasMachineState m, HasParams m )
   => Register -> ImmediateOrRegister -> m ()
 compareGreaterOrEqualSigned ri a = do
   ws  <- getWordSize
@@ -267,7 +267,7 @@ compareGreaterOrEqualSigned ri a = do
 
 
 
-move :: ( Monad m, HasMachineState m, HasParams m )
+move :: ( HasMachineState m, HasParams m )
   => Register -> ImmediateOrRegister -> m ()
 move ri a = do
   a' <- getImmediateOrRegister a
@@ -275,7 +275,7 @@ move ri a = do
   incrementProgramCounter
 
 
-conditionalMove :: ( Monad m, HasMachineState m, HasParams m )
+conditionalMove :: ( HasMachineState m, HasParams m )
   => Register -> ImmediateOrRegister -> m ()
 conditionalMove ri a = do
   flag <- getConditionFlag
@@ -284,14 +284,14 @@ conditionalMove ri a = do
     _ -> incrementProgramCounter
 
 
-jump :: ( Monad m, HasMachineState m )
+jump :: ( HasMachineState m )
   => ImmediateOrRegister -> m ()
 jump a = do
   a' <- ProgramCounter . Address <$> getImmediateOrRegister a
   setProgramCounter a'
 
 
-jumpIfFlag :: ( Monad m, HasMachineState m, HasParams m )
+jumpIfFlag :: ( HasMachineState m, HasParams m )
   => ImmediateOrRegister -> m ()
 jumpIfFlag a = do
   flag <- getConditionFlag
@@ -300,7 +300,7 @@ jumpIfFlag a = do
     _ -> incrementProgramCounter
 
 
-jumpIfNotFlag :: ( Monad m, HasMachineState m, HasParams m )
+jumpIfNotFlag :: ( HasMachineState m, HasParams m )
   => ImmediateOrRegister -> m ()
 jumpIfNotFlag a = do
   flag <- getConditionFlag
@@ -309,7 +309,7 @@ jumpIfNotFlag a = do
     _ -> incrementProgramCounter
 
 
-store :: ( Monad m, HasMachineState m, HasParams m )
+store :: ( HasMachineState m, HasParams m )
   => ImmediateOrRegister -> Register -> m ()
 store a ri = do
   a'  <- Address <$> getImmediateOrRegister a
@@ -321,7 +321,7 @@ store a ri = do
 
 
 
-storeb :: ( Monad m, HasMachineState m, HasParams m )
+storeb :: ( HasMachineState m, HasParams m )
   => ImmediateOrRegister -> Register -> m ()
 storeb a ri = do
   a'  <- Address <$> getImmediateOrRegister a
@@ -335,7 +335,7 @@ storeb a ri = do
 
 
 
-load :: ( Monad m, HasMachineState m, HasParams m )
+load :: ( HasMachineState m, HasParams m )
   => Register -> ImmediateOrRegister -> m ()
 load ri a = do
   a' <- Address <$> getImmediateOrRegister a
@@ -346,7 +346,7 @@ load ri a = do
   incrementProgramCounter
 
 
-loadb :: ( Monad m, HasMachineState m, HasParams m )
+loadb :: ( HasMachineState m, HasParams m )
   => Register -> ImmediateOrRegister -> m ()
 loadb ri a = do
   a' <- Address <$> getImmediateOrRegister a
@@ -358,7 +358,7 @@ loadb ri a = do
   incrementProgramCounter
 
 
-readInputTape :: ( Monad m, HasMachineState m, HasParams m )
+readInputTape :: ( HasMachineState m, HasParams m )
   => Register -> ImmediateOrRegister -> m ()
 readInputTape ri a = do
   a' <- getImmediateOrRegister a

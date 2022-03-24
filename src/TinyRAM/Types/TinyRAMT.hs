@@ -1,9 +1,11 @@
 {-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE OverloadedLabels           #-}
 {-# LANGUAGE TypeApplications           #-}
-
+{-# LANGUAGE UndecidableInstances       #-}
 
 module TinyRAM.Types.TinyRAMT ( TinyRAMT (..) ) where
 
@@ -11,9 +13,11 @@ module TinyRAM.Types.TinyRAMT ( TinyRAMT (..) ) where
 import           Control.Monad.Trans.State     (StateT, gets, modify)
 import qualified Data.Map                      as Map
 
-import           Data.Maybe                    (fromJust)
+import           Control.Monad.Except          (MonadError (..))
+import           Control.Monad.Trans.Except    (ExceptT)
 import           TinyRAM.Prelude
-import           TinyRAM.Types.HasMachineState (HasMachineState (..))
+import           TinyRAM.Types.HasMachineState (Error (..),
+                                                HasMachineState (..))
 import           TinyRAM.Types.HasParams       (HasParams (getParams))
 import           TinyRAM.Types.InputTape       (Auxiliary,
                                                 InputTape (InputTape), Primary)
@@ -23,11 +27,11 @@ import           TinyRAM.Types.Params          (Params)
 import           TinyRAM.Types.RegisterValues  (RegisterValues (..))
 
 
-newtype TinyRAMT m a = TinyRAMT { unTinyRAMT :: StateT (Params, MachineState) m a }
+newtype TinyRAMT m a = TinyRAMT { unTinyRAMT :: StateT (Params, MachineState) (ExceptT Error m) a }
   deriving Generic
 
 instance MonadTrans TinyRAMT where
-  lift = TinyRAMT . lift
+  lift = TinyRAMT . lift . lift
 
 instance Functor m => Functor (TinyRAMT m) where
   fmap f = TinyRAMT . fmap f . unTinyRAMT
@@ -43,10 +47,19 @@ instance Monad m => Monad (TinyRAMT m) where
 instance Monad m => HasParams (TinyRAMT m) where
   getParams = TinyRAMT $ gets (^. _1)
 
-instance Monad m => HasMachineState (TinyRAMT m) where
+instance Monad m => MonadError Error (TinyRAMT m) where
+  throwError = TinyRAMT . throwError
+  catchError ma handler = TinyRAMT (catchError (unTinyRAMT ma) (unTinyRAMT . handler))
+
+
+instance (Monad m, MonadError Error (TinyRAMT m)) => HasMachineState (TinyRAMT m) where
   getProgramCounter = TinyRAMT $ gets (^. _2 . #programCounter)
   setProgramCounter pc = TinyRAMT $ modify (_2 . #programCounter .~ pc)
-  getRegisterValue r = TinyRAMT $ gets (fromJust . Map.lookup r . (^. _2 . #registerValues . #unRegisterValues))
+  getRegisterValue r = TinyRAMT $ do
+                          maybeWord <- gets ( Map.lookup r . (^. _2 . #registerValues . #unRegisterValues))
+                          case maybeWord of
+                            Just word -> return word
+                            _         -> throwError InvalidRegisterError
   setRegisterValue r w =
     TinyRAMT $ modify
       (\s -> _2 . #registerValues

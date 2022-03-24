@@ -7,7 +7,9 @@
 module TinyRAM.ExecuteProgram ( executeProgram ) where
 
 
+import           Control.Monad.Trans.Except   (runExceptT)
 import           Control.Monad.Trans.State    (StateT (runStateT))
+import qualified Data.Bifunctor               as Bi
 import           Data.Functor.Identity        (Identity (runIdentity))
 import qualified Data.Map                     as Map
 import           Data.Text                    (pack)
@@ -38,12 +40,14 @@ executeProgram
   -> Either Text Word
 executeProgram params maxSteps program primaryInput auxInput = do
   memoryValues <- programToMemoryValues params program
-  maybe (Left $ "program did not terminate in " <> pack (show maxSteps)) Right
-    . fst . runIdentity
-    $
-    runStateT
-    (unTinyRAMT (run maxSteps))
-    (params, initialMachineState params memoryValues primaryInput auxInput)
+  let result =
+        runIdentity $
+        runExceptT $
+        runStateT
+        (unTinyRAMT (run maxSteps))
+        (params, initialMachineState params memoryValues primaryInput auxInput)
+  (maybeWord, _ ) <- Bi.first (pack . show) result
+  maybe (Left $ "program did not terminate in " <> pack (show maxSteps)) Right maybeWord
 
 
 initialMachineState

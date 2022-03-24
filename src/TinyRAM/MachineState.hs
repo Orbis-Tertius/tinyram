@@ -34,7 +34,7 @@ import           TinyRAM.Types.Register            (Register (..))
 import           TinyRAM.Types.Word                (Word)
 
 
-getImmediateOrRegister :: ( Monad m, HasMachineState m )
+getImmediateOrRegister :: HasMachineState m
   => ImmediateOrRegister -> m Word
 getImmediateOrRegister (IsImmediate w) = return w
 getImmediateOrRegister (IsRegister r)  = getRegisterValue r
