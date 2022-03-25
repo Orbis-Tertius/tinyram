@@ -5,13 +5,17 @@
 module TinyRAM.Run ( run ) where
 
 
+import           Control.Monad                 (unless)
+import           Control.Monad.Except          (throwError)
+
 import           TinyRAM.Bytes                 (bytesPerWord)
 import           TinyRAM.DecodeInstruction     (decodeInstruction)
 import           TinyRAM.ExecuteInstruction    (executeInstruction)
 import           TinyRAM.MachineState          (getImmediateOrRegister)
 import           TinyRAM.Params                (getRegisterCount, getWordSize)
 import           TinyRAM.Prelude
-import           TinyRAM.Types.HasMachineState (HasMachineState (..))
+import           TinyRAM.Types.HasMachineState (Error (InvalidPCAlignment),
+                                                HasMachineState (..))
 import           TinyRAM.Types.HasParams       (HasParams)
 import           TinyRAM.Types.MaxSteps        (MaxSteps (..))
 import           TinyRAM.Types.ProgramCounter  (ProgramCounter (..))
@@ -24,6 +28,7 @@ run n = do
   ws <- getWordSize
   let  bytesPerWord' = bytesPerWord ws
   pc <- unProgramCounter <$> getProgramCounter
+  unless (pc `mod` fromIntegral bytesPerWord' == 0) (throwError InvalidPCAlignment )
   i0 <- getWord pc
   i1 <- getWord (pc + fromIntegral bytesPerWord')
   let i = decodeInstruction ws rc (i0, i1) in

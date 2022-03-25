@@ -22,7 +22,7 @@ spec = describe "bytesToWords" $ do
         let bytesPerWord = unWordSize ws `quot` 8
         in length (bytesToWords ws bs)
            `shouldBe`
-           (BS.length bs `quot` bytesPerWord)
+           ((BS.length bs + bytesPerWord - 1) `quot` bytesPerWord)
   it "validate identity law, wordsToBytes . bytesToWords = id" $
     forAllValid $ \(ws :: WordSize) ->
       forAllValid $ \(bs :: ByteString) ->

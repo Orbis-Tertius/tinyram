@@ -19,7 +19,8 @@ import           TinyRAM.Types.Word           (Word)
 data Error =
     InvalidOpcodeError
   | InvalidRegisterError
-  deriving (Show)
+  | InvalidPCAlignment
+  deriving (Eq, Show)
 
 class (MonadError Error m) => HasMachineState m where
   getProgramCounter :: m ProgramCounter
