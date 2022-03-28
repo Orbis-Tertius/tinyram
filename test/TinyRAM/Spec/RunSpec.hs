@@ -6,20 +6,28 @@
 module TinyRAM.Spec.RunSpec ( spec ) where
 
 
+import           Control.Monad                     (join)
+import           Control.Monad.Trans.Except        (runExceptT)
 import           Control.Monad.Trans.State         (StateT (runStateT))
+import           Data.Either.Combinators           (isRight, rightToMaybe)
 import           Data.Functor.Identity             (Identity (runIdentity))
 
+import           Test.Syd                          (expectationFailure,
+                                                    shouldSatisfy)
+import           TinyRAM.Bytes                     (bytesPerWord)
 import           TinyRAM.DecodeInstruction         (decodeInstruction)
+import           TinyRAM.EncodeInstruction         (instructionToDword)
 import           TinyRAM.ExecuteInstruction        (executeInstruction)
 import           TinyRAM.MachineState              (getImmediateOrRegister,
                                                     validateMachineState,
                                                     validateWord)
 import           TinyRAM.Run                       (run)
-import           TinyRAM.Spec.EncodeInstruction    (encodeInstruction)
 import           TinyRAM.Spec.Gen                  (genImmediateOrRegister,
                                                     genParamsMachineState)
 import           TinyRAM.Spec.Prelude
-import           TinyRAM.Types.HasMachineState     (HasMachineState (getProgramCounter, setMemoryValue))
+import           TinyRAM.Types.HasMachineState     (Error,
+                                                    HasMachineState (getProgramCounter, setWord))
+import           TinyRAM.Types.HasParams           (HasParams (getParams))
 import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
 import           TinyRAM.Types.Instruction         (Instruction (..))
 import           TinyRAM.Types.MachineState        (MachineState)
@@ -29,58 +37,72 @@ import           TinyRAM.Types.ProgramCounter      (ProgramCounter (..))
 import           TinyRAM.Types.TinyRAMT            (TinyRAMT (..))
 import           TinyRAM.Types.Word                (Word)
 
+executionError :: Error -> IO a
+executionError = expectationFailure . show
 
 spec :: Spec
 spec = describe "run" $ do
   it "results in a valid answer" $
     forAll genParamsMachineState $ \x@(ps, _state) ->
-      let (answer, _) = run' x
+      let answer = run'' x
       in case answer of
            Nothing      -> return ()
            Just answer' -> validateWord "Answer" ps answer' `shouldBe` mempty
 
   it "does not change the params" $
     forAll genParamsMachineState $ \x@(ps, _state) ->
-      let (_, (ps', _)) = run' x
-      in ps' `shouldBe` ps
+      let answer = run' x
+      in  case answer of
+        Right (_, (ps', _)) -> ps' `shouldBe` ps
+        Left e              -> executionError e
 
   it "results in a valid machine state" $
     forAll genParamsMachineState $ \x@(ps, _state) ->
-      let (_, (_, s)) = run' x
-      in validateMachineState ps s `shouldBe` mempty
+      let eitherState = snd . snd <$> run' x
+      in case eitherState of
+        Right s -> validateMachineState ps s `shouldBe` mempty
+        Left e  -> executionError e
 
   it "produces the same result when split into multiple runs" $
     forAll genParamsMachineState $ \x ->
       forAll (MaxSteps <$> choose (0, 100)) $ \(i :: MaxSteps) ->
         forAll (MaxSteps <$> choose (0, 100)) $ \(j :: MaxSteps) ->
-          let a = runIdentity . runStateT (unTinyRAMT (run (Just (i+j))))
-              b = runIdentity . runStateT (unTinyRAMT (run (Just i) >> run (Just j)))
+          let a = runIdentity . runExceptT . runStateT (unTinyRAMT (run (Just (i+j))))
+              b = runIdentity . runExceptT . runStateT (unTinyRAMT (run (Just i) >> run (Just j)))
           in a x `shouldBe` b x
 
   it "executes a single instruction when MaxSteps = 1" $
     forAll genParamsMachineState $ \x ->
-      let a  = snd $ runIdentity . runStateT (unTinyRAMT (run (Just 1))) $ x
+      let a  = runIdentity . runExceptT . runStateT  (unTinyRAMT (run (Just 1))) $ x
           pc = x ^. _2 . #programCounter . #unProgramCounter
           i0 = fromMaybe 0 $ x ^. _2 . #memoryValues . #unMemoryValues . at pc
           i1 = fromMaybe 0 $ x ^. _2 . #memoryValues . #unMemoryValues . at (pc+1)
-          i  = decodeInstruction (x ^. _1 . #registerCount) (i0, i1)
-          b  = snd $ runIdentity . runStateT (unTinyRAMT (executeInstruction i)) $ x
-      in a `shouldBe` b
+          i  = decodeInstruction (x ^. _1 . #wordSize) (x ^. _1 . #registerCount) (i0, i1)
+          b  = runIdentity . runExceptT . runStateT (unTinyRAMT (executeInstruction i)) $ x
+      in  do
+            a `shouldSatisfy` isRight
+            (snd <$> a) `shouldBe` (snd <$> b)
 
   it "halts on an answer instruction" $
     forAll genParamsMachineState $ \x@(ps, _state) ->
       forAll (genImmediateOrRegister (ps ^. #wordSize) (ps ^. #registerCount))
         $ \(a :: ImmediateOrRegister) ->
-            let ((answer, expectedAnswer), _) = runIdentity (runStateT (unTinyRAMT m) x)
-                m = do
+            let m = do
                   ProgramCounter pc <- getProgramCounter
-                  let (i0, i1) = encodeInstruction (ps ^. #registerCount) (Instruction 31 a 0 0)
+                  wordSize <- (^. #wordSize) <$> getParams
+                  let (i0, i1) = instructionToDword wordSize (ps ^. #registerCount) (Instruction 31 a 0 0)
                   expectedAnswer' <- getImmediateOrRegister a
-                  setMemoryValue pc i0
-                  setMemoryValue (pc+1) i1
+                  setWord pc i0
+                  setWord (pc + fromIntegral (bytesPerWord wordSize)) i1
                   answer' <- run (Just 100)
-                  return (answer', expectedAnswer')
-            in answer `shouldBe` expectedAnswer
+                  return (answer', Just expectedAnswer')
+                result = fst <$> (runIdentity . runExceptT . runStateT (unTinyRAMT m) $ x)
+            in case result of
+              Right (answer, expectedAnswer) -> answer `shouldBe` expectedAnswer
+              Left e                         -> executionError e
 
-run' :: (Params, MachineState) -> (Maybe Word, (Params, MachineState))
-run' = runIdentity . runStateT (unTinyRAMT (run (Just 100)))
+run' :: (Params, MachineState) -> Either Error (Maybe Word, (Params, MachineState))
+run' = runIdentity . runExceptT . runStateT (unTinyRAMT (run (Just 100)))
+
+run'' :: (Params, MachineState) -> Maybe Word
+run'' i = join (rightToMaybe (fst <$> run' i))

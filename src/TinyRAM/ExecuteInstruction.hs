@@ -4,6 +4,7 @@
 
 module TinyRAM.ExecuteInstruction ( executeInstruction ) where
 
+import           Control.Monad.Except              (throwError)
 
 import           TinyRAM.Instructions              (addUnsigned, andBits,
                                                     compareEqual,
@@ -14,23 +15,25 @@ import           TinyRAM.Instructions              (addUnsigned, andBits,
                                                     conditionalMove,
                                                     divideUnsigned, jump,
                                                     jumpIfFlag, jumpIfNotFlag,
-                                                    load, modulusUnsigned, move,
+                                                    load, loadb,
+                                                    modulusUnsigned, move,
                                                     multiplySignedMSB,
                                                     multiplyUnsignedLSB,
                                                     multiplyUnsignedMSB,
                                                     notBits, orBits,
                                                     readInputTape, shiftLeft,
-                                                    shiftRight, store,
+                                                    shiftRight, store, storeb,
                                                     subtractUnsigned, xorBits)
 import           TinyRAM.Prelude
-import           TinyRAM.Types.HasMachineState     (HasMachineState (..))
+import           TinyRAM.Types.HasMachineState     (Error (..),
+                                                    HasMachineState (..))
 import           TinyRAM.Types.HasParams           (HasParams)
 import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
 import           TinyRAM.Types.Instruction         (Instruction)
 import           TinyRAM.Types.Register            (Register)
 
 
-executeInstruction :: ( Monad m, HasMachineState m, HasParams m )
+executeInstruction :: ( HasMachineState m, HasParams m )
   => Instruction -> m ()
 executeInstruction i =
   case i ^. #opcode of
@@ -57,10 +60,12 @@ executeInstruction i =
     20 -> oneArgOpcode jump i
     21 -> oneArgOpcode jumpIfFlag i
     22 -> oneArgOpcode jumpIfNotFlag i
+    26 -> twoArgOpcode (flip storeb) i
+    27 -> twoArgOpcode loadb i
     28 -> twoArgOpcode (flip store) i
     29 -> twoArgOpcode load i
     30 -> twoArgOpcode readInputTape i
-    _  -> return ()
+    _  -> throwError InvalidOpcodeError
 
 
 threeArgOpcode :: (Register -> Register -> ImmediateOrRegister -> a) -> Instruction -> a

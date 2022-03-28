@@ -8,6 +8,8 @@ module TinyRAM.Spec.ExecuteInstructionSpec ( spec ) where
 import           Control.Monad.Trans.State         (StateT (runStateT))
 import           Data.Functor.Identity             (Identity (runIdentity))
 
+import           Control.Monad.Trans.Except        (runExceptT)
+import           TinyRAM.Bytes                     (bytesPerWord)
 import           TinyRAM.ExecuteInstruction        (executeInstruction)
 import           TinyRAM.MachineState              (conditionToFlag)
 import           TinyRAM.SignedArithmetic          (decodeSignedInt,
@@ -34,77 +36,78 @@ spec = describe "executeInstruction" $
   it "implements the proper state transitions for valid inputs" $
     forAll genParamsMachineState $ \x@(ps, state) ->
       forAll (genInstruction (ps ^. #wordSize) (ps ^. #registerCount)) $ \i ->
-        snd (snd (runIdentity (runStateT (unTinyRAMT (executeInstruction i)) x)))
-          `shouldBe` instructionStateTransition ps i state
+        let machineState = snd . snd <$> runIdentity (runExceptT (runStateT (unTinyRAMT (executeInstruction i)) x))
+            expectedMachineState = instructionStateTransition ps i state
+         in machineState `shouldBe` Right expectedMachineState
 
 
 instructionStateTransition :: Params -> Instruction -> MachineState -> MachineState
 instructionStateTransition ps i =
   case i ^. #opcode of
     -- and
-    0  -> functionOpcode (.&.) (\x y -> conditionToFlag (x .&. y == 0)) i
+    0  -> functionOpcode (.&.) (\x y -> conditionToFlag (x .&. y == 0)) i ws
     -- or
-    1  -> functionOpcode (.|.) (\x y -> conditionToFlag (x .|. y == 0)) i
+    1  -> functionOpcode (.|.) (\x y -> conditionToFlag (x .|. y == 0)) i ws
     -- xor
-    2  -> functionOpcode xor   (\x y -> conditionToFlag (x `xor` y == 0)) i
+    2  -> functionOpcode xor   (\x y -> conditionToFlag (x `xor` y == 0)) i ws
     -- not
-    3  -> functionOpcode (\a _ -> complement a) (\a _ -> conditionToFlag (complement a == 0)) i
+    3  -> functionOpcode (\a _ -> complement a) (\a _ -> conditionToFlag (complement a == 0)) i ws
     -- add
     4  -> functionOpcode (\x y -> (x + y) .&. wordSizeBitmask)
                          (\x y -> conditionToFlag $ (x + y) .&. wordSizeBitmaskMSB /= 0)
-                         i
+                         i ws
     -- sub
     5  -> functionOpcode (\x y -> (y + wordStrictBound - x) .&. wordSizeBitmask)
                          (\x y -> conditionToFlag ((y + wordStrictBound - x) .&. wordSizeBitmaskMSB /= 0))
-                         i
+                         i ws
     -- mull
     6  -> functionOpcode (\x y -> ((x * y) .&. wordSizeBitmask))
                          (\x y -> conditionToFlag ((x * y) .&. wordSizeBitmaskMSB /= 0))
-                         i
+                         i ws
     -- umulh
     7  -> functionOpcode (\x y -> ((x * y) `shift` (negate (ws ^. #unWordSize))))
                          (\x y -> conditionToFlag ((x * y) .&. wordSizeBitmaskMSB /= 0))
-                         i
+                         i ws
     -- smulh
     8  -> functionOpcode (\x y -> unSignedInt $ signedMultiplyHigh ws (SignedInt x) (SignedInt y))
                          (\x y -> conditionToFlag $ (unUnsignedInt ( (getUnsignedComponent ws (SignedInt x))
                                                                     * getUnsignedComponent ws (SignedInt y) )
                                                        .&. wordSizeBitmaskMSB)
                                                      /= 0)
-                         i
+                         i ws
     -- udiv
     9  -> functionOpcode (\x y -> if x == 0 then 0 else (y `div` x) .&. wordSizeBitmask)
                          (\x _ -> conditionToFlag (x == 0))
-                         i
+                         i ws
     -- umod
     10 -> functionOpcode (\x y -> if x == 0 then 0 else (y `mod` x) .&. wordSizeBitmask)
                          (\x _ -> conditionToFlag (x == 0))
-                         i
+                         i ws
     -- shl
     11 -> functionOpcode (\x y -> (y `shift` fromIntegral (min (fromIntegral ws) x)) .&. wordSizeBitmask)
                          (\_ y -> conditionToFlag $ y .&. (2 ^ (ws ^. #unWordSize - 1)) /= 0)
-                         i
+                         i ws
     -- shr
     12 -> functionOpcode (\x y -> (y `shift` negate (fromIntegral (min (fromIntegral ws) x))) .&. wordSizeBitmask)
                          (\_ y -> Flag . fromIntegral $ y .&. 1)
-                         i
+                         i ws
     -- cmpe
-    13 -> comparisonOpcode (==) i
+    13 -> comparisonOpcode (==) i ws
     -- cmpa
-    14 -> comparisonOpcode (<)  i
+    14 -> comparisonOpcode (<)  i ws
     -- cmpae
-    15 -> comparisonOpcode (<=) i
+    15 -> comparisonOpcode (<=) i ws
     -- cmpg
-    16 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) < decodeSignedInt ws (SignedInt y)) i
+    16 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) < decodeSignedInt ws (SignedInt y)) i ws
     -- cmpge
-    17 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) <= decodeSignedInt ws (SignedInt y)) i
+    17 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) <= decodeSignedInt ws (SignedInt y)) i ws
     -- mov
-    18 -> incrementPC
+    18 -> incrementPC ws
         . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
               .~ Just (getA i s)
               $ s)
     -- cmov
-    19 -> incrementPC
+    19 -> incrementPC ws
         . (\s ->
             if s ^. #conditionFlag == 0
             then s
@@ -115,24 +118,24 @@ instructionStateTransition ps i =
     20 -> \s -> #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
     -- cjmp
     21 -> \s -> if s ^. #conditionFlag == 0
-                then incrementPC s
+                then incrementPC ws s
                 else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
     -- cnjmp
     22 -> \s -> if s ^. #conditionFlag == 1
-                then incrementPC s
+                then incrementPC ws s
                 else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
     -- store
-    28 -> incrementPC
-        . (\s -> #memoryValues . #unMemoryValues . at (Address (getA i s))
+    28 -> incrementPC ws
+        . (\s -> #memoryValues . #unMemoryValues . at (fst $ alignToWord ws (Address (getA i s)))
               .~ Just (getRI i s)
                $ s)
     -- load
-    29 -> incrementPC
+    29 -> incrementPC ws
         . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
-              .~ Just (fromMaybe 0 (s ^. #memoryValues . #unMemoryValues . at (Address (getA i s))))
+              .~ Just (fromMaybe 0 (s ^. #memoryValues . #unMemoryValues . at (fst $ alignToWord ws (Address (getA i s)))))
                $ s)
     -- read
-    30 -> incrementPC . readInputTape i
+    30 -> incrementPC ws . readInputTape i
     _  -> id
   where
     ws :: WordSize
@@ -148,18 +151,26 @@ instructionStateTransition ps i =
     wordSizeBitmaskMSB = wordSizeBitmask `shift` (ps ^. #wordSize . #unWordSize)
 
 
-incrementPC :: MachineState -> MachineState
-incrementPC s = #programCounter .~ (s ^. #programCounter + 2) $ s
+incrementPC :: WordSize -> MachineState -> MachineState
+incrementPC ws s = #programCounter .~ (s ^. #programCounter + fromIntegral (2 * bytesPerWord ws)) $ s
+
+
+alignToWord :: WordSize -> Address -> (Address, Integer)
+alignToWord ws address =
+  (address - fromIntegral offset, toInteger offset)
+  where
+    offset = fromIntegral address `rem` bytesPerWord ws
 
 
 functionOpcode
   :: (Word -> Word -> Word)
   -> (Word -> Word -> Flag)
   -> Instruction
+  -> WordSize
   -> MachineState
   -> MachineState
-functionOpcode f p i s =
-  incrementPC
+functionOpcode f p i ws s =
+  incrementPC ws
   .
   (#registerValues . #unRegisterValues . at (i ^. #ri)
      .~ Just (f a rj))
@@ -174,10 +185,11 @@ functionOpcode f p i s =
 comparisonOpcode
   :: (Word -> Word -> Bool)
   -> Instruction
+  -> WordSize
   -> MachineState
   -> MachineState
-comparisonOpcode p i s =
-  incrementPC
+comparisonOpcode p i ws s =
+  incrementPC ws
   .
   (#conditionFlag .~ conditionToFlag (p a ri))
   $
