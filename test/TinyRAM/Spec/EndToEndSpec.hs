@@ -21,6 +21,7 @@ spec = describe "TinyRAM end to end" $ do
   simpleTestCase
   nonExistentTapeTestCase
   negativeTestCase
+  negative8bitTestCase
 
 simpleTestCase :: Spec
 simpleTestCase =
@@ -51,3 +52,14 @@ negativeTestCase =
       answer `shouldBe` Right (65532)
   where 
     objectFilePath = ObjectFilePath "examples/negative.o"
+
+negative8bitTestCase :: Spec
+negative8bitTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/negative8bit.s") objectFilePath)) $
+    it "answers 254, the two's complement of -2 for a 8 bit word" $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 8 8) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (254)
+  where 
+    objectFilePath = ObjectFilePath "examples/negative8bit.o"
+
