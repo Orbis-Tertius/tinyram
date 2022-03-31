@@ -2,6 +2,7 @@
 {-# LANGUAGE OverloadedLabels  #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 
 module TinyRAM.EntryPoint
@@ -9,13 +10,14 @@ module TinyRAM.EntryPoint
   , handleCommand
   , readAssemblyFile
   , readObjectFile
+  , assemble
   ) where
 
 
 import           Control.Applicative           ((<|>))
 import qualified Data.ByteString               as BS
 import qualified Data.ByteString.Char8         as BC
-import           Data.Text                     (unpack)
+import           Data.Text                     (unpack, pack)
 import qualified Options.Applicative           as O
 import           Text.Parsec                   (runParser)
 
@@ -148,24 +150,32 @@ handleCommand pCmd =
       case executeProgram params' maxSteps' program primaryInput auxInput of
         Left err     -> putStrLn . unpack $ "Error: " <> err
         Right answer -> putStrLn $ "Answer: " <> show (unWord answer)
-
-assemble :: AssemblyFilePath -> ObjectFilePath -> Either Text Word
     CommandParse inputFile outputFile -> do
-      program <- lines . BC.unpack . unProgram <$> readAssemblyFile inputFile
-      case runParser firstLine () "First line" (head program) of
-        Right (ws, rcount) ->
-          if (6 + 2 * ceiling (logBase 2 (fromIntegral rcount :: Double)) > ws)
-            then putStrLn $ "Error: The constraint 6 + 2*ceil(log_2(K)) <= W is not satisfied."
-            else do
-              writeProgramFile outputFile ""
-              mapM_
-                (\x -> case runParser instruction () ("instruction: " <> x) x of
-                        Right (Just ins) ->
-                          appendProgramFile
-                            outputFile
-                            (wordsToBytes (2 * ws) . pure $ encodeInstruction ins ws rcount)
-                        Right Nothing -> putStrLn $ "Parse Failed: " <> x
-                        Left err -> putStrLn $ "Error: " <> show err
-                )
-                (tail program)
+      result <- assemble inputFile outputFile
+      case result of
         Left err -> putStrLn $ "Error: " <> show err
+        Right () -> return ()
+
+assemble :: AssemblyFilePath -> ObjectFilePath -> IO (Either Text ())
+assemble inputFile outputFile = do
+  program <- lines . BC.unpack . unProgram <$> readAssemblyFile inputFile
+  case runParser firstLine () "First line" (head program) of
+    Right (ws, rcount) ->
+      if (6 + 2 * ceiling (logBase 2 (fromIntegral rcount :: Double)) > ws)
+        then return (Left "The constraint 6 + 2*ceil(log_2(K)) <= W is not satisfied.")
+        else do
+          writeProgramFile outputFile ""
+          results :: [Either Text ()] <-
+            mapM
+            (\x -> case runParser instruction () ("instruction: " <> x) x of
+                    Right (Just ins) -> do
+                      appendProgramFile
+                        outputFile
+                        (wordsToBytes (2 * ws) . pure $ encodeInstruction ins ws rcount)
+                      return (Right ())
+                    Right Nothing -> return (Left ("Parse Failed: " <> pack x))
+                    Left err -> return (Left (pack (show err)))
+            )
+            (tail program)
+          return (sequence_ results)
+    Left err -> return (Left (pack (show err)))

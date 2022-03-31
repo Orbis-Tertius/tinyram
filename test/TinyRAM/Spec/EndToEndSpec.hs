@@ -7,8 +7,9 @@
 module TinyRAM.Spec.EndToEndSpec ( spec ) where
 
 
+import Control.Monad.IO.Class (liftIO)
 
-import           TinyRAM.EntryPoint            (handleCommand, readObjectFile)
+import           TinyRAM.EntryPoint            (handleCommand, readObjectFile, assemble)
 import           TinyRAM.ExecuteProgram        (executeProgram)
 import           TinyRAM.Spec.Prelude
 import           TinyRAM.Types.Command         (Command (..))
@@ -67,10 +68,8 @@ negative8bitTestCase =
 
 breakWKconstraintTestCase :: Spec
 breakWKconstraintTestCase = 
-  before (handleCommand (CommandParse (AssemblyFilePath "examples/breakWKconstraint.s") objectFilePath)) $
-    it "answers 2, if changing the word size to 8 with 16 registers does not break the constraints." $ do
-      program <- readObjectFile objectFilePath
-      let answer = executeProgram (Params 8 2) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
-      answer `shouldBe` Left "The constraint 6 + 2*ceil(log_2(K)) <= W is not satisfied."
-  where 
-    objectFilePath = ObjectFilePath "examples/breakWKconstraint.o"
+  it "fails to assemble when the WK constraint is not satisfied" $ do
+    result <- liftIO $ assemble
+      (AssemblyFilePath "examples/breakWKconstraint.s")
+      (ObjectFilePath "examples/breakWKconstraint.o")
+    result `shouldBe` (Left "The constraint 6 + 2*ceil(log_2(K)) <= W is not satisfied.")
