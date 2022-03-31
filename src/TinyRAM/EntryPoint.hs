@@ -1,7 +1,7 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLabels  #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE NoImplicitPrelude   #-}
+{-# LANGUAGE OverloadedLabels    #-}
+{-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE RecordWildCards     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 
@@ -17,7 +17,7 @@ module TinyRAM.EntryPoint
 import           Control.Applicative           ((<|>))
 import qualified Data.ByteString               as BS
 import qualified Data.ByteString.Char8         as BC
-import           Data.Text                     (unpack, pack)
+import           Data.Text                     (pack, unpack)
 import qualified Options.Applicative           as O
 import           Text.Parsec                   (runParser)
 
@@ -33,7 +33,8 @@ import           TinyRAM.Types.InputTapePath   (InputTapePath (..))
 import           TinyRAM.Types.MaxSteps        (MaxSteps (..))
 import           TinyRAM.Types.Params          (Params (..))
 import           TinyRAM.Types.Program         (Program (..))
-import           TinyRAM.Types.ProgramFilePath (AssemblyFilePath (..), ObjectFilePath (..))
+import           TinyRAM.Types.ProgramFilePath (AssemblyFilePath (..),
+                                                ObjectFilePath (..))
 import           TinyRAM.Types.RegisterCount   (RegisterCount (..))
 import           TinyRAM.Types.Word            (Word (..))
 import           TinyRAM.Types.WordSize        (WordSize (..))
