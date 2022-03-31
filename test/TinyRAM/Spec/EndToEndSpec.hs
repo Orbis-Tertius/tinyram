@@ -20,6 +20,7 @@ spec :: Spec
 spec = describe "TinyRAM end to end" $ do
   simpleTestCase
   nonExistentTapeTestCase
+  negativeTestCase
 
 simpleTestCase :: Spec
 simpleTestCase =
@@ -41,12 +42,12 @@ nonExistentTapeTestCase =
   where
     objectFilePath = ObjectFilePath "examples/nonexistent-tape.o"
 
-negative :: Spec
-negative = 
+negativeTestCase :: Spec
+negativeTestCase = 
   before (handleCommand (CommandParse (AssemblyFilePath "examples/negative.s") objectFilePath)) $
     it "answers -4" $ do
       program <- readObjectFile objectFilePath
       let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
-      answer `shouldBe` Right -4
-  where
+      answer `shouldBe` Right (-4)
+  where 
     objectFilePath = ObjectFilePath "examples/negative.o"
