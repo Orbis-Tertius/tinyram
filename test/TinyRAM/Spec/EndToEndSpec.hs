@@ -45,9 +45,9 @@ nonExistentTapeTestCase =
 negativeTestCase :: Spec
 negativeTestCase = 
   before (handleCommand (CommandParse (AssemblyFilePath "examples/negative.s") objectFilePath)) $
-    it "answers -4" $ do
+    it "answers 65532" $ do
       program <- readObjectFile objectFilePath
       let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
-      answer `shouldBe` Right (-4)
+      answer `shouldBe` Right (65532)
   where 
     objectFilePath = ObjectFilePath "examples/negative.o"
