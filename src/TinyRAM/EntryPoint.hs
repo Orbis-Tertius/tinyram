@@ -157,6 +157,7 @@ handleCommand pCmd =
         Left err -> putStrLn $ "Error: " <> show err
         Right () -> return ()
 
+-- This could look better refactored to use ExceptT.
 assemble :: AssemblyFilePath -> ObjectFilePath -> IO (Either Text ())
 assemble inputFile outputFile = do
   program <- lines . BC.unpack . unProgram <$> readAssemblyFile inputFile
