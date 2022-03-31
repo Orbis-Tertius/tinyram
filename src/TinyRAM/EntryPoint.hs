@@ -148,19 +148,24 @@ handleCommand pCmd =
       case executeProgram params' maxSteps' program primaryInput auxInput of
         Left err     -> putStrLn . unpack $ "Error: " <> err
         Right answer -> putStrLn $ "Answer: " <> show (unWord answer)
+
+assemble :: AssemblyFilePath -> ObjectFilePath -> Either Text Word
     CommandParse inputFile outputFile -> do
       program <- lines . BC.unpack . unProgram <$> readAssemblyFile inputFile
       case runParser firstLine () "First line" (head program) of
-        Right (ws, rcount) -> do
-          writeProgramFile outputFile ""
-          mapM_
-            (\x -> case runParser instruction () ("instruction: " <> x) x of
-                    Right (Just ins) ->
-                      appendProgramFile
-                        outputFile
-                        (wordsToBytes (2 * ws) . pure $ encodeInstruction ins ws rcount)
-                    Right Nothing -> putStrLn $ "Parse Failed: " <> x
-                    Left err -> putStrLn $ "Error: " <> show err
-            )
-            (tail program)
+        Right (ws, rcount) ->
+          if (6 + 2 * ceiling (logBase 2 (fromIntegral rcount :: Double)) > ws)
+            then putStrLn $ "Error: The constraint 6 + 2*ceil(log_2(K)) <= W is not satisfied."
+            else do
+              writeProgramFile outputFile ""
+              mapM_
+                (\x -> case runParser instruction () ("instruction: " <> x) x of
+                        Right (Just ins) ->
+                          appendProgramFile
+                            outputFile
+                            (wordsToBytes (2 * ws) . pure $ encodeInstruction ins ws rcount)
+                        Right Nothing -> putStrLn $ "Parse Failed: " <> x
+                        Left err -> putStrLn $ "Error: " <> show err
+                )
+                (tail program)
         Left err -> putStrLn $ "Error: " <> show err
