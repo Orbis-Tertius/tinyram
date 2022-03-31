@@ -62,4 +62,3 @@ negative8bitTestCase =
       answer `shouldBe` Right (254)
   where 
     objectFilePath = ObjectFilePath "examples/negative8bit.o"
-
