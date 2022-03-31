@@ -22,6 +22,7 @@ spec = describe "TinyRAM end to end" $ do
   nonExistentTapeTestCase
   negativeTestCase
   negative8bitTestCase
+  breakWKconstraintTestCase
 
 simpleTestCase :: Spec
 simpleTestCase =
@@ -62,3 +63,23 @@ negative8bitTestCase =
       answer `shouldBe` Right (254)
   where 
     objectFilePath = ObjectFilePath "examples/negative8bit.o"
+
+negative8bitTestCase :: Spec
+negative8bitTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/negative8bit.s") objectFilePath)) $
+    it "answers 254, the two's complement of -2 for a 8 bit word" $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 8 8) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (254)
+  where 
+    objectFilePath = ObjectFilePath "examples/negative8bit.o"
+
+breakWKconstraintTestCase :: Spec
+breakWKconstraintTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/breakWKconstraint.s") objectFilePath)) $
+    it "answers 2, if changing the word size to 8 with 16 registers does not break the constraints." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 8 8) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (2)
+  where 
+    objectFilePath = ObjectFilePath "examples/breakWKconstraint.o"
