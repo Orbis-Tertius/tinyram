@@ -11,18 +11,20 @@ import           TinyRAM.Types.WordSize            (WordSize (..))
 
 import           TinyRAM.DecodeInstruction         (bitsPerRegister)
 
-encodeInstruction :: Instruction -> WordSize -> RegisterCount -> Word
-encodeInstruction instr w k =
-  Word $
-  (fromIntegral (instr ^. #opcode . #unOpcode))
-   .|.
-  (isImmediate (instr ^. #a) `shift` 5)
-   .|.
-  ((fromIntegral $ (instr ^. #ri . #unRegister)) `shift` 6)
-   .|.
-  ((fromIntegral $ (instr ^. #rj . #unRegister)) `shift` (6 + bitsPerRegister k))
-   .|.
-   (aVal (instr ^. #a) `shift` (fromIntegral w))
+encodeInstruction :: Instruction -> WordSize -> RegisterCount -> (Word, Word)
+encodeInstruction instr _w k =
+  (
+    Word $
+    (fromIntegral (instr ^. #opcode . #unOpcode))
+    .|.
+    (isImmediate (instr ^. #a) `shift` 5)
+    .|.
+    ((fromIntegral $ (instr ^. #ri . #unRegister)) `shift` 6)
+    .|.
+    ((fromIntegral $ (instr ^. #rj . #unRegister)) `shift` (6 + bitsPerRegister k))
+   , 
+    Word $ aVal (instr ^. #a)
+  )
 
   where
     isImmediate x =

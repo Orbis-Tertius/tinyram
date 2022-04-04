@@ -72,12 +72,12 @@ breakWKconstraintTestCase =
     it "answers 2, if changing the word size to 8 with 16 registers does not break the constraints." $ do
       program <- readObjectFile objectFilePath
       let answer = executeProgram (Params 8 2) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
-      answer `shouldBe` Left "The constraint 6 + 2*ceil(log_2(K)) <= W is not satisfied."
+      answer `shouldBe` Right (2)
   where 
     objectFilePath = ObjectFilePath "examples/breakWKconstraint.o"
 
-breakWKconstraintTestCase :: Spec
-breakWKconstraintTestCase = 
+andTestCase :: Spec
+andTestCase = 
   before (handleCommand (CommandParse (AssemblyFilePath "examples/andTest.s") objectFilePath)) $
     it "answers 00001010, anding 00111010 with 0FG should clear the high order bits." $ do
       program <- readObjectFile objectFilePath
