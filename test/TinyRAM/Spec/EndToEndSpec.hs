@@ -24,6 +24,7 @@ spec = describe "TinyRAM end to end" $ do
   negativeTestCase
   negative8bitTestCase
   breakWKconstraintTestCase
+  andTestCase
 
 simpleTestCase :: Spec
 simpleTestCase =
@@ -74,3 +75,13 @@ breakWKconstraintTestCase =
       answer `shouldBe` Left "The constraint 6 + 2*ceil(log_2(K)) <= W is not satisfied."
   where 
     objectFilePath = ObjectFilePath "examples/breakWKconstraint.o"
+
+breakWKconstraintTestCase :: Spec
+breakWKconstraintTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/andTest.s") objectFilePath)) $
+    it "answers 00001010, anding 00111010 with 0FG should clear the high order bits." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 8 2) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (00001010)
+  where 
+    objectFilePath = ObjectFilePath "examples/andTest.o"
