@@ -25,6 +25,8 @@ spec = describe "TinyRAM end to end" $ do
   negative8bitTestCase
   breakWKconstraintTestCase
   andTestCase
+  orTestCase
+  notTestCase
 
 simpleTestCase :: Spec
 simpleTestCase =
@@ -85,3 +87,23 @@ andTestCase =
       answer `shouldBe` Right (00001010)
   where 
     objectFilePath = ObjectFilePath "examples/andTest.o"
+
+orTestCase :: Spec
+orTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/andTest.s") objectFilePath)) $
+    it "The OR operation should result in (63)." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 8 2) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (63)
+  where 
+    objectFilePath = ObjectFilePath "examples/orTest.o"
+
+notTestCase :: Spec
+notTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/andTest.s") objectFilePath)) $
+    it "The NOT operation should result in (13)." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 8 2) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (13)
+  where 
+    objectFilePath = ObjectFilePath "examples/notTest.o"
