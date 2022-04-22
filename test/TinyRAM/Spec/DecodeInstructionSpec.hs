@@ -20,6 +20,6 @@ spec = describe "decodeInstruction" $
     forAllValid $ \(ws :: WordSize) ->
       forAll (genRegisterCount ws) $ \(rc :: RegisterCount) ->
         forAll (genInstruction ws rc) $ \(i :: Instruction) ->
-          let (encW0, encW1) = encodeInstruction i ws rc
-           in decodeInstruction rc (encW0, encW1)
+          let (encW0, encW1) = encodeInstruction ws rc i
+           in decodeInstruction ws rc (encW0, encW1)
               `shouldBe` i

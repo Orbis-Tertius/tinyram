@@ -7,13 +7,14 @@
 module TinyRAM.ExecuteProgram ( executeProgram ) where
 
 
+import           Control.Monad.Trans.Except   (runExceptT)
 import           Control.Monad.Trans.State    (StateT (runStateT))
-import qualified Data.ByteString              as BS
+import qualified Data.Bifunctor               as Bi
 import           Data.Functor.Identity        (Identity (runIdentity))
 import qualified Data.Map                     as Map
 import           Data.Text                    (pack)
 
-import           TinyRAM.Bytes                (bytesToWords)
+import           TinyRAM.Bytes                (bytesPerWord, bytesToWords)
 import           TinyRAM.Prelude
 import           TinyRAM.Run                  (run)
 import           TinyRAM.Types.Flag           (Flag)
@@ -30,7 +31,6 @@ import           TinyRAM.Types.RegisterValues (RegisterValues (..))
 import           TinyRAM.Types.TinyRAMT       (TinyRAMT (..))
 import           TinyRAM.Types.Word           (Word)
 
-
 executeProgram
   :: Params
   -> Maybe MaxSteps
@@ -40,12 +40,14 @@ executeProgram
   -> Either Text Word
 executeProgram params maxSteps program primaryInput auxInput = do
   memoryValues <- programToMemoryValues params program
-  maybe (Left $ "program did not terminate in " <> pack (show maxSteps)) Right
-    . fst . runIdentity
-    $
-    runStateT
-    (unTinyRAMT (run maxSteps))
-    (params, initialMachineState params memoryValues primaryInput auxInput)
+  let result =
+        runIdentity $
+        runExceptT $
+        runStateT
+        (unTinyRAMT (run maxSteps))
+        (params, initialMachineState params memoryValues primaryInput auxInput)
+  (maybeWord, _ ) <- Bi.first (pack . show) result
+  maybe (Left $ "program did not terminate in " <> pack (show maxSteps)) Right maybeWord
 
 
 initialMachineState
@@ -75,13 +77,11 @@ programToMemoryValues params (Program p) =
   if params ^. #wordSize == 0
   then Left "word size must be nonzero but it is zero"
   else
-    case (params ^. #wordSize . #unWordSize) `quotRem` 8 of
-      (bytesPerWord, 0) ->
-        case BS.length p `quotRem` bytesPerWord of
-          (wordsInProgram, 0) ->
-            if wordsInProgram `rem` 2 == 0
-            then Right . MemoryValues . Map.fromList
-                 $ zip [0..] (bytesToWords (params ^. #wordSize) p)
-            else Left "program must consist of an even number of words"
-          _ -> Left "length of program in bytes must be a multiple of the word size in bytes"
+    case (params ^. #wordSize . #unWordSize) `rem` 8 of
+      0 ->
+        Right . MemoryValues . Map.fromList $ zip addresses (bytesToWords (params ^. #wordSize) p)
       _ -> Left $ "word size must be a multiple of 8 but it is " <> pack (show (params ^. #wordSize . #unWordSize))
+  where
+    bytesPerWord' = bytesPerWord (params ^. #wordSize)
+
+    addresses = (* fromIntegral bytesPerWord') <$> [0..]
