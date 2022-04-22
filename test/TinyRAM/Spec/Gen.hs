@@ -27,7 +27,7 @@ import qualified Data.Map                          as Map
 
 import           Control.Monad                     (join)
 import           TinyRAM.Bytes                     (bytesPerWord)
-import           TinyRAM.EncodeInstruction         (instructionToDword)
+import           TinyRAM.EncodeInstruction         (encodeInstruction)
 import           TinyRAM.Spec.Prelude
 import           TinyRAM.Types.Address             (Address (..))
 import           TinyRAM.Types.Flag                (Flag)
@@ -121,7 +121,7 @@ genInstructionMemoryValues ws rc =
     lowAddress <- (`mod` (2 ^ ws - 1)) . (* fromIntegral bytesPerWord') <$> genAddress ws
     let highAddress = lowAddress + fromIntegral bytesPerWord'
     instruction <- genInstruction ws rc
-    let (lowWord, highWord) = instructionToDword ws rc instruction
+    let (lowWord, highWord) = encodeInstruction ws rc instruction
 
     return [(lowAddress, lowWord), (highAddress, highWord)]
 

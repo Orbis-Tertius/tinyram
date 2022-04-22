@@ -7,7 +7,7 @@ module TinyRAM.Spec.DecodeInstructionSpec ( spec ) where
 
 
 import           TinyRAM.DecodeInstruction   (decodeInstruction)
-import           TinyRAM.EncodeInstruction   (instructionToDword)
+import           TinyRAM.EncodeInstruction   (encodeInstruction)
 import           TinyRAM.Spec.Gen            (genInstruction, genRegisterCount)
 import           TinyRAM.Spec.Prelude
 import           TinyRAM.Types.Instruction   (Instruction)
@@ -20,6 +20,6 @@ spec = describe "decodeInstruction" $
     forAllValid $ \(ws :: WordSize) ->
       forAll (genRegisterCount ws) $ \(rc :: RegisterCount) ->
         forAll (genInstruction ws rc) $ \(i :: Instruction) ->
-          let (low, high) = instructionToDword ws rc i
-           in decodeInstruction ws rc (low, high)
+          let (encW0, encW1) = encodeInstruction ws rc i
+           in decodeInstruction ws rc (encW0, encW1)
               `shouldBe` i

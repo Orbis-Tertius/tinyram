@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedLabels  #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 
 module TinyRAM.Instructions
@@ -94,8 +95,9 @@ xorBits ri rj a = do
 notBits :: ( HasMachineState m, HasParams m )
   => Register -> ImmediateOrRegister -> m ()
 notBits ri a = do
+  WordSize w <- getWordSize
   a' <- getImmediateOrRegister a
-  let y = complement a'
+  let y = (2 ^ w - 1) `xor` a'
   setRegisterValue ri y
   setConditionFlag (conditionToFlag (y == 0))
   incrementProgramCounter

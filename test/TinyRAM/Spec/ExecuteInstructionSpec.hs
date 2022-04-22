@@ -51,7 +51,7 @@ instructionStateTransition ps i =
     -- xor
     2  -> functionOpcode xor   (\x y -> conditionToFlag (x `xor` y == 0)) i ws
     -- not
-    3  -> functionOpcode (\a _ -> complement a) (\a _ -> conditionToFlag (complement a == 0)) i ws
+    3  -> functionOpcode (\a _ -> (2 ^ ws - 1) `xor` a) (\a _ -> conditionToFlag (complement a == 0)) i ws
     -- add
     4  -> functionOpcode (\x y -> (x + y) .&. wordSizeBitmask)
                          (\x y -> conditionToFlag $ (x + y) .&. wordSizeBitmaskMSB /= 0)

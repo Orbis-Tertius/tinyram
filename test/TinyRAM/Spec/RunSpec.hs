@@ -16,7 +16,7 @@ import           Test.Syd                          (expectationFailure,
                                                     shouldSatisfy)
 import           TinyRAM.Bytes                     (bytesPerWord)
 import           TinyRAM.DecodeInstruction         (decodeInstruction)
-import           TinyRAM.EncodeInstruction         (instructionToDword)
+import           TinyRAM.EncodeInstruction         (encodeInstruction)
 import           TinyRAM.ExecuteInstruction        (executeInstruction)
 import           TinyRAM.MachineState              (getImmediateOrRegister,
                                                     validateMachineState,
@@ -90,7 +90,7 @@ spec = describe "run" $ do
             let m = do
                   ProgramCounter pc <- getProgramCounter
                   wordSize <- (^. #wordSize) <$> getParams
-                  let (i0, i1) = instructionToDword wordSize (ps ^. #registerCount) (Instruction 31 a 0 0)
+                  let (i0, i1) = encodeInstruction wordSize (ps ^. #registerCount) (Instruction 31 a 0 0)
                   expectedAnswer' <- getImmediateOrRegister a
                   setWord pc i0
                   setWord (pc + fromIntegral (bytesPerWord wordSize)) i1

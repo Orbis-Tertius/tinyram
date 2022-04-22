@@ -174,7 +174,7 @@ assemble inputFile outputFile = do
                     Right (Just ins) -> do
                       appendProgramFile
                         outputFile
-                        (wordsToBytes (2 * ws) . pure $ encodeInstruction ins ws rcount)
+                        (wordsToBytes ws . (\(w0,w1) -> [w0,w1]) $ encodeInstruction ws rcount ins)
                       return (Right ())
                     Right Nothing -> return (Left ("Parse Failed: " <> pack x))
                     Left err -> return (Left (pack (show err)))
