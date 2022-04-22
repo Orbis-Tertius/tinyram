@@ -15,13 +15,13 @@ encodeInstruction :: WordSize -> RegisterCount -> Instruction -> (Word, Word)
 encodeInstruction w k instr =
   (
     Word . fromIntegral $
-    ((instr ^. #opcode . #unOpcode) `shift` fromIntegral w - 5)
+    ((instr ^. #opcode . #unOpcode) `shift` (fromIntegral w - 5))
     .|.
-    (isImmediate (instr ^. #a) `shift` fromIntegral w - 6)
+    (isImmediate (instr ^. #a) `shift` (fromIntegral w - 6))
     .|.
-    (((instr ^. #ri . #unRegister)) `shift` fromIntegral w - (6 + bitsPerRegister k))
+    (((instr ^. #ri . #unRegister)) `shift` (fromIntegral w - (6 + bitsPerRegister k)))
     .|.
-    (((instr ^. #rj . #unRegister)) `shift` fromIntegral w - (6 + 2 * bitsPerRegister k))
+    (((instr ^. #rj . #unRegister)) `shift` (fromIntegral w - (6 + 2 * bitsPerRegister k)))
   ,
     Word $ aVal (instr ^. #a)
   )
