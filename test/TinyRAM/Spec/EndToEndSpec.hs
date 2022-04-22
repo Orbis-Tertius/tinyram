@@ -83,27 +83,27 @@ andTestCase =
   before (handleCommand (CommandParse (AssemblyFilePath "examples/andTest.s") objectFilePath)) $
     it "answers 00001010, anding 00111010 with 0FG should clear the high order bits." $ do
       program <- readObjectFile objectFilePath
-      let answer = executeProgram (Params 8 2) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
-      answer `shouldBe` Right (00001010)
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right 10
   where 
     objectFilePath = ObjectFilePath "examples/andTest.o"
 
 orTestCase :: Spec
 orTestCase = 
-  before (handleCommand (CommandParse (AssemblyFilePath "examples/andTest.s") objectFilePath)) $
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/orTest.s") objectFilePath)) $
     it "The OR operation should result in (63)." $ do
       program <- readObjectFile objectFilePath
-      let answer = executeProgram (Params 8 2) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
       answer `shouldBe` Right (63)
   where 
     objectFilePath = ObjectFilePath "examples/orTest.o"
 
 notTestCase :: Spec
 notTestCase = 
-  before (handleCommand (CommandParse (AssemblyFilePath "examples/andTest.s") objectFilePath)) $
-    it "The NOT operation should result in (13)." $ do
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/notTest.s") objectFilePath)) $
+    it "The NOT operation should result in 65524." $ do
       program <- readObjectFile objectFilePath
-      let answer = executeProgram (Params 8 2) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
-      answer `shouldBe` Right (13)
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right 65524
   where 
     objectFilePath = ObjectFilePath "examples/notTest.o"
