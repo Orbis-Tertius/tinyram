@@ -16,8 +16,8 @@ import           TinyRAM.Spec.Prelude
 import           TinyRAM.Types.Command         (Command (..))
 import           TinyRAM.Types.InputTape       (InputTape (..))
 import           TinyRAM.Types.Params          (Params (..))
-import           TinyRAM.Types.ProgramFilePath (ObjectFilePath (..))
-import           TinyRAM.Types.ProgramFilePath (AssemblyFilePath (..))
+import           TinyRAM.Types.ProgramFilePath (AssemblyFilePath (..),
+                                                ObjectFilePath (..))
 import           TinyRAM.Types.Word            (Word)
 
 

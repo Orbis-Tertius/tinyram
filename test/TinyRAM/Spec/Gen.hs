@@ -9,7 +9,6 @@ module TinyRAM.Spec.Gen
   , genInputTape
   , genInstruction
   , genMachineState
-  , genMemoryValues
   , genParamsMachineState
   , genProgramCounter
   , genRegister
@@ -18,12 +17,17 @@ module TinyRAM.Spec.Gen
   , genSignedInteger
   , genUnsignedInteger
   , genWord
+  , genMemoryValues
+  , genInstructionMemoryValues
   ) where
 
 
 import           Data.GenValidity.ByteString       ()
 import qualified Data.Map                          as Map
 
+import           Control.Monad                     (join)
+import           TinyRAM.Bytes                     (bytesPerWord)
+import           TinyRAM.EncodeInstruction         (encodeInstruction)
 import           TinyRAM.Spec.Prelude
 import           TinyRAM.Types.Address             (Address (..))
 import           TinyRAM.Types.Flag                (Flag)
@@ -45,7 +49,7 @@ import           TinyRAM.Types.WordSize            (WordSize (..))
 
 
 instance GenValid Opcode where
-  genValid = Opcode <$> oneof [choose (0, 22), choose (28, 30)]
+  genValid = Opcode <$> oneof [choose (0, 19), choose (28, 30)]
   shrinkValid = shrinkValidStructurally
 
 
@@ -60,12 +64,13 @@ instance GenValid Sign where
 
 
 instance GenValid WordSize where
-  genValid = WordSize . (8*) <$> choose (2, 16)
+  genValid = WordSize . (8*) <$> choose (4, 4)
   shrinkValid = shrinkValidStructurally
 
 
 genAddress :: WordSize -> Gen Address
 genAddress ws = Address <$> genWord ws
+-- genAddress ws = Address . (`mod` (2 ^ ws - 1)) . (* (fromIntegral $ bytesPerWord ws)) <$> genWord ws
 
 
 genInputTape :: WordSize -> Gen (InputTape a)
@@ -96,7 +101,7 @@ genMachineState ws rc =
   <$> genProgramCounter ws
   <*> genRegisterValues ws rc
   <*> genValid
-  <*> genMemoryValues ws
+  <*> genInstructionMemoryValues ws rc
   <*> genInputTape ws
   <*> genInputTape ws
 
@@ -107,6 +112,20 @@ genMemoryValues ws =
     $ (,) <$> genAddress ws <*> genWord ws
 
 
+genInstructionMemoryValues :: WordSize -> RegisterCount -> Gen MemoryValues
+genInstructionMemoryValues ws rc =
+  fmap (MemoryValues . Map.fromList) $ join <$> listOf instructionWords
+  where
+  instructionWords = do
+    let bytesPerWord' = bytesPerWord ws
+    lowAddress <- (`mod` (2 ^ ws - 1)) . (* fromIntegral bytesPerWord') <$> genAddress ws
+    let highAddress = lowAddress + fromIntegral bytesPerWord'
+    instruction <- genInstruction ws rc
+    let (lowWord, highWord) = encodeInstruction ws rc instruction
+
+    return [(lowAddress, lowWord), (highAddress, highWord)]
+
+
 genParamsMachineState :: Gen (Params, MachineState)
 genParamsMachineState = do
   ws <- genValid
@@ -114,14 +133,13 @@ genParamsMachineState = do
   ms <- genMachineState ws rc
   return (Params ws rc, ms)
 
-
 genProgramCounter :: WordSize -> Gen ProgramCounter
-genProgramCounter ws = ProgramCounter <$> genAddress ws
+genProgramCounter ws = ((.&. (2 ^ ws - 1)) . (* (fromIntegral $ bytesPerWord ws))) . ProgramCounter <$> genAddress ws
 
 
 genRegisterCount :: WordSize -> Gen RegisterCount
-genRegisterCount (WordSize ws) =
-  RegisterCount <$> choose (2, min 256 (2 ^ ((ws - 6) `quot` 2)))
+genRegisterCount (WordSize _) = RegisterCount <$> choose (2, 32)
+  -- RegisterCount <$> choose (2, min 32 (2 ^ ((ws - 6) `quot` 2)))
 
 
 genRegisterValues :: WordSize -> RegisterCount -> Gen RegisterValues

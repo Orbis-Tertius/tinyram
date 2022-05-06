@@ -2,8 +2,8 @@
 read r1, 0
 mov r0, r1
 read r1, 0
-cjmp 14
+cjmp 28
 cmpg r1, r0
-cjmp 2
-jmp 4
+cjmp 4
+jmp 8
 answer r0
