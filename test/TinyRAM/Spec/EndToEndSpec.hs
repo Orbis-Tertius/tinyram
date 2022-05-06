@@ -27,6 +27,7 @@ spec = describe "TinyRAM end to end" $ do
   andTestCase
   orTestCase
   notTestCase
+  mullTestCase
 
 simpleTestCase :: Spec
 simpleTestCase =
@@ -107,3 +108,13 @@ notTestCase =
       answer `shouldBe` Right 65524
   where 
     objectFilePath = ObjectFilePath "examples/notTest.o"
+
+mullTestCase :: Spec
+mullTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/mullTest.s") objectFilePath)) $
+    it "The MULL operation should result in 10." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right 10
+  where 
+    objectFilePath = ObjectFilePath "examples/mullTest.o"
