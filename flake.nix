@@ -28,9 +28,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:input-output-hk/haskell.nix";
     };
+
+    coq-tinyram.url = "github:Orbis-Tertius/coq-tinyram";
   };
 
-  outputs = { self, nixpkgs, flake-utils, sydtest-src, validity-src, haskellNix,  flake-compat, flake-compat-ci }:
+  outputs = { self, nixpkgs, flake-utils, sydtest-src, validity-src, haskellNix,  flake-compat, flake-compat-ci, coq-tinyram }:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
         deferPluginErrors = true;
@@ -59,7 +61,7 @@
                 };
                 # Non-Haskell shell tools go here
                 shell.buildInputs = with pkgs; [
-                  nixpkgs-fmt
+                  nixpkgs-fmt coq-tinyram
                 ];
                 shell.shellHook =
                   ''
