@@ -37,6 +37,23 @@ spec = describe "TinyRAM end to end" $ do
   umodTestCase
   shlTestCase
   shrTestCase
+  cmpaeLessTestCase
+  cmpaLessTestCase
+  cmpeLessTestCase
+  cmpgeLessTestCase
+  cmpgLessTestCase
+  cmpaeEqualTestCase
+  cmpaEqualTestCase
+  cmpeEqualTestCase
+  cmpgeEqualTestCase
+  cmpgEqualTestCase
+  cmpaeGreaterTestCase
+  cmpaGreaterTestCase
+  cmpeGreaterTestCase
+  cmpgeGreaterTestCase
+  cmpgGreaterTestCase
+
+
 
 simpleTestCase :: Spec
 simpleTestCase =
@@ -217,3 +234,153 @@ shrTestCase =
       answer `shouldBe` Right (01111)
   where 
     objectFilePath = ObjectFilePath "examples/shrTest.o"
+
+cmpaeLessTestCase :: Spec
+cmpaeLessTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpaeLessTest.s") objectFilePath)) $
+    it "The CMPAE operation should result in setting the flag to 0." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (0)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpaeLessTest.o"
+
+cmpaLessTestCase :: Spec
+cmpaLessTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpaLessTest.s") objectFilePath)) $
+    it "The CMPA operation should result in setting the flag to 0." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (0)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpaLessTest.o"
+
+cmpeLessTestCase :: Spec
+cmpeLessTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpeLessTest.s") objectFilePath)) $
+    it "The CMPE operation should result in setting the flag to 0." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (0)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpeLessTest.o"
+
+cmpgeLessTestCase :: Spec
+cmpgeLessTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpgeLessTest.s") objectFilePath)) $
+    it "The CMPGE operation should result in setting the flag to 0." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (0)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpgeLessTest.o"
+
+cmpgLessTestCase :: Spec
+cmpgLessTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpgLessTest.s") objectFilePath)) $
+    it "The CMPG operation should result in setting the flag to 0." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (0)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpgLessTest.o"
+
+cmpaeEqualTestCase :: Spec
+cmpaeEqualTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpaeEqualTest.s") objectFilePath)) $
+    it "The CMPAE operation should result in setting the flag to 1." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (1)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpaeEqualTest.o"
+
+cmpaEqualTestCase :: Spec
+cmpaEqualTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpaEqualTest.s") objectFilePath)) $
+    it "The CMPA operation should result in setting the flag to 0." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (0)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpaEqualTest.o"
+
+cmpeEqualTestCase :: Spec
+cmpeEqualTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpeEqualTest.s") objectFilePath)) $
+    it "The CMPE operation should result in setting the flag to 1." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (1)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpeEqualTest.o"
+
+cmpgeEqualTestCase :: Spec
+cmpgeEqualTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpgeEqualTest.s") objectFilePath)) $
+    it "The CMPGE operation should result in setting the flag to 1." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (1)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpgeEqualTest.o"
+
+cmpgEqualTestCase :: Spec
+cmpgEqualTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpgEqualTest.s") objectFilePath)) $
+    it "The CMPG operation should result in setting the flag to 0." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (0)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpgEqualTest.o"
+
+cmpaeGreaterTestCase :: Spec
+cmpaeGreaterTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpaeGreaterTest.s") objectFilePath)) $
+    it "The CMPAE operation should result in setting the flag to 1." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (1)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpaeGreaterTest.o"
+
+cmpaGreaterTestCase :: Spec
+cmpaGreaterTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpaGreaterTest.s") objectFilePath)) $
+    it "The CMPA operation should result in setting the flag to 1." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (1)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpaGreaterTest.o"
+
+cmpeGreaterTestCase :: Spec
+cmpeGreaterTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpeGreaterTest.s") objectFilePath)) $
+    it "The CMPE operation should result in setting the flag to 0." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (0)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpeGreaterTest.o"
+
+cmpgeGreaterTestCase :: Spec
+cmpgeGreaterTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpgeGreaterTest.s") objectFilePath)) $
+    it "The CMPGE operation should result in setting the flag to 1." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (1)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpgeGreaterTest.o"
+
+cmpgGreaterTestCase :: Spec
+cmpgGreaterTestCase = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpgGreaterTest.s") objectFilePath)) $
+    it "The CMPG operation should result in setting the flag to 1." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (1)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpgGreaterTest.o"
