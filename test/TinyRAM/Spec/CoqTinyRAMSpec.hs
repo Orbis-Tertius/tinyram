@@ -1,3 +1,7 @@
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE OverloadedStrings #-}
+
+
 module TinyRAM.Spec.CoqTinyRAMSpec
   ( byteToBitString
   , spec
@@ -5,9 +9,12 @@ module TinyRAM.Spec.CoqTinyRAMSpec
 
 
 import Data.Bits (testBit)
-import Data.ByteString (unpack, pack)
+import Data.ByteString (unpack, pack, writeFile)
 import Data.Word (Word8)
+import System.Process (createProcess, proc)
 
+import TinyRAM.Types.Program (Program (..))
+import TinyRAM.Types.InputTape (InputTape (..), Primary, Auxiliary)
 import TinyRAM.Spec.Prelude
 
 
@@ -15,6 +22,19 @@ spec :: Spec
 spec = do
   byteToBitStringSpec
   bytesToBitStringSpec
+  coqTinyRAMSpec
+
+
+coqTinyRAMSpec :: Spec
+coqTinyRAMSpec =
+  describe "coq-tinyram" $ do
+    coqTinyRAMSmokeTest
+
+
+coqTinyRAMSmokeTest :: Spec
+coqTinyRAMSmokeTest =
+  it "passes a smoke test" $ do
+    runCoqTinyRAM (Program "\0\0\0\0") (InputTape []) (InputTape [])
 
 
 bytesToBitStringSpec :: Spec
@@ -23,6 +43,18 @@ bytesToBitStringSpec =
     it "works as expected on an example" $
       bytesToBitString (pack [0, 13, 255, 64])
         `shouldBe` "00000000000011011111111101000000"
+
+
+runCoqTinyRAM :: Program
+              -> InputTape Primary
+              -> InputTape Auxiliary
+              -> IO ()
+runCoqTinyRAM (Program p) (InputTape _ip) (InputTape _ia) = do
+  let tmpPath = "/tmp/run-coq-tinyram"
+  writeFile tmpPath p
+  (_pStdin, _pStdout, _pStderr, _pHandle) <-
+    createProcess (proc "/nix/store/qw141iqvfrfi403cv8y528inwl1d33kn-coq-tinyram-0.1.0.0/bin/coq-tinyram" [tmpPath])
+  return ()
 
 
 bytesToBitString :: ByteString -> String

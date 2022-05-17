@@ -118,6 +118,7 @@ test-suite spec
     mtl,
     optparse-applicative,
     parsec,
+    process,
     QuickCheck,
     sydtest,
     sydtest-discover,

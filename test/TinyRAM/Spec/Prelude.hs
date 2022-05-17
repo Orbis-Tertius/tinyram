@@ -17,4 +17,4 @@ import           Test.QuickCheck   (Gen, choose, elements, forAll, listOf,
 
 import           Test.Syd          (Spec, before, describe, it, shouldBe)
 import           Test.Syd.Validity (forAllValid)
-import           TinyRAM.Prelude
+import           TinyRAM.Prelude   hiding (writeFile)
