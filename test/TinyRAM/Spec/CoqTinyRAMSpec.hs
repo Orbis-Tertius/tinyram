@@ -10,12 +10,14 @@ module TinyRAM.Spec.CoqTinyRAMSpec
 
 import Data.Bits (testBit)
 import Data.ByteString (pack, unpack)
+import Data.List (isPrefixOf)
 import Data.Word (Word8)
-import System.IO (writeFile)
+import System.IO (Handle, hClose, hIsEOF, hGetLine, hPutStrLn, writeFile)
 import System.Process (createProcess, proc)
 
 import TinyRAM.Types.Program (Program (..))
 import TinyRAM.Types.InputTape (InputTape (..), Primary, Auxiliary)
+import TinyRAM.Types.Word (Word (unWord))
 import TinyRAM.Spec.Prelude
 
 
@@ -44,8 +46,8 @@ coqTinyRAMSmokeTest =
 readFromPrimaryTapeTest :: Spec
 readFromPrimaryTapeTest =
   it "reads from the primary input tape and provides output" $ do
-    result <- runCoqTinyRAM (Program "\xF4\0\0\0") (InputTape [2,2]) (InputTape [])
-    result `shouldBe` (Just 4)
+    result <- runCoqTinyRAM (Program "\xF4\0\0\0\xF8\0\0\0") (InputTape [2]) (InputTape [])
+    result `shouldBe` (Just 2)
 
 
 bytesToBitStringSpec :: Spec
@@ -60,12 +62,37 @@ runCoqTinyRAM :: Program
               -> InputTape Primary
               -> InputTape Auxiliary
               -> IO (Maybe Int)
-runCoqTinyRAM (Program p) (InputTape _ip) (InputTape _ia) = do
+runCoqTinyRAM (Program p) ip ia = do
   let tmpPath = "/tmp/run-coq-tinyram"
   writeFile tmpPath (bytesToBitString p)
-  (_pStdin, _pStdout, _pStderr, _pHandle) <-
+  (mpStdin, mpStdout, _pStderr, _pHandle) <-
     createProcess (proc "/nix/store/qw141iqvfrfi403cv8y528inwl1d33kn-coq-tinyram-0.1.0.0/bin/coq-tinyram" [tmpPath])
-  return (Just 0)
+  case (mpStdin, mpStdout) of
+    (Just pStdin, Just pStdout) ->
+      runCoqTinyRAMLoop ip ia pStdin pStdout
+    _ -> return (Just 0)
+
+
+runCoqTinyRAMLoop :: InputTape Primary
+                  -> InputTape Auxiliary
+                  -> Handle
+                  -> Handle
+                  -> IO (Maybe Int)
+runCoqTinyRAMLoop (InputTape ip) ia pStdin pStdout = do
+  isEof <- hIsEOF pStdout
+  if isEof
+    then return (Just 0)
+    else do
+      s <- hGetLine pStdout
+      if isPrefixOf "Main Tape Input>" s
+        then case ip of
+               [] -> do
+                 hClose pStdin
+                 return (Just 0)
+               (i:ip') -> do
+                 hPutStrLn pStdin (show (unWord i))
+                 runCoqTinyRAMLoop (InputTape ip') ia pStdin pStdout
+        else runCoqTinyRAMLoop (InputTape ip) ia pStdin pStdout
 
 
 bytesToBitString :: ByteString -> String
