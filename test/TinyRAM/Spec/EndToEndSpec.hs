@@ -231,7 +231,7 @@ shrTestCase =
     it "The SHR operation should result in 01111." $ do
       program <- readObjectFile objectFilePath
       let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
-      answer `shouldBe` Right (01111)
+      answer `shouldBe` Right 31
   where 
     objectFilePath = ObjectFilePath "examples/shrTest.o"
 
