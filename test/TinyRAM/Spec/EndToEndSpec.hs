@@ -164,7 +164,7 @@ umulhTestCase =
     it "The UMULH operation should result in 10." $ do
       program <- readObjectFile objectFilePath
       let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
-      answer `shouldBe` Right 10
+      answer `shouldBe` Right 0
   where 
     objectFilePath = ObjectFilePath "examples/umulhTest.o"
 
@@ -174,7 +174,7 @@ smulhTestCase =
     it "The SMULH operation should result in 10." $ do
       program <- readObjectFile objectFilePath
       let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
-      answer `shouldBe` Right 10
+      answer `shouldBe` Right 0
   where 
     objectFilePath = ObjectFilePath "examples/smulhTest.o"
 
