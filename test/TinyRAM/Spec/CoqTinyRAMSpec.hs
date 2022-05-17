@@ -9,8 +9,9 @@ module TinyRAM.Spec.CoqTinyRAMSpec
 
 
 import Data.Bits (testBit)
-import Data.ByteString (unpack, pack, writeFile)
+import Data.ByteString (pack, unpack)
 import Data.Word (Word8)
+import System.IO (writeFile)
 import System.Process (createProcess, proc)
 
 import TinyRAM.Types.Program (Program (..))
@@ -61,7 +62,7 @@ runCoqTinyRAM :: Program
               -> IO (Maybe Int)
 runCoqTinyRAM (Program p) (InputTape _ip) (InputTape _ia) = do
   let tmpPath = "/tmp/run-coq-tinyram"
-  writeFile tmpPath p
+  writeFile tmpPath (bytesToBitString p)
   (_pStdin, _pStdout, _pStderr, _pHandle) <-
     createProcess (proc "/nix/store/qw141iqvfrfi403cv8y528inwl1d33kn-coq-tinyram-0.1.0.0/bin/coq-tinyram" [tmpPath])
   return (Just 0)
