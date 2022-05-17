@@ -5,6 +5,7 @@ module TinyRAM.Spec.CoqTinyRAMSpec
 
 
 import Data.Bits (testBit)
+import Data.ByteString (unpack, pack)
 import Data.Word (Word8)
 
 import TinyRAM.Spec.Prelude
@@ -13,6 +14,19 @@ import TinyRAM.Spec.Prelude
 spec :: Spec
 spec = do
   byteToBitStringSpec
+  bytesToBitStringSpec
+
+
+bytesToBitStringSpec :: Spec
+bytesToBitStringSpec =
+  describe "bytesToBitString" $
+    it "works as expected on an example" $
+      bytesToBitString (pack [0, 13, 255, 64])
+        `shouldBe` "00000000000011011111111101000000"
+
+
+bytesToBitString :: ByteString -> String
+bytesToBitString = concatMap byteToBitString . unpack
 
 
 byteToBitStringSpec :: Spec
