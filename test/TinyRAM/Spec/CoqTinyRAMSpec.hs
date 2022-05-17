@@ -29,12 +29,22 @@ coqTinyRAMSpec :: Spec
 coqTinyRAMSpec =
   describe "coq-tinyram" $ do
     coqTinyRAMSmokeTest
+    readFromPrimaryTapeTest
 
 
 coqTinyRAMSmokeTest :: Spec
 coqTinyRAMSmokeTest =
   it "passes a smoke test" $ do
-    runCoqTinyRAM (Program "\0\0\0\0") (InputTape []) (InputTape [])
+    result <- runCoqTinyRAM (Program "\0\0\0\0") (InputTape []) (InputTape [])
+    result `shouldBe` (Just 0)
+    return ()
+
+
+readFromPrimaryTapeTest :: Spec
+readFromPrimaryTapeTest =
+  it "reads from the primary input tape and provides output" $ do
+    result <- runCoqTinyRAM (Program "\xF4\0\0\0") (InputTape [2,2]) (InputTape [])
+    result `shouldBe` (Just 4)
 
 
 bytesToBitStringSpec :: Spec
@@ -48,13 +58,13 @@ bytesToBitStringSpec =
 runCoqTinyRAM :: Program
               -> InputTape Primary
               -> InputTape Auxiliary
-              -> IO ()
+              -> IO (Maybe Int)
 runCoqTinyRAM (Program p) (InputTape _ip) (InputTape _ia) = do
   let tmpPath = "/tmp/run-coq-tinyram"
   writeFile tmpPath p
   (_pStdin, _pStdout, _pStderr, _pHandle) <-
     createProcess (proc "/nix/store/qw141iqvfrfi403cv8y528inwl1d33kn-coq-tinyram-0.1.0.0/bin/coq-tinyram" [tmpPath])
-  return ()
+  return (Just 0)
 
 
 bytesToBitString :: ByteString -> String
