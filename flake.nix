@@ -41,7 +41,6 @@
           (import "${sydtest-src}/nix/overlay.nix")
           (import "${validity-src}/nix/overlay.nix")
           (final: prev: {
-            # This overlay adds our project to pkgs
             tinyram =
               final.haskell-nix.project' {
                 src = ./.;
@@ -65,6 +64,7 @@
                 ];
                 shell.shellHook =
                   ''
+                  alias coq-tinyram=${coq-tinyram.defaultPackage.x86_64-linux}/bin/coq-tinyram
                   manual-ci() (
                     set -e
 
