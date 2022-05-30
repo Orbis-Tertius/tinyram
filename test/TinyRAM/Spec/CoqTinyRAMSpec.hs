@@ -80,7 +80,8 @@ runCoqTinyRAM (Program p) ip ia = do
       ((proc exePath [tmpPath])
         { std_in = CreatePipe, std_out = CreatePipe })
   case (mpStdin, mpStdout) of
-    (Just pStdin, Just pStdout) ->
+    (Just pStdin, Just pStdout) -> do
+      _ <- hGetLine pStdout -- discard useless first line of output
       runCoqTinyRAMLoop ip ia pStdin pStdout
     _ -> return Nothing
 
@@ -91,13 +92,10 @@ runCoqTinyRAMLoop :: InputTape Primary
                   -> Handle
                   -> IO (Maybe Int)
 runCoqTinyRAMLoop (InputTape ip) ia pStdin pStdout = do
-  putStrLn "runCoqTinyRamLoop"
   isEof <- hIsEOF pStdout
-  putStrLn "ran hIsEOF"
   if isEof
     then return (Just 0) -- TODO: figure out what this should do
     else do
-      putStrLn "does it get here?"
       s <- hGetLine pStdout
       putStrLn s
       if isPrefixOf "Main Tape Input" s
