@@ -64,7 +64,8 @@
                 ];
                 shell.shellHook =
                   ''
-                  alias coq-tinyram=${coq-tinyram.defaultPackage.x86_64-linux}/bin/coq-tinyram
+                  export COQ_TINYRAM_PATH=${coq-tinyram.defaultPackage.x86_64-linux}/bin/coq-tinyram
+                  alias coq-tinyram=$COQ_TINYRAM_PATH
                   manual-ci() (
                     set -e
 
