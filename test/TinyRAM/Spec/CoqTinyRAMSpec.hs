@@ -13,7 +13,7 @@ import Data.ByteString (pack, unpack)
 import Data.List (isPrefixOf)
 import Data.Word (Word8)
 import System.IO (Handle, hClose, hIsEOF, hGetLine, hPutStrLn, writeFile)
-import System.Process (createProcess, proc)
+import System.Process (createProcess, proc, CreateProcess (std_in, std_out), StdStream (CreatePipe))
 
 import TinyRAM.Types.Program (Program (..))
 import TinyRAM.Types.InputTape (InputTape (..), Primary, Auxiliary)
@@ -74,7 +74,10 @@ runCoqTinyRAM (Program p) ip ia = do -- TODO do not hard-code paths
   let tmpPath = "/tmp/run-coq-tinyram"
   writeFile tmpPath (bytesToBitString p)
   (mpStdin, mpStdout, _pStderr, _pHandle) <-
-    createProcess (proc "/nix/store/qw141iqvfrfi403cv8y528inwl1d33kn-coq-tinyram-0.1.0.0/bin/coq-tinyram" [tmpPath])
+    createProcess
+      ((proc "/nix/store/qw141iqvfrfi403cv8y528inwl1d33kn-coq-tinyram-0.1.0.0/bin/coq-tinyram"
+            [tmpPath])
+        { std_in = CreatePipe, std_out = CreatePipe })
   case (mpStdin, mpStdout) of
     (Just pStdin, Just pStdout) ->
       runCoqTinyRAMLoop ip ia pStdin pStdout
@@ -87,13 +90,17 @@ runCoqTinyRAMLoop :: InputTape Primary
                   -> Handle
                   -> IO (Maybe Int)
 runCoqTinyRAMLoop (InputTape ip) ia pStdin pStdout = do
+  putStrLn "runCoqTinyRamLoop"
   isEof <- hIsEOF pStdout
+  putStrLn "ran hIsEOF"
   if isEof
     then return (Just 0) -- TODO: figure out what this should do
     else do
+      putStrLn "does it get here?"
       s <- hGetLine pStdout
+      putStrLn "how about here?"
       putStrLn s
-      if isPrefixOf "Main Tape Input>" s
+      if isPrefixOf "Main Tape Input" s
         then case ip of
                [] -> do
                  hClose pStdin
