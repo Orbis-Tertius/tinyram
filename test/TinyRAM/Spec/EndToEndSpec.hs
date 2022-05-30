@@ -52,7 +52,7 @@ spec = describe "TinyRAM end to end" $ do
   cmpeGreaterTestCase
   cmpgeGreaterTestCase
   cmpgGreaterTestCase
-
+  answerTestCase
 
 
 simpleTestCase :: Spec
@@ -384,3 +384,14 @@ cmpgGreaterTestCase =
       answer `shouldBe` Right (1)
   where 
     objectFilePath = ObjectFilePath "examples/cmpgGreaterTest.o"
+
+answerTestCase :: Spec
+answerTestCase =
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/answerTest.s") objectFilePath)) $
+    it "should answer 4." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right 4
+  where 
+    objectFilePath = ObjectFilePath "examples/answerTest.o"
+

@@ -32,15 +32,23 @@ coqTinyRAMSpec :: Spec
 coqTinyRAMSpec =
   describe "coq-tinyram" $ do
     coqTinyRAMSmokeTest
+    answerTest
     readFromPrimaryTapeTest
 
 
 coqTinyRAMSmokeTest :: Spec
 coqTinyRAMSmokeTest =
   it "passes a smoke test" $ do
-    result <- runCoqTinyRAM (Program "\0\0\0\0") (InputTape []) (InputTape [])
+    result <- runCoqTinyRAM (Program "\xFC\0\0\0") (InputTape []) (InputTape [])
     result `shouldBe` (Just 0)
     return ()
+
+
+answerTest :: Spec
+answerTest =
+  it "answers 4" $ do
+    result <- runCoqTinyRAM (Program "\xFC\0\0\x04") (InputTape []) (InputTape [])
+    result `shouldBe` (Just 4)
 
 
 readFromPrimaryTapeTest :: Spec
@@ -62,7 +70,7 @@ runCoqTinyRAM :: Program
               -> InputTape Primary
               -> InputTape Auxiliary
               -> IO (Maybe Int)
-runCoqTinyRAM (Program p) ip ia = do
+runCoqTinyRAM (Program p) ip ia = do -- TODO do not hard-code paths
   let tmpPath = "/tmp/run-coq-tinyram"
   writeFile tmpPath (bytesToBitString p)
   (mpStdin, mpStdout, _pStderr, _pHandle) <-
@@ -81,17 +89,18 @@ runCoqTinyRAMLoop :: InputTape Primary
 runCoqTinyRAMLoop (InputTape ip) ia pStdin pStdout = do
   isEof <- hIsEOF pStdout
   if isEof
-    then return (Just 0)
+    then return (Just 0) -- TODO: figure out what this should do
     else do
       s <- hGetLine pStdout
       if isPrefixOf "Main Tape Input>" s
         then case ip of
                [] -> do
                  hClose pStdin
-                 return (Just 0)
+                 return (Just 0) -- TODO: figure out what this should do
                (i:ip') -> do
                  hPutStrLn pStdin (show (unWord i))
                  runCoqTinyRAMLoop (InputTape ip') ia pStdin pStdout
+        -- TODO: handle aux tape input
         else runCoqTinyRAMLoop (InputTape ip) ia pStdin pStdout
 
 
