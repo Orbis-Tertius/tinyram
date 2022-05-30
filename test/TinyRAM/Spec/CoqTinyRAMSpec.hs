@@ -78,7 +78,7 @@ runCoqTinyRAM (Program p) ip ia = do -- TODO do not hard-code paths
   case (mpStdin, mpStdout) of
     (Just pStdin, Just pStdout) ->
       runCoqTinyRAMLoop ip ia pStdin pStdout
-    _ -> return (Just 0)
+    _ -> return Nothing
 
 
 runCoqTinyRAMLoop :: InputTape Primary
@@ -92,13 +92,15 @@ runCoqTinyRAMLoop (InputTape ip) ia pStdin pStdout = do
     then return (Just 0) -- TODO: figure out what this should do
     else do
       s <- hGetLine pStdout
+      putStrLn s
       if isPrefixOf "Main Tape Input>" s
         then case ip of
                [] -> do
                  hClose pStdin
-                 return (Just 0) -- TODO: figure out what this should do
+                 return Nothing -- TODO: figure out what this should do
                (i:ip') -> do
                  hPutStrLn pStdin (show (unWord i))
+                 putStrLn (show (unWord i))
                  runCoqTinyRAMLoop (InputTape ip') ia pStdin pStdout
         -- TODO: handle aux tape input
         else runCoqTinyRAMLoop (InputTape ip) ia pStdin pStdout
