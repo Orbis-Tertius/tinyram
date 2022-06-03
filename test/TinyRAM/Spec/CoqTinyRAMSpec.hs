@@ -13,12 +13,14 @@ import Data.ByteString (pack, unpack)
 import Data.List (isPrefixOf)
 import Data.Word (Word8)
 import System.Environment (getEnv)
-import System.IO (Handle, hClose, hIsEOF, hGetLine, hPutStrLn, writeFile)
+import System.IO (hGetLine, writeFile)
 import System.Process (createProcess, proc, CreateProcess (std_in, std_out), StdStream (CreatePipe))
+import Text.Read (readMaybe)
 
+import TinyRAM.Bytes (wordsToBytes)
+import TinyRAM.Types.MaxSteps (MaxSteps (..))
 import TinyRAM.Types.Program (Program (..))
 import TinyRAM.Types.InputTape (InputTape (..), Primary, Auxiliary)
-import TinyRAM.Types.Word (Word (unWord))
 import TinyRAM.Spec.Prelude
 
 
@@ -40,7 +42,7 @@ coqTinyRAMSpec =
 coqTinyRAMSmokeTest :: Spec
 coqTinyRAMSmokeTest =
   it "passes a smoke test" $ do
-    result <- runCoqTinyRAM (Program "\xFC\0\0\0") (InputTape []) (InputTape [])
+    result <- runCoqTinyRAM (Program "\xFC\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
     result `shouldBe` (Just 0)
     return ()
 
@@ -48,14 +50,14 @@ coqTinyRAMSmokeTest =
 answerTest :: Spec
 answerTest =
   it "answers 4" $ do
-    result <- runCoqTinyRAM (Program "\xFC\0\0\x04") (InputTape []) (InputTape [])
+    result <- runCoqTinyRAM (Program "\xFC\0\0\x04") (InputTape []) (InputTape []) (MaxSteps 6)
     result `shouldBe` (Just 4)
 
 
 readFromPrimaryTapeTest :: Spec
 readFromPrimaryTapeTest =
   it "reads from the primary input tape and provides output" $ do
-    result <- runCoqTinyRAM (Program "\xF4\0\0\0\xF8\0\0\0") (InputTape [2]) (InputTape [])
+    result <- runCoqTinyRAM (Program "\xF4\0\0\0\xF8\0\0\0") (InputTape [2]) (InputTape []) (MaxSteps 6)
     result `shouldBe` (Just 2)
 
 
@@ -70,45 +72,44 @@ bytesToBitStringSpec =
 runCoqTinyRAM :: Program
               -> InputTape Primary
               -> InputTape Auxiliary
+              -> MaxSteps
               -> IO (Maybe Int)
-runCoqTinyRAM (Program p) ip ia = do
-  let tmpPath = "/tmp/run-coq-tinyram"
-  writeFile tmpPath (bytesToBitString p)
+runCoqTinyRAM (Program p)
+              (InputTape ip)
+              (InputTape ia)
+              (MaxSteps maxSteps) = do
+  let wordSize = 16
+      tmpPath1 = "/tmp/run-coq-tinyram-prog"
+      tmpPath2 = "/tmp/run-coq-tinyram-primary-input"
+      tmpPath3 = "/tmp/run-coq-tinyram-secondary-input"
+  writeFile tmpPath1 (bytesToBitString p)
+  writeFile tmpPath2 (bytesToBitString (wordsToBytes wordSize ip))
+  writeFile tmpPath3 (bytesToBitString (wordsToBytes wordSize ia))
   (mpStdin, mpStdout, _pStderr, _pHandle) <- do
     exePath <- getEnv "COQ_TINYRAM_PATH"
     createProcess
-      ((proc exePath [tmpPath])
+      ((proc exePath [tmpPath1, tmpPath2, tmpPath3, show maxSteps])
         { std_in = CreatePipe, std_out = CreatePipe })
   case (mpStdin, mpStdout) of
-    (Just pStdin, Just pStdout) -> do
+    (_, Just pStdout) -> do
       _ <- hGetLine pStdout -- discard useless first line of output
-      runCoqTinyRAMLoop ip ia pStdin pStdout
+      o1 <- hGetLine pStdout
+      putStrLn o1
+      o2 <- hGetLine pStdout
+      putStrLn o2
+      o3 <- hGetLine pStdout
+      putStrLn o3
+      if isPrefixOf "Error: Program did not halt within" o3
+        then return Nothing
+        else do
+          o4 <- hGetLine pStdout
+          putStrLn o4
+          o5 <- hGetLine pStdout
+          putStrLn o5
+          if isPrefixOf "\tNat: " o5
+            then return (readMaybe (drop 6 o5))
+            else return Nothing
     _ -> return Nothing
-
-
-runCoqTinyRAMLoop :: InputTape Primary
-                  -> InputTape Auxiliary
-                  -> Handle
-                  -> Handle
-                  -> IO (Maybe Int)
-runCoqTinyRAMLoop (InputTape ip) ia pStdin pStdout = do
-  isEof <- hIsEOF pStdout
-  if isEof
-    then return (Just 0) -- TODO: figure out what this should do
-    else do
-      s <- hGetLine pStdout
-      putStrLn s
-      if isPrefixOf "Main Tape Input" s
-        then case ip of
-               [] -> do
-                 hClose pStdin
-                 return Nothing -- TODO: figure out what this should do
-               (i:ip') -> do
-                 hPutStrLn pStdin (show (unWord i))
-                 putStrLn (show (unWord i))
-                 runCoqTinyRAMLoop (InputTape ip') ia pStdin pStdout
-        -- TODO: handle aux tape input
-        else runCoqTinyRAMLoop (InputTape ip) ia pStdin pStdout
 
 
 bytesToBitString :: ByteString -> String
