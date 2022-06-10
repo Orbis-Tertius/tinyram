@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 
 module TinyRAM.Spec.CoqTinyRAMSpec
@@ -17,6 +18,7 @@ import Data.Word (Word8)
 import System.Environment (getEnv)
 import System.IO (hGetLine, writeFile)
 import System.Process (createProcess, proc, CreateProcess (std_in, std_out), StdStream (CreatePipe))
+import System.Random (randomIO)
 import Text.Read (readMaybe)
 
 import TinyRAM.Bytes (bytesPerWord)
@@ -82,10 +84,11 @@ runCoqTinyRAM (Program p)
               (InputTape ip)
               (InputTape ia)
               (MaxSteps maxSteps) = do
+  suffix :: Int <- randomIO
   let wordSize = 16
-      tmpPath1 = "/tmp/run-coq-tinyram-prog"
-      tmpPath2 = "/tmp/run-coq-tinyram-primary-input"
-      tmpPath3 = "/tmp/run-coq-tinyram-secondary-input"
+      tmpPath1 = "/tmp/run-coq-tinyram-prog-" <> show suffix
+      tmpPath2 = "/tmp/run-coq-tinyram-primary-input-" <> show suffix
+      tmpPath3 = "/tmp/run-coq-tinyram-secondary-input-" <> show suffix
   writeFile tmpPath1 (bytesToBitString p)
   writeFile tmpPath2 (bytesToBitString (wordsToBytesBigEndian wordSize ip))
   writeFile tmpPath3 (bytesToBitString (wordsToBytesBigEndian wordSize ia))

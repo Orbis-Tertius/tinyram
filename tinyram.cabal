@@ -119,6 +119,7 @@ test-suite spec
     parsec,
     process,
     QuickCheck,
+    random,
     sydtest,
     sydtest-discover,
     text -any,
