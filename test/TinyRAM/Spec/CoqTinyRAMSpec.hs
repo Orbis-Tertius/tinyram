@@ -3,13 +3,15 @@
 
 
 module TinyRAM.Spec.CoqTinyRAMSpec
-  ( byteToBitString
+  ( bytesToBitString
+  , byteToBitString
   , spec
   ) where
 
 
 import Data.Bits (testBit)
 import Data.ByteString (pack, unpack)
+import qualified Data.ByteString as BS
 import Data.List (isPrefixOf)
 import Data.Word (Word8)
 import System.Environment (getEnv)
@@ -17,11 +19,13 @@ import System.IO (hGetLine, writeFile)
 import System.Process (createProcess, proc, CreateProcess (std_in, std_out), StdStream (CreatePipe))
 import Text.Read (readMaybe)
 
-import TinyRAM.Bytes (wordsToBytes)
+import TinyRAM.Bytes (bytesPerWord)
+import TinyRAM.Spec.Prelude
 import TinyRAM.Types.MaxSteps (MaxSteps (..))
 import TinyRAM.Types.Program (Program (..))
 import TinyRAM.Types.InputTape (InputTape (..), Primary, Auxiliary)
-import TinyRAM.Spec.Prelude
+import TinyRAM.Types.Word (Word)
+import TinyRAM.Types.WordSize (WordSize)
 
 
 spec :: Spec
@@ -83,8 +87,8 @@ runCoqTinyRAM (Program p)
       tmpPath2 = "/tmp/run-coq-tinyram-primary-input"
       tmpPath3 = "/tmp/run-coq-tinyram-secondary-input"
   writeFile tmpPath1 (bytesToBitString p)
-  writeFile tmpPath2 (bytesToBitString (wordsToBytes wordSize ip))
-  writeFile tmpPath3 (bytesToBitString (wordsToBytes wordSize ia))
+  writeFile tmpPath2 (bytesToBitString (wordsToBytesBigEndian wordSize ip))
+  writeFile tmpPath3 (bytesToBitString (wordsToBytesBigEndian wordSize ia))
   (mpStdin, mpStdout, _pStderr, _pHandle) <- do
     exePath <- getEnv "COQ_TINYRAM_PATH"
     createProcess
@@ -138,3 +142,20 @@ byteToBitString w =
   [ if testBit w i then '1' else '0'
   | i <- reverse [0..7]
   ]
+
+
+wordsToBytesBigEndian :: WordSize -> [Word] -> ByteString
+wordsToBytesBigEndian ws wrds =
+  BS.concat $ wordsToByte <$> wrds
+  where
+    bytesPerWord' = bytesPerWord ws
+
+    shiftValue = (2 :: Word) ^ (8 :: Word)
+
+    -- encode words to little endian format
+    wordsToByte :: Word -> ByteString
+    wordsToByte wrd =
+      fst $ foldr
+              (\_ (a, cw) -> (flip BS.cons a (fromIntegral $ cw .&. (shiftValue - 1)), cw `div` shiftValue))
+              (BS.empty, wrd)
+              [1..bytesPerWord']
