@@ -65,7 +65,7 @@ instance GenValid Sign where
 
 
 instance GenValid WordSize where
-  genValid = oneof [return 8] --, return 16]
+  genValid = oneof [return 8, return 16]
   shrinkValid = shrinkValidStructurally
 
 

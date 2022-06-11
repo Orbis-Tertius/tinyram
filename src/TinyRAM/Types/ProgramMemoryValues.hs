@@ -14,4 +14,7 @@ import           TinyRAM.Types.Word    (Word)
 -- A state of the RAM, giving the value at each address.
 newtype ProgramMemoryValues = ProgramMemoryValues
   { unProgramMemoryValues :: Map Address Word }
-  deriving (Eq, Ord, Read, Show, Generic)
+  deriving (Eq, Ord, Read, Generic)
+
+instance Show ProgramMemoryValues where
+  show _ = "<ProgramMemoryValues>"
