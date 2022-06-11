@@ -41,7 +41,9 @@ signedMultiplyHigh ws x y =
       ySign   = getSign ws y
       xAbs    = getUnsignedComponent ws x
       yAbs    = getUnsignedComponent ws y
-      zSign   = xSign * ySign
+      zSign   = if x == SignedInt 0 || y == SignedInt 0
+                then 1
+                else xSign * ySign
       zAbs    = xAbs * yAbs
       signBit = case zSign of
                   -1 -> 2 ^ (ws - 1)

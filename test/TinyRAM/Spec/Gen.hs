@@ -18,7 +18,7 @@ module TinyRAM.Spec.Gen
   , genUnsignedInteger
   , genWord
   , genMemoryValues
-  , genInstructionMemoryValues
+  , genProgramMemoryValues
   ) where
 
 
@@ -39,6 +39,7 @@ import           TinyRAM.Types.MemoryValues        (MemoryValues (..))
 import           TinyRAM.Types.Opcode              (Opcode (..))
 import           TinyRAM.Types.Params              (Params (..))
 import           TinyRAM.Types.ProgramCounter      (ProgramCounter (..))
+import TinyRAM.Types.ProgramMemoryValues (ProgramMemoryValues (..))
 import           TinyRAM.Types.Register            (Register (..))
 import           TinyRAM.Types.RegisterCount       (RegisterCount (..))
 import           TinyRAM.Types.RegisterValues      (RegisterValues (..))
@@ -64,7 +65,7 @@ instance GenValid Sign where
 
 
 instance GenValid WordSize where
-  genValid = WordSize . (8*) <$> choose (4, 4)
+  genValid = oneof [return 8] --, return 16]
   shrinkValid = shrinkValidStructurally
 
 
@@ -101,20 +102,21 @@ genMachineState ws rc =
   <$> genProgramCounter ws
   <*> genRegisterValues ws rc
   <*> genValid
-  <*> genInstructionMemoryValues ws rc
+  <*> genMemoryValues ws
+  <*> genProgramMemoryValues ws rc
   <*> genInputTape ws
   <*> genInputTape ws
 
 
 genMemoryValues :: WordSize -> Gen MemoryValues
 genMemoryValues ws =
-  fmap (MemoryValues . Map.fromList) . listOf
+  fmap (MemoryValues . Map.fromList) . vectorOf (2 ^ unWordSize ws)
     $ (,) <$> genAddress ws <*> genWord ws
 
 
-genInstructionMemoryValues :: WordSize -> RegisterCount -> Gen MemoryValues
-genInstructionMemoryValues ws rc =
-  fmap (MemoryValues . Map.fromList) $ join <$> listOf instructionWords
+genProgramMemoryValues :: WordSize -> RegisterCount -> Gen ProgramMemoryValues
+genProgramMemoryValues ws rc =
+  fmap (ProgramMemoryValues . Map.fromList) $ join <$> vectorOf (2 ^ unWordSize ws - 1) instructionWords
   where
   instructionWords = do
     let bytesPerWord' = bytesPerWord ws
@@ -138,7 +140,9 @@ genProgramCounter ws = ((.&. (2 ^ ws - 1)) . (* (fromIntegral $ bytesPerWord ws)
 
 
 genRegisterCount :: WordSize -> Gen RegisterCount
-genRegisterCount (WordSize _) = RegisterCount <$> choose (2, 32)
+genRegisterCount (WordSize 16) = RegisterCount <$> choose (2, 32)
+genRegisterCount (WordSize 8) = return (RegisterCount 2)
+genRegisterCount _ = error "genRegisterCount: unsupported word size"
   -- RegisterCount <$> choose (2, min 32 (2 ^ ((ws - 6) `quot` 2)))
 
 

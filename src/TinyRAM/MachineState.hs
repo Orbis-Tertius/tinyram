@@ -32,6 +32,7 @@ import           TinyRAM.Types.MachineState        (MachineState)
 import           TinyRAM.Types.Params              (Params)
 import           TinyRAM.Types.Register            (Register (..))
 import           TinyRAM.Types.Word                (Word)
+import TinyRAM.Types.WordSize (WordSize (..))
 
 
 getImmediateOrRegister :: HasMachineState m
@@ -49,7 +50,8 @@ incrementProgramCounter :: ( Monad m, HasMachineState m, HasParams m )
   => m ()
 incrementProgramCounter = do
   wordSize <- getWordSize
-  setProgramCounter . (+ (fromIntegral $ 2 * bytesPerWord wordSize)) =<< getProgramCounter
+  setProgramCounter . (`mod` (2 ^ unWordSize wordSize))
+    . (+ (fromIntegral $ 2 * bytesPerWord wordSize)) =<< getProgramCounter
 
 
 validateMachineState :: Params -> MachineState -> Validation

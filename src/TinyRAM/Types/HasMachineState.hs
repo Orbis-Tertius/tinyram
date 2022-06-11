@@ -30,6 +30,8 @@ class (MonadError Error m) => HasMachineState m where
   getConditionFlag :: m Flag
   setConditionFlag :: Flag -> m ()
   getWord :: Address -> m Word
+  getProgramWord :: Address -> m Word
   setWord :: Address -> Word -> m ()
+  setProgramWord :: Address -> Word -> m ()
   readPrimaryInput :: m (Maybe Word)
   readAuxiliaryInput :: m (Maybe Word)

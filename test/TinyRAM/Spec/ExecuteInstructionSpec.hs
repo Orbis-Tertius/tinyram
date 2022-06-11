@@ -152,7 +152,7 @@ instructionStateTransition ps i =
 
 
 incrementPC :: WordSize -> MachineState -> MachineState
-incrementPC ws s = #programCounter .~ (s ^. #programCounter + fromIntegral (2 * bytesPerWord ws)) $ s
+incrementPC ws s = #programCounter .~ ((s ^. #programCounter + fromIntegral (2 * bytesPerWord ws)) `mod` (2 ^ unWordSize ws)) $ s
 
 
 alignToWord :: WordSize -> Address -> (Address, Integer)

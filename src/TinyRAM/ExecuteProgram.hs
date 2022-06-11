@@ -24,6 +24,7 @@ import           TinyRAM.Types.MaxSteps       (MaxSteps)
 import           TinyRAM.Types.MemoryValues   (MemoryValues (..))
 import           TinyRAM.Types.Params         (Params)
 import           TinyRAM.Types.Program        (Program (..))
+import TinyRAM.Types.ProgramMemoryValues (ProgramMemoryValues (..))
 import           TinyRAM.Types.ProgramCounter (ProgramCounter)
 import           TinyRAM.Types.Register       (Register (..))
 import           TinyRAM.Types.RegisterCount  (RegisterCount (..))
@@ -39,13 +40,13 @@ executeProgram
   -> InputTape Auxiliary
   -> Either Text Word
 executeProgram params maxSteps program primaryInput auxInput = do
-  memoryValues <- programToMemoryValues params program
+  programMemoryValues <- programToMemoryValues params program
   let result =
         runIdentity $
         runExceptT $
         runStateT
         (unTinyRAMT (run maxSteps))
-        (params, initialMachineState params memoryValues primaryInput auxInput)
+        (params, initialMachineState params (MemoryValues mempty) programMemoryValues primaryInput auxInput)
   (maybeWord, _ ) <- Bi.first (pack . show) result
   maybe (Left $ "program did not terminate in " <> pack (show maxSteps)) Right maybeWord
 
@@ -53,6 +54,7 @@ executeProgram params maxSteps program primaryInput auxInput = do
 initialMachineState
   :: Params
   -> MemoryValues
+  -> ProgramMemoryValues
   -> InputTape Primary
   -> InputTape Auxiliary
   -> MachineState
@@ -72,14 +74,14 @@ initialRegisterValues (RegisterCount n) =
 programToMemoryValues
   :: Params
   -> Program
-  -> Either Text MemoryValues
+  -> Either Text ProgramMemoryValues
 programToMemoryValues params (Program p) =
   if params ^. #wordSize == 0
   then Left "word size must be nonzero but it is zero"
   else
     case (params ^. #wordSize . #unWordSize) `rem` 8 of
       0 ->
-        Right . MemoryValues . Map.fromList $ zip addresses (bytesToWords (params ^. #wordSize) p)
+        Right . ProgramMemoryValues . Map.fromList $ zip addresses (bytesToWords (params ^. #wordSize) p)
       _ -> Left $ "word size must be a multiple of 8 but it is " <> pack (show (params ^. #wordSize . #unWordSize))
   where
     bytesPerWord' = bytesPerWord (params ^. #wordSize)

@@ -42,6 +42,7 @@ library
     TinyRAM.Types.Program
     TinyRAM.Types.ProgramCounter
     TinyRAM.Types.ProgramFilePath
+    TinyRAM.Types.ProgramMemoryValues
     TinyRAM.Types.RegisterCount
     TinyRAM.Types.Register
     TinyRAM.Types.RegisterValues
