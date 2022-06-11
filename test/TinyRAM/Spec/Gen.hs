@@ -112,7 +112,7 @@ genMemoryValues :: WordSize -> Gen MemoryValues
 genMemoryValues ws =
   fmap (MemoryValues . Map.fromList
     . zip (Address . Word . (* fromIntegral (bytesPerWord ws)) <$> [0..]))
-    . vectorOf (2 ^ unWordSize ws)
+    . vectorOf ((2 ^ (unWordSize ws)) `quot` bytesPerWord ws)
     $ genWord ws
 
 
@@ -120,7 +120,7 @@ genProgramMemoryValues :: WordSize -> RegisterCount -> Gen ProgramMemoryValues
 genProgramMemoryValues ws rc =
   fmap (ProgramMemoryValues . Map.fromList
     . zip (Address . Word . (* fromIntegral (bytesPerWord ws)) <$> [0..]))
-    $ join <$> vectorOf (2 ^ unWordSize ws - 1) instructionWords
+    $ join <$> vectorOf ((2 ^ (unWordSize ws)) `quot` (2 * bytesPerWord ws)) instructionWords
   where
   instructionWords = do
     instruction <- genInstruction ws rc

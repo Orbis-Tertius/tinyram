@@ -62,10 +62,10 @@ validateMachineState ps s =
   <> validateRegisterKeys ps s
   <> validateRegisterValues ps s
   <> validate (s ^. #conditionFlag)
-  -- <> validateMemoryKeys ps s
-  -- <> validateMemoryValues ps s
-  -- <> validateProgramMemoryKeys ps ps
-  -- <> validateProgramMemoryValues
+  <> validateMemoryKeys ps s
+  <> validateMemoryValues ps s
+  <> validateProgramMemoryKeys ps s
+  <> validateProgramMemoryValues ps s
   <> validateInputTape ps (s ^. #primaryInput)
   <> validateInputTape ps (s ^. #auxiliaryInput)
 
