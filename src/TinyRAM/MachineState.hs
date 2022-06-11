@@ -12,6 +12,8 @@ module TinyRAM.MachineState
   , validateRegisterValues
   , validateMemoryKeys
   , validateMemoryValues
+  , validateProgramMemoryKeys
+  , validateProgramMemoryValues
   , validateInputTape
   , validateMachineState
   , validateWord
@@ -60,8 +62,10 @@ validateMachineState ps s =
   <> validateRegisterKeys ps s
   <> validateRegisterValues ps s
   <> validate (s ^. #conditionFlag)
-  <> validateMemoryKeys ps s
-  <> validateMemoryValues ps s
+  -- <> validateMemoryKeys ps s
+  -- <> validateMemoryValues ps s
+  -- <> validateProgramMemoryKeys ps ps
+  -- <> validateProgramMemoryValues
   <> validateInputTape ps (s ^. #primaryInput)
   <> validateInputTape ps (s ^. #auxiliaryInput)
 
@@ -96,6 +100,16 @@ validateMemoryKeys ps s =
 validateMemoryValues :: Params -> MachineState -> Validation
 validateMemoryValues ps s =
   mconcat $ validateWord "Memory Value" ps <$> Map.elems (s ^. #memoryValues . #unMemoryValues)
+
+
+validateProgramMemoryKeys :: Params -> MachineState -> Validation
+validateProgramMemoryKeys ps s =
+  mconcat $ validateWord "Program Memory Address" ps <$> Map.keys (s ^. #programMemoryValues . #unProgramMemoryValues)
+
+
+validateProgramMemoryValues :: Params -> MachineState -> Validation
+validateProgramMemoryValues ps s =
+  mconcat $ validateWord "Program Memory Value" ps <$> Map.elems (s ^. #programMemoryValues . #unProgramMemoryValues)
 
 
 validateInputTape :: Params -> InputTape a -> Validation

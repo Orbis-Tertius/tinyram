@@ -110,22 +110,22 @@ genMachineState ws rc =
 
 genMemoryValues :: WordSize -> Gen MemoryValues
 genMemoryValues ws =
-  fmap (MemoryValues . Map.fromList) . vectorOf (2 ^ unWordSize ws)
-    $ (,) <$> genAddress ws <*> genWord ws
+  fmap (MemoryValues . Map.fromList
+    . zip (Address . Word . (* fromIntegral (bytesPerWord ws)) <$> [0..]))
+    . vectorOf (2 ^ unWordSize ws)
+    $ genWord ws
 
 
 genProgramMemoryValues :: WordSize -> RegisterCount -> Gen ProgramMemoryValues
 genProgramMemoryValues ws rc =
-  fmap (ProgramMemoryValues . Map.fromList) $ join <$> vectorOf (2 ^ unWordSize ws - 1) instructionWords
+  fmap (ProgramMemoryValues . Map.fromList
+    . zip (Address . Word . (* fromIntegral (bytesPerWord ws)) <$> [0..]))
+    $ join <$> vectorOf (2 ^ unWordSize ws - 1) instructionWords
   where
   instructionWords = do
-    let bytesPerWord' = bytesPerWord ws
-    lowAddress <- (`mod` (2 ^ ws - 1)) . (* fromIntegral bytesPerWord') <$> genAddress ws
-    let highAddress = lowAddress + fromIntegral bytesPerWord'
     instruction <- genInstruction ws rc
     let (lowWord, highWord) = encodeInstruction ws rc instruction
-
-    return [(lowAddress, lowWord), (highAddress, highWord)]
+    return [lowWord, highWord]
 
 
 genParamsMachineState :: Gen (Params, MachineState)

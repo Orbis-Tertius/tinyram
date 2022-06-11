@@ -78,7 +78,7 @@ spec = describe "run" $ do
           pc = x ^. _2 . #programCounter . #unProgramCounter
           i0 = fromMaybe 0 $ x ^. _2 . #programMemoryValues . #unProgramMemoryValues . at pc
           i1 = fromMaybe 0 $ x ^. _2 . #programMemoryValues . #unProgramMemoryValues
-               . at ((pc + 1) `mod` (2 ^ unWordSize ws))
+               . at ((pc + fromIntegral (bytesPerWord ws)) `mod` (2 ^ unWordSize ws))
           i  = decodeInstruction (x ^. _1 . #wordSize) (x ^. _1 . #registerCount) (i0, i1)
           b  = runIdentity . runExceptT . runStateT (unTinyRAMT (executeInstruction i)) $ x
       in if i ^. #opcode /= 31
