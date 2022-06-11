@@ -1,4 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -10,10 +11,14 @@ module TinyRAM.Spec.CoqTinyRAMSpec
   ) where
 
 
+import Control.Monad.Trans.Except (runExceptT)
+import Control.Monad.Trans.State (StateT (runStateT))
 import Data.Bits (testBit)
 import Data.ByteString (pack, unpack)
 import qualified Data.ByteString as BS
+import Data.Functor.Identity (runIdentity)
 import Data.List (isPrefixOf)
+import qualified Data.Map as Map
 import Data.Word (Word8)
 import System.Environment (getEnv)
 import System.IO (hGetLine, writeFile)
@@ -21,12 +26,15 @@ import System.Process (createProcess, proc, CreateProcess (std_in, std_out), Std
 import System.Random (randomIO)
 import Text.Read (readMaybe)
 
-import TinyRAM.Bytes (bytesPerWord)
+import TinyRAM.Bytes (bytesPerWord, wordsToBytes)
+import TinyRAM.Run (run)
+import TinyRAM.Spec.Gen (genParamsMachineState)
 import TinyRAM.Spec.Prelude
 import TinyRAM.Types.MaxSteps (MaxSteps (..))
 import TinyRAM.Types.Program (Program (..))
 import TinyRAM.Types.InputTape (InputTape (..), Primary, Auxiliary)
-import TinyRAM.Types.Word (Word)
+import TinyRAM.Types.TinyRAMT (TinyRAMT (..))
+import TinyRAM.Types.Word (Word (..))
 import TinyRAM.Types.WordSize (WordSize)
 
 
@@ -44,6 +52,7 @@ coqTinyRAMSpec =
     answerTest
     readFromPrimaryTapeTest
     readFromSecondaryTapeTest
+    generatedTests
 
 
 coqTinyRAMSmokeTest :: Spec
@@ -75,6 +84,19 @@ readFromSecondaryTapeTest =
     result `shouldBe` (Just 2)
 
 
+generatedTests :: Spec
+generatedTests =
+  it "produces the same result as the Haskell TinyRAM emulator" $
+    forAll genParamsMachineState $ \(ps,s) ->
+      forAll (MaxSteps <$> choose (0,1000)) $ \maxSteps -> do
+        let prog = Program $ wordsToBytes (ps ^. #wordSize) (Map.elems (s ^. #programMemoryValues . #unProgramMemoryValues))
+        coqResult <- runCoqTinyRAM prog (s ^. #primaryInput) (s ^. #auxiliaryInput) maxSteps
+        let hsResult = runIdentity . runExceptT . runStateT (unTinyRAMT (run (Just maxSteps))) $ (ps, s)
+        case (coqResult, hsResult) of
+          (_, Left _) -> return () -- TODO more granularly compare error results
+          (x, Right (y, _)) -> x `shouldBe` y
+
+
 bytesToBitStringSpec :: Spec
 bytesToBitStringSpec =
   describe "bytesToBitString" $
@@ -87,7 +109,7 @@ runCoqTinyRAM :: Program
               -> InputTape Primary
               -> InputTape Auxiliary
               -> MaxSteps
-              -> IO (Maybe Int)
+              -> IO (Maybe Word)
 runCoqTinyRAM (Program p)
               (InputTape ip)
               (InputTape ia)
@@ -122,7 +144,7 @@ runCoqTinyRAM (Program p)
           o5 <- hGetLine pStdout
           putStrLn o5
           if isPrefixOf "\tNat: " o5
-            then return (readMaybe (drop 6 o5))
+            then return (Word <$> readMaybe (drop 6 o5))
             else return Nothing
     _ -> return Nothing
 
