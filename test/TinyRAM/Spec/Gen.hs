@@ -39,7 +39,7 @@ import           TinyRAM.Types.MemoryValues        (MemoryValues (..))
 import           TinyRAM.Types.Opcode              (Opcode (..))
 import           TinyRAM.Types.Params              (Params (..))
 import           TinyRAM.Types.ProgramCounter      (ProgramCounter (..))
-import TinyRAM.Types.ProgramMemoryValues (ProgramMemoryValues (..))
+import           TinyRAM.Types.ProgramMemoryValues (ProgramMemoryValues (..))
 import           TinyRAM.Types.Register            (Register (..))
 import           TinyRAM.Types.RegisterCount       (RegisterCount (..))
 import           TinyRAM.Types.RegisterValues      (RegisterValues (..))
@@ -141,8 +141,8 @@ genProgramCounter ws = ((.&. (2 ^ ws - 1)) . (* (fromIntegral $ bytesPerWord ws)
 
 genRegisterCount :: WordSize -> Gen RegisterCount
 genRegisterCount (WordSize 16) = RegisterCount <$> choose (2, 32)
-genRegisterCount (WordSize 8) = return (RegisterCount 2)
-genRegisterCount _ = error "genRegisterCount: unsupported word size"
+genRegisterCount (WordSize 8)  = return (RegisterCount 2)
+genRegisterCount _             = error "genRegisterCount: unsupported word size"
   -- RegisterCount <$> choose (2, min 32 (2 ^ ((ws - 6) `quot` 2)))
 
 

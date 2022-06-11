@@ -34,7 +34,7 @@ import           TinyRAM.Types.MachineState        (MachineState)
 import           TinyRAM.Types.Params              (Params)
 import           TinyRAM.Types.Register            (Register (..))
 import           TinyRAM.Types.Word                (Word)
-import TinyRAM.Types.WordSize (WordSize (..))
+import           TinyRAM.Types.WordSize            (WordSize (..))
 
 
 getImmediateOrRegister :: HasMachineState m

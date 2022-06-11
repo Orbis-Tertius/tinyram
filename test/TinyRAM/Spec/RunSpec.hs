@@ -35,7 +35,7 @@ import           TinyRAM.Types.Params              (Params)
 import           TinyRAM.Types.ProgramCounter      (ProgramCounter (..))
 import           TinyRAM.Types.TinyRAMT            (TinyRAMT (..))
 import           TinyRAM.Types.Word                (Word)
-import TinyRAM.Types.WordSize (WordSize (..))
+import           TinyRAM.Types.WordSize            (WordSize (..))
 
 executionError :: Error -> IO a
 executionError = expectationFailure . show

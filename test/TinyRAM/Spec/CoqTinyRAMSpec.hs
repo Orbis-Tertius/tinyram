@@ -1,6 +1,6 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLabels #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE NoImplicitPrelude   #-}
+{-# LANGUAGE OverloadedLabels    #-}
+{-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 
@@ -11,32 +11,34 @@ module TinyRAM.Spec.CoqTinyRAMSpec
   ) where
 
 
-import Control.Monad (when)
-import Control.Monad.Trans.Except (runExceptT)
-import Control.Monad.Trans.State (StateT (runStateT))
-import Data.Bits (testBit)
-import Data.ByteString (pack, unpack)
-import qualified Data.ByteString as BS
-import Data.Functor.Identity (runIdentity)
-import Data.List (isPrefixOf)
-import qualified Data.Map as Map
-import Data.Word (Word8)
-import System.Environment (getEnv)
-import System.IO (hGetLine, writeFile)
-import System.Process (createProcess, proc, CreateProcess (std_in, std_out), StdStream (CreatePipe))
-import System.Random (randomIO)
-import Text.Read (readMaybe)
+import           Control.Monad              (when)
+import           Control.Monad.Trans.Except (runExceptT)
+import           Control.Monad.Trans.State  (StateT (runStateT))
+import           Data.Bits                  (testBit)
+import           Data.ByteString            (pack, unpack)
+import qualified Data.ByteString            as BS
+import           Data.Functor.Identity      (runIdentity)
+import           Data.List                  (isPrefixOf)
+import qualified Data.Map                   as Map
+import           Data.Word                  (Word8)
+import           System.Environment         (getEnv)
+import           System.IO                  (hGetLine, writeFile)
+import           System.Process             (CreateProcess (std_in, std_out),
+                                             StdStream (CreatePipe),
+                                             createProcess, proc)
+import           System.Random              (randomIO)
+import           Text.Read                  (readMaybe)
 
-import TinyRAM.Bytes (bytesPerWord, wordsToBytes)
-import TinyRAM.Run (run)
-import TinyRAM.Spec.Gen (genParamsMachineState)
-import TinyRAM.Spec.Prelude
-import TinyRAM.Types.MaxSteps (MaxSteps (..))
-import TinyRAM.Types.Program (Program (..))
-import TinyRAM.Types.InputTape (InputTape (..), Primary, Auxiliary)
-import TinyRAM.Types.TinyRAMT (TinyRAMT (..))
-import TinyRAM.Types.Word (Word (..))
-import TinyRAM.Types.WordSize (WordSize)
+import           TinyRAM.Bytes              (bytesPerWord, wordsToBytes)
+import           TinyRAM.Run                (run)
+import           TinyRAM.Spec.Gen           (genParamsMachineState)
+import           TinyRAM.Spec.Prelude
+import           TinyRAM.Types.InputTape    (Auxiliary, InputTape (..), Primary)
+import           TinyRAM.Types.MaxSteps     (MaxSteps (..))
+import           TinyRAM.Types.Program      (Program (..))
+import           TinyRAM.Types.TinyRAMT     (TinyRAMT (..))
+import           TinyRAM.Types.Word         (Word (..))
+import           TinyRAM.Types.WordSize     (WordSize)
 
 
 spec :: Spec
@@ -94,7 +96,7 @@ generatedTests =
         coqResult <- runCoqTinyRAM prog (s ^. #primaryInput) (s ^. #auxiliaryInput) maxSteps
         let hsResult = runIdentity . runExceptT . runStateT (unTinyRAMT (run (Just maxSteps))) $ (ps, s)
         case (coqResult, hsResult) of
-          (_, Left _) -> return () -- TODO more granularly compare error results
+          (_, Left _)       -> return () -- TODO more granularly compare error results
           (x, Right (y, _)) -> x `shouldBe` y
 
 

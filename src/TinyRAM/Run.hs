@@ -20,7 +20,7 @@ import           TinyRAM.Types.HasParams       (HasParams)
 import           TinyRAM.Types.MaxSteps        (MaxSteps (..))
 import           TinyRAM.Types.ProgramCounter  (ProgramCounter (..))
 import           TinyRAM.Types.Word            (Word)
-import TinyRAM.Types.WordSize (WordSize (..))
+import           TinyRAM.Types.WordSize        (WordSize (..))
 
 run :: ( HasMachineState m, HasParams m ) => Maybe MaxSteps -> m (Maybe Word)
 run (Just 0) = return Nothing

@@ -8,10 +8,11 @@ module TinyRAM.Types.MachineState ( MachineState (MachineState) ) where
 
 import           TinyRAM.Prelude
 import           TinyRAM.Types.Flag                (Flag)
-import           TinyRAM.Types.InputTape           (Auxiliary, InputTape, Primary)
+import           TinyRAM.Types.InputTape           (Auxiliary, InputTape,
+                                                    Primary)
 import           TinyRAM.Types.MemoryValues        (MemoryValues)
-import           TinyRAM.Types.ProgramMemoryValues (ProgramMemoryValues)
 import           TinyRAM.Types.ProgramCounter      (ProgramCounter)
+import           TinyRAM.Types.ProgramMemoryValues (ProgramMemoryValues)
 import           TinyRAM.Types.RegisterValues      (RegisterValues)
 
 
