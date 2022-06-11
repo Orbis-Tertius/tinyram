@@ -6,6 +6,8 @@ module TinyRAM.Disassembler
   ( disassembleInstruction
   , disassembleProgram
   , disassembleCoqTinyRAMProgram
+  , pairWords
+  , bytesToWordsBigEndian
   ) where
 
 
@@ -19,6 +21,7 @@ import TinyRAM.Operations (getOperation)
 import TinyRAM.Prelude
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (..))
 import TinyRAM.Types.Instruction (Instruction (..))
+import TinyRAM.Types.Opcode (Opcode (..))
 import TinyRAM.Types.Register (Register (..))
 import TinyRAM.Types.RegisterCount (RegisterCount (..))
 import TinyRAM.Types.Word (Word (..))
@@ -27,7 +30,7 @@ import TinyRAM.Types.WordSize (WordSize (..))
 
 disassembleInstruction :: Instruction -> String
 disassembleInstruction i =
-  show (getOperation (i ^. #opcode))
+  maybe (show (unOpcode (i ^. #opcode))) show (getOperation (i ^. #opcode))
   <> " r" <> show (i ^. #ri . #unRegister)
   <> " r" <> show (i ^. #rj . #unRegister)
   <> " " <> showImmediateOrRegister (i ^. #a)

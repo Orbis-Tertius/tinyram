@@ -29,15 +29,19 @@ import           System.Random              (randomIO)
 import           Text.Read                  (readMaybe)
 
 import           TinyRAM.Bytes              (bytesPerWord, wordsToBytes)
+import TinyRAM.DecodeInstruction (decodeInstruction)
+import TinyRAM.Disassembler (disassembleProgram, pairWords)
 import           TinyRAM.Run                (run)
-import           TinyRAM.Spec.Gen           (genParamsMachineState)
+import           TinyRAM.Spec.Gen           (genMachineState)
 import           TinyRAM.Spec.Prelude
 import           TinyRAM.Types.InputTape    (Auxiliary, InputTape (..), Primary)
 import           TinyRAM.Types.MaxSteps     (MaxSteps (..))
+import TinyRAM.Types.Params (Params (..))
 import           TinyRAM.Types.Program      (Program (..))
+import TinyRAM.Types.RegisterCount (RegisterCount (..))
 import           TinyRAM.Types.TinyRAMT     (TinyRAMT (..))
 import           TinyRAM.Types.Word         (Word (..))
-import           TinyRAM.Types.WordSize     (WordSize)
+import           TinyRAM.Types.WordSize     (WordSize (..))
 
 
 spec :: Spec
@@ -89,14 +93,21 @@ readFromSecondaryTapeTest =
 generatedTests :: Spec
 generatedTests =
   it "produces the same result as the Haskell TinyRAM emulator" $
-    forAll genParamsMachineState $ \(ps,s) ->
+    forAll (genMachineState ws rc) $ \s ->
       forAll (MaxSteps <$> choose (0,1000)) $ \maxSteps -> do
-        let prog = Program $ wordsToBytes (ps ^. #wordSize) (Map.elems (s ^. #programMemoryValues . #unProgramMemoryValues))
+        let progWords = (Map.elems (s ^. #programMemoryValues . #unProgramMemoryValues))
+            prog = Program $ wordsToBytes ws progWords
+            instructions = decodeInstruction ws rc  <$> pairWords progWords
+        writeFile "/tmp/run-coq-tinyram-asm" (disassembleProgram ws rc instructions)
         coqResult <- runCoqTinyRAM prog (s ^. #primaryInput) (s ^. #auxiliaryInput) maxSteps
         let hsResult = runIdentity . runExceptT . runStateT (unTinyRAMT (run (Just maxSteps))) $ (ps, s)
         case (coqResult, hsResult) of
           (_, Left _)       -> return () -- TODO more granularly compare error results
           (x, Right (y, _)) -> x `shouldBe` y
+  where
+    ws = WordSize 16
+    rc = RegisterCount 16
+    ps = Params ws rc
 
 
 bytesToBitStringSpec :: Spec
