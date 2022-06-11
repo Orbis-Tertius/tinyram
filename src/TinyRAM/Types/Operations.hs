@@ -28,4 +28,4 @@ data Operations
   | LOAD
   | READ
   | ANSWER
-  deriving (Read, Enum, Eq)
+  deriving (Read, Show, Enum, Eq)

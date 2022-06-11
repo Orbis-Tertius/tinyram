@@ -23,6 +23,7 @@ import           Text.Parsec                   (runParser)
 
 import           Numeric                       (showHex)
 import           TinyRAM.Bytes                 (bytesToWords, wordsToBytes)
+import TinyRAM.Disassembler (disassembleCoqTinyRAMProgram)
 import           TinyRAM.EncodeInstruction     (encodeInstruction)
 import           TinyRAM.ExecuteProgram        (executeProgram)
 import           TinyRAM.Parser                (firstLine, instruction)
@@ -94,6 +95,7 @@ auxiliaryInputTapePath =
 
 runP :: O.Parser Command
 runP =
+  (CommandDisassemble <$> programFilePath) <|>
   ( CommandParse
   <$> programInputFilePath
   <*> programFilePath
@@ -157,6 +159,9 @@ handleCommand pCmd =
       case result of
         Left err -> putStrLn $ "Error: " <> show err
         Right () -> return ()
+    CommandDisassemble (ObjectFilePath inputFile) -> do
+      binary <- readFile inputFile
+      putStrLn (disassembleCoqTinyRAMProgram binary)
 
 -- This could look better refactored to use ExceptT.
 assemble :: AssemblyFilePath -> ObjectFilePath -> IO (Either Text ())

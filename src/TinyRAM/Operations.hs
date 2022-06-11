@@ -1,7 +1,8 @@
-module TinyRAM.Operations (getOpCode, readOpCode) where
+module TinyRAM.Operations (getOpCode, getOperation, readOpCode) where
 
 import           TinyRAM.Types.Opcode     (Opcode)
 import           TinyRAM.Types.Operations (Operations (..))
+
 
 getOpCode :: Operations -> Opcode
 getOpCode op =
@@ -33,6 +34,40 @@ getOpCode op =
    LOAD   -> 29
    READ   -> 30
    ANSWER -> 31
+
+
+getOperation :: Opcode -> Operations
+getOperation op =
+  case op of
+    0  -> AND   
+    1  -> OR    
+    2  -> XOR   
+    3  -> NOT   
+    4  -> ADD   
+    5  -> SUB   
+    6  -> MULL  
+    7  -> UMULH 
+    8  -> SMULH 
+    9  -> UDIV  
+    10 -> UMOD  
+    11 -> SHL   
+    12 -> SHR   
+    13 -> CMPE  
+    14 -> CMPA  
+    15 -> CMPAE 
+    16 -> CMPG  
+    17 -> CMPGE 
+    18 -> MOV   
+    19 -> CMOV  
+    20 -> JMP   
+    21 -> CJMP  
+    22 -> CNJMP 
+    28 -> STORE 
+    29 -> LOAD  
+    30 -> READ  
+    31 -> ANSWER
+    _  -> error "malformed opcode"
+
 
 readOpCode :: String -> Operations
 readOpCode "and"    = AND

@@ -11,7 +11,6 @@ module TinyRAM.Spec.CoqTinyRAMSpec
   ) where
 
 
-import           Control.Monad              (when)
 import           Control.Monad.Trans.Except (runExceptT)
 import           Control.Monad.Trans.State  (StateT (runStateT))
 import           Data.Bits                  (testBit)
@@ -55,7 +54,7 @@ coqTinyRAMSpec =
     answerTest
     readFromPrimaryTapeTest
     readFromSecondaryTapeTest
-    when False generatedTests -- TODO: make pass
+    generatedTests
 
 
 coqTinyRAMSmokeTest :: Spec
