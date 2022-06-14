@@ -15,7 +15,7 @@ import qualified Data.ByteString as BS
 import Data.List (intercalate)
 import Data.Word (Word8)
 
-import TinyRAM.Bytes (bytesPerWord, bytesToWords)
+import TinyRAM.Bytes (bytesPerWord)
 import TinyRAM.DecodeInstruction (decodeInstruction)
 import TinyRAM.Operations (getOperation)
 import TinyRAM.Prelude
@@ -50,7 +50,7 @@ disassembleProgram (WordSize ws) (RegisterCount rc) is =
 disassembleCoqTinyRAMProgram :: String -> String
 disassembleCoqTinyRAMProgram =
   disassembleProgram ws rc . fmap (decodeInstruction ws rc)
-    . pairWords . bytesToWords ws . bitStringToBytes
+    . pairWords . bytesToWordsBigEndian ws . bitStringToBytes
   where
     ws = WordSize 16
     rc = RegisterCount 4

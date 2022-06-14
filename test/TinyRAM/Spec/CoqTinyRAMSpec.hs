@@ -28,7 +28,7 @@ import           System.Process             (CreateProcess (std_in, std_out),
 import           System.Random              (randomIO)
 import           Text.Read                  (readMaybe)
 
-import           TinyRAM.Bytes              (bytesPerWord, wordsToBytes)
+import           TinyRAM.Bytes              (bytesPerWord)
 import TinyRAM.DecodeInstruction (decodeInstruction)
 import TinyRAM.Disassembler (disassembleProgram, pairWords)
 import           TinyRAM.Run                (run)
@@ -62,6 +62,7 @@ coqTinyRAMSpec =
   describe "coq-tinyram" $ do
     coqTinyRAMSmokeTest
     answerTest
+    answerRegisterTest
     readFromPrimaryTapeTest
     readFromSecondaryTapeTest
     emptyReadTest
@@ -83,6 +84,13 @@ answerTest =
   it "answers 4" $ do
     result <- runCoqTinyRAM (Program "\xFC\0\0\x04") (InputTape []) (InputTape []) (MaxSteps 6)
     result `shouldBe` (Just 4)
+
+
+answerRegisterTest :: Spec
+answerRegisterTest =
+  it "answers 0" $ do
+    result <- runCoqTinyRAM (Program "\xF8\0\0\x02") (InputTape []) (InputTape []) (MaxSteps 5)
+    result `shouldBe` (Just 0)
 
 
 readFromPrimaryTapeTest :: Spec
@@ -116,7 +124,7 @@ invalidReadTest =
 loadBeforeStoreTest :: Spec
 loadBeforeStoreTest =
   it "does not crash when loading before store" $ do
-    result <- runCoqTinyRAM (Program "\xD8\x00\xFF\xFF\xF8\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
+    result <- runCoqTinyRAM (Program "\xD8\x00\xFF\xF8\xF8\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
     result `shouldBe` (Just 0)
 
 
@@ -138,7 +146,7 @@ generatedTests =
                            (Word <$> [0..])))))
               $ s'
             progWords = (Map.elems (s ^. #programMemoryValues . #unProgramMemoryValues))
-            prog = Program $ wordsToBytes ws progWords
+            prog = Program $ wordsToBytesBigEndian ws progWords
             instructions = decodeInstruction ws rc  <$> pairWords progWords
         writeFile "/tmp/run-coq-tinyram-asm" (disassembleProgram ws rc instructions)
         coqResult <- runCoqTinyRAM prog (s ^. #primaryInput) (s ^. #auxiliaryInput) maxSteps

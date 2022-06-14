@@ -35,6 +35,7 @@ spec = describe "TinyRAM end to end" $ do
   udivTestCase
   umodTestCase
   shlTestCase
+  shlTestCase2
   shrTestCase
   cmpaeLessTestCase
   cmpaLessTestCase
@@ -52,6 +53,7 @@ spec = describe "TinyRAM end to end" $ do
   cmpgeGreaterTestCase
   cmpgGreaterTestCase
   answerTestCase
+  answerRegisterTestCase
 
 
 simpleTestCase :: Spec
@@ -217,12 +219,23 @@ umodTestCase =
 shlTestCase :: Spec
 shlTestCase =
   before (handleCommand (CommandParse (AssemblyFilePath "examples/shlTest.s") objectFilePath)) $
-    it "The SHL operation should result in 11110." $ do
+    it "The SHL operation should result in 22222." $ do
       program <- readObjectFile objectFilePath
       let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
-      answer `shouldBe` Right (11110)
+      answer `shouldBe` Right 22222
   where
     objectFilePath = ObjectFilePath "examples/shlTest.o"
+
+shlTestCase2 :: Spec
+shlTestCase2 =
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/shlTest2.s") objectFilePath)) $
+    it "The SHL operation should result in 0." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right 0
+  where
+    objectFilePath = ObjectFilePath "examples/shlTest2.o"
+
 
 shrTestCase :: Spec
 shrTestCase =
@@ -394,3 +407,13 @@ answerTestCase =
   where
     objectFilePath = ObjectFilePath "examples/answerTest.o"
 
+
+answerRegisterTestCase :: Spec
+answerRegisterTestCase =
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/answerRegisterTest.s") objectFilePath)) $
+    it "should answer 0." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape []) (InputTape [])
+      answer `shouldBe` Right 0
+  where
+    objectFilePath = ObjectFilePath "examples/answerRegisterTest.o"
