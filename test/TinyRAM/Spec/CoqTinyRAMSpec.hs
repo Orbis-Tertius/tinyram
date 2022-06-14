@@ -24,6 +24,7 @@ import           System.IO                  (hGetLine, writeFile)
 import           System.Process             (CreateProcess (std_in, std_out),
                                              StdStream (CreatePipe),
                                              createProcess, proc)
+import System.Environment (getEnv)
 import           System.Random              (randomIO)
 import           Text.Read                  (readMaybe)
 
@@ -187,7 +188,7 @@ runCoqTinyRAM (Program p)
   writeFile tmpPath2 (bytesToBitString (wordsToBytesBigEndian wordSize ip))
   writeFile tmpPath3 (bytesToBitString (wordsToBytesBigEndian wordSize ia))
   (mpStdin, mpStdout, _pStderr, _pHandle) <- do
-    exePath <- readFile "/tmp/coq-tinyram-path"
+    exePath <- getEnv "COQ_TINYRAM_PATH"
     createProcess
       ((proc exePath [tmpPath1, tmpPath2, tmpPath3, show maxSteps])
         { std_in = CreatePipe, std_out = CreatePipe })

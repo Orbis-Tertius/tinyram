@@ -48,10 +48,10 @@
                 projectFileName = "stack.yaml";
                 modules = [{
                   packages = {
-                    "tinyram:test:spec" = {
-                      allComponent.preCheck = ''
-                        echo "foo"
-                        echo -n ${coq-tinyram.defaultPackage.x86_64-linux}/bin/coq-tinyram >/tmp/coq-tinyram-path
+                    tinyram.components.tests.spec = {
+                      pkgconfig = [ [ final.makeWrapper ] ];
+                      postInstall = ''
+                        wrapProgram $out/bin/spec --set COQ_TINYRAM_PATH : "${coq-tinyram.defaultPackage.x86_64-linux}/bin/coq-tinyram"
                       '';
                     };
                   };
@@ -72,7 +72,6 @@
                   ''
                   export COQ_TINYRAM_PATH=${coq-tinyram.defaultPackage.x86_64-linux}/bin/coq-tinyram
                   alias coq-tinyram=$COQ_TINYRAM_PATH
-                  echo -n $COQ_TINYRAM_PATH >/tmp/coq-tinyram-path
                   manual-ci() (
                     set -e
 
