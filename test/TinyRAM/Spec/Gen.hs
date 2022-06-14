@@ -50,7 +50,7 @@ import           TinyRAM.Types.WordSize            (WordSize (..))
 
 
 instance GenValid Opcode where
-  genValid = Opcode <$> oneof [choose (0, 19), choose (28, 30)]
+  genValid = Opcode <$> oneof [choose (0, 19), choose (28, 31)]
   shrinkValid = shrinkValidStructurally
 
 
