@@ -48,8 +48,9 @@
                 projectFileName = "stack.yaml";
                 modules = [{
                   packages = {
-                    tinyram = {
+                    "tinyram:test:spec" = {
                       allComponent.preCheck = ''
+                        echo "foo"
                         echo -n ${coq-tinyram.defaultPackage.x86_64-linux}/bin/coq-tinyram >/tmp/coq-tinyram-path
                       '';
                     };
@@ -92,6 +93,6 @@
           flake = self;
           systems = [ "x86_64-linux" ];
         };
-        defaultPackage = flake.packages."tinyram:exe:tinyram";
+        defaultPackage = flake.packages."tinyram:test:spec";
       });
 }
