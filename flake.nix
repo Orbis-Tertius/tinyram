@@ -69,10 +69,8 @@
                   manual-ci() (
                     set -e
 
-                    export COQ_TINYRAM_PATH=${coq-tinyram.defaultPackage.x86_64-linux}/bin/coq-tinyram
-                    alias coq-tinyram=$COQ_TINYRAM_PATH
                     ./ci/lint.sh
-                    cabal test
+                    COQ_TINYRAM_PATH=${coq-tinyram.defaultPackage.x86_64-linux}/bin/coq-tinyram cabal test
                     nix-build
                     ./ci/examples.sh
                   )
