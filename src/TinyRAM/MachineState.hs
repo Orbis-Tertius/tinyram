@@ -12,6 +12,8 @@ module TinyRAM.MachineState
   , validateRegisterValues
   , validateMemoryKeys
   , validateMemoryValues
+  , validateProgramMemoryKeys
+  , validateProgramMemoryValues
   , validateInputTape
   , validateMachineState
   , validateWord
@@ -32,6 +34,7 @@ import           TinyRAM.Types.MachineState        (MachineState)
 import           TinyRAM.Types.Params              (Params)
 import           TinyRAM.Types.Register            (Register (..))
 import           TinyRAM.Types.Word                (Word)
+import           TinyRAM.Types.WordSize            (WordSize (..))
 
 
 getImmediateOrRegister :: HasMachineState m
@@ -49,7 +52,8 @@ incrementProgramCounter :: ( Monad m, HasMachineState m, HasParams m )
   => m ()
 incrementProgramCounter = do
   wordSize <- getWordSize
-  setProgramCounter . (+ (fromIntegral $ 2 * bytesPerWord wordSize)) =<< getProgramCounter
+  setProgramCounter . (`mod` (2 ^ unWordSize wordSize))
+    . (+ (fromIntegral $ 2 * bytesPerWord wordSize)) =<< getProgramCounter
 
 
 validateMachineState :: Params -> MachineState -> Validation
@@ -60,6 +64,8 @@ validateMachineState ps s =
   <> validate (s ^. #conditionFlag)
   <> validateMemoryKeys ps s
   <> validateMemoryValues ps s
+  <> validateProgramMemoryKeys ps s
+  <> validateProgramMemoryValues ps s
   <> validateInputTape ps (s ^. #primaryInput)
   <> validateInputTape ps (s ^. #auxiliaryInput)
 
@@ -94,6 +100,16 @@ validateMemoryKeys ps s =
 validateMemoryValues :: Params -> MachineState -> Validation
 validateMemoryValues ps s =
   mconcat $ validateWord "Memory Value" ps <$> Map.elems (s ^. #memoryValues . #unMemoryValues)
+
+
+validateProgramMemoryKeys :: Params -> MachineState -> Validation
+validateProgramMemoryKeys ps s =
+  mconcat $ validateWord "Program Memory Address" ps <$> Map.keys (s ^. #programMemoryValues . #unProgramMemoryValues)
+
+
+validateProgramMemoryValues :: Params -> MachineState -> Validation
+validateProgramMemoryValues ps s =
+  mconcat $ validateWord "Program Memory Value" ps <$> Map.elems (s ^. #programMemoryValues . #unProgramMemoryValues)
 
 
 validateInputTape :: Params -> InputTape a -> Validation

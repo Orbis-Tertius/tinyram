@@ -12,6 +12,7 @@ library
   exposed-modules:
     TinyRAM.Bytes
     TinyRAM.DecodeInstruction
+    TinyRAM.Disassembler
     TinyRAM.EntryPoint
     TinyRAM.EncodeInstruction
     TinyRAM.ExecuteInstruction
@@ -42,6 +43,7 @@ library
     TinyRAM.Types.Program
     TinyRAM.Types.ProgramCounter
     TinyRAM.Types.ProgramFilePath
+    TinyRAM.Types.ProgramMemoryValues
     TinyRAM.Types.RegisterCount
     TinyRAM.Types.Register
     TinyRAM.Types.RegisterValues
@@ -86,8 +88,8 @@ test-suite spec
   other-modules:
     TinyRAM.Spec.AssemblerSpec
     TinyRAM.Spec.BytesSpec
+    TinyRAM.Spec.CoqTinyRAMSpec
     TinyRAM.Spec.DecodeInstructionSpec
-    TinyRAM.Spec.EncodeInstruction
     TinyRAM.Spec.EndToEndSpec
     TinyRAM.Spec.ExecuteInstructionSpec
     TinyRAM.Spec.Gen
@@ -117,7 +119,9 @@ test-suite spec
     mtl,
     optparse-applicative,
     parsec,
+    process,
     QuickCheck,
+    random,
     sydtest,
     sydtest-discover,
     text -any,

@@ -65,6 +65,7 @@ executeInstruction i =
     28 -> twoArgOpcode (flip store) i
     29 -> twoArgOpcode load i
     30 -> twoArgOpcode readInputTape i
+    31 -> return ()
     _  -> throwError InvalidOpcodeError
 
 
