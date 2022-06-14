@@ -50,7 +50,7 @@
                   packages = {
                     tinyram = {
                       allComponent.preCheck = ''
-                        export COQ_TINYRAM_PATH=${coq-tinyram.defaultPackage.x86_64-linux}/bin/coq-tinyram
+                        echo -n ${coq-tinyram.defaultPackage.x86_64-linux}/bin/coq-tinyram >/tmp/coq-tinyram-path
                       '';
                     };
                   };
@@ -71,11 +71,12 @@
                   ''
                   export COQ_TINYRAM_PATH=${coq-tinyram.defaultPackage.x86_64-linux}/bin/coq-tinyram
                   alias coq-tinyram=$COQ_TINYRAM_PATH
+                  echo -n $COQ_TINYRAM_PATH >/tmp/coq-tinyram-path
                   manual-ci() (
                     set -e
 
                     ./ci/lint.sh
-                    COQ_TINYRAM_PATH=${coq-tinyram.defaultPackage.x86_64-linux}/bin/coq-tinyram cabal test
+                    cabal test
                     nix-build
                     ./ci/examples.sh
                   )

@@ -58,7 +58,7 @@ instructionStateTransition ps i =
                          i ws
     -- sub
     5  -> functionOpcode (\x y -> (y + wordStrictBound - x) .&. wordSizeBitmask)
-                         (\x y -> conditionToFlag ((y + wordStrictBound - x) .&. wordSizeBitmaskMSB /= 0))
+                         (\x y -> conditionToFlag ((y + wordStrictBound - x) .&. wordSizeBitmaskMSB == 0))
                          i ws
     -- mull
     6  -> functionOpcode (\x y -> ((x * y) .&. wordSizeBitmask))
