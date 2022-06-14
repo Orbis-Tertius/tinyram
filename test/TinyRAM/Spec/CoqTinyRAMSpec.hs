@@ -66,6 +66,7 @@ coqTinyRAMSpec =
     readFromSecondaryTapeTest
     emptyReadTest
     invalidReadTest
+    loadBeforeStoreTest
     generatedTests
 
 
@@ -107,8 +108,15 @@ emptyReadTest =
 
 invalidReadTest :: Spec
 invalidReadTest =
-  it "does not crash when reading from a non-existent tape" $ do
-    result <- runCoqTinyRAM (Program "\xF4\0\x44\x44\xF8\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
+  it "does not crash when reading from a non-existent tape with random crud in the unused part of the instruction" $ do
+    result <- runCoqTinyRAM (Program "\xF4\x44\x44\x44\xF8\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
+    result `shouldBe` (Just 0)
+
+
+loadBeforeStoreTest :: Spec
+loadBeforeStoreTest =
+  it "does not crash when loading before store" $ do
+    result <- runCoqTinyRAM (Program "\xD8\x00\xFF\xFF\xF8\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
     result `shouldBe` (Just 0)
 
 
@@ -142,7 +150,7 @@ generatedTests =
           (x, Right (y, _)) -> x `shouldBe` y
   where
     ws = WordSize 16
-    rc = RegisterCount 16
+    rc = RegisterCount 4
     ps = Params ws rc
 
 

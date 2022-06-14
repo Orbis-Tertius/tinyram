@@ -53,7 +53,7 @@ disassembleCoqTinyRAMProgram =
     . pairWords . bytesToWords ws . bitStringToBytes
   where
     ws = WordSize 16
-    rc = RegisterCount 16
+    rc = RegisterCount 4
 
 
 pairWords :: [Word] -> [(Word, Word)]
