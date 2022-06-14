@@ -65,6 +65,7 @@ coqTinyRAMSpec =
     readFromPrimaryTapeTest
     readFromSecondaryTapeTest
     emptyReadTest
+    invalidReadTest
     generatedTests
 
 
@@ -101,6 +102,13 @@ emptyReadTest :: Spec
 emptyReadTest =
   it "does not crash when reading from an empty tape" $ do
     result <- runCoqTinyRAM (Program "\xF4\0\0\0\xF8\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
+    result `shouldBe` (Just 0)
+
+
+invalidReadTest :: Spec
+invalidReadTest =
+  it "does not crash when reading from a non-existent tape" $ do
+    result <- runCoqTinyRAM (Program "\xF4\0\x44\x44\xF8\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
     result `shouldBe` (Just 0)
 
 
