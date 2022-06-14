@@ -67,7 +67,7 @@ coqTinyRAMSpec =
     readFromSecondaryTapeTest
     emptyReadTest
     invalidReadTest
-    --loadBeforeStoreTest -- TODO: waiting on Coq fix
+    programCounterPastEndTest
     generatedTests
 
 
@@ -121,11 +121,11 @@ invalidReadTest =
     result `shouldBe` (Just 0)
 
 
--- loadBeforeStoreTest :: Spec
--- loadBeforeStoreTest =
---   it "does not crash when loading before store" $ do
---     result <- runCoqTinyRAM (Program "\xD8\x00\xFF\xF8\xF8\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
---     result `shouldBe` (Just 0)
+programCounterPastEndTest :: Spec
+programCounterPastEndTest =
+  it "answers 1 if the program counter goes past the end of the program" $ do
+    result <- runCoqTinyRAM (Program "\xD8\x00\xFF\xF8\xF8\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
+    result `shouldBe` (Just 1)
 
 
 generatedTests :: Spec
