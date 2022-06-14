@@ -48,6 +48,11 @@
                 projectFileName = "stack.yaml";
                 modules = [{
                   packages = {
+                    tinyram = {
+                      allComponent.preCheck = ''
+                        export COQ_TINYRAM_PATH=${coq-tinyram.defaultPackage.x86_64-linux}/bin/coq-tinyram
+                      '';
+                    };
                   };
                 }];
                 shell.tools = {
