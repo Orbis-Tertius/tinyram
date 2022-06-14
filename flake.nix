@@ -53,7 +53,7 @@
                     tinyram.components.tests.spec = {
                       pkgconfig = [ [ final.makeWrapper ] ];
                       postInstall = ''
-                        wrapProgram $out/bin/spec --set COQ_TINYRAM_PATH "${pkgs.lib.makeBinPath [ final.coq-tinyram ]}}/coq-tinyram"
+                        wrapProgram $out/bin/spec --set COQ_TINYRAM_PATH "${pkgs.lib.makeBinPath [ final.coq-tinyram ]}/coq-tinyram"
                       '';
                     };
                   };
