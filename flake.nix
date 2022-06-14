@@ -41,6 +41,8 @@
           (import "${sydtest-src}/nix/overlay.nix")
           (import "${validity-src}/nix/overlay.nix")
           (final: prev: {
+            inherit coq-tinyram;
+
             tinyram =
               final.haskell-nix.project' {
                 src = ./.;
