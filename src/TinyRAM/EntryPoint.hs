@@ -23,7 +23,7 @@ import           Text.Parsec                   (runParser)
 
 import           Numeric                       (showHex)
 import           TinyRAM.Bytes                 (bytesToWords, wordsToBytes)
-import TinyRAM.Disassembler (disassembleCoqTinyRAMProgram)
+import           TinyRAM.Disassembler          (disassembleCoqTinyRAMProgram)
 import           TinyRAM.EncodeInstruction     (encodeInstruction)
 import           TinyRAM.ExecuteProgram        (executeProgram)
 import           TinyRAM.Parser                (firstLine, instruction)

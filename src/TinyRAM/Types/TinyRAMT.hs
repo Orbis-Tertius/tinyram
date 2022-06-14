@@ -15,24 +15,24 @@ import qualified Data.Map                          as Map
 
 import           Control.Monad.Except              (MonadError (..))
 import           Control.Monad.Trans.Except        (ExceptT)
+import           TinyRAM.Bytes                     (bytesPerWord)
+import           TinyRAM.EncodeInstruction         (encodeInstruction)
 import           TinyRAM.Prelude
-import TinyRAM.Bytes (bytesPerWord)
-import TinyRAM.EncodeInstruction (encodeInstruction)
 import           TinyRAM.Types.HasMachineState     (Error (..),
                                                     HasMachineState (..))
 import           TinyRAM.Types.HasParams           (HasParams (getParams))
+import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (IsImmediate))
 import           TinyRAM.Types.InputTape           (Auxiliary,
                                                     InputTape (InputTape),
                                                     Primary)
-import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (IsImmediate))
-import TinyRAM.Types.Instruction (Instruction (..))
+import           TinyRAM.Types.Instruction         (Instruction (..))
 import           TinyRAM.Types.MachineState        (MachineState)
 import           TinyRAM.Types.MemoryValues        (MemoryValues (..))
 import           TinyRAM.Types.Params              (Params)
 import           TinyRAM.Types.ProgramMemoryValues (ProgramMemoryValues (..))
-import TinyRAM.Types.Register (Register (..))
+import           TinyRAM.Types.Register            (Register (..))
 import           TinyRAM.Types.RegisterValues      (RegisterValues (..))
-import TinyRAM.Types.Word (Word (..))
+import           TinyRAM.Types.Word                (Word (..))
 
 
 newtype TinyRAMT m a = TinyRAMT { unTinyRAMT :: StateT (Params, MachineState) (ExceptT Error m) a }
