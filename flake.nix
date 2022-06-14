@@ -92,6 +92,6 @@
           flake = self;
           systems = [ "x86_64-linux" ];
         };
-        defaultPackage = flake.packages."tinyram:test:spec";
+        defaultPackage = flake.packages."tinyram:exe:tinyram";
       });
 }
