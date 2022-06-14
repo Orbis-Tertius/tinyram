@@ -137,13 +137,13 @@ generatedTests =
               . (#registerValues .~ RegisterValues
                   (Map.fromList
                     (take (unRegisterCount rc)
-                      (zip (Register <$> [0..]) (Word <$> [0..])))))
+                      (zip (Register <$> [0..]) (Word <$> repeat 0)))))
               . (#conditionFlag .~ Flag 0)
               . (#memoryValues .~ MemoryValues
                   (Map.fromList
                     (take (2 ^ unWordSize ws)
                       (zip (Address . Word . (* fromIntegral (bytesPerWord ws)) <$> [0..])
-                           (Word <$> [0..])))))
+                           (Word <$> repeat 0)))))
               $ s'
             progWords = (Map.elems (s ^. #programMemoryValues . #unProgramMemoryValues))
             prog = Program $ wordsToBytesBigEndian ws progWords
