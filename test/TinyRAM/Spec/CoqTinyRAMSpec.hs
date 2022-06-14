@@ -11,43 +11,44 @@ module TinyRAM.Spec.CoqTinyRAMSpec
   ) where
 
 
-import           Control.Monad.Trans.Except (runExceptT)
-import           Control.Monad.Trans.State  (StateT (runStateT))
-import           Data.Bits                  (testBit)
-import           Data.ByteString            (pack, unpack)
-import qualified Data.ByteString            as BS
-import           Data.Functor.Identity      (runIdentity)
-import           Data.List                  (isPrefixOf)
-import qualified Data.Map                   as Map
-import           Data.Word                  (Word8)
-import           System.IO                  (hGetLine, writeFile)
-import           System.Process             (CreateProcess (std_in, std_out),
-                                             StdStream (CreatePipe),
-                                             createProcess, proc)
-import System.Environment (getEnv)
-import           System.Random              (randomIO)
-import           Text.Read                  (readMaybe)
+import           Control.Monad.Trans.Except   (runExceptT)
+import           Control.Monad.Trans.State    (StateT (runStateT))
+import           Data.Bits                    (testBit)
+import           Data.ByteString              (pack, unpack)
+import qualified Data.ByteString              as BS
+import           Data.Functor.Identity        (runIdentity)
+import           Data.List                    (isPrefixOf)
+import qualified Data.Map                     as Map
+import           Data.Word                    (Word8)
+import           System.Environment           (getEnv)
+import           System.IO                    (hGetLine, writeFile)
+import           System.Process               (CreateProcess (std_in, std_out),
+                                               StdStream (CreatePipe),
+                                               createProcess, proc)
+import           System.Random                (randomIO)
+import           Text.Read                    (readMaybe)
 
-import           TinyRAM.Bytes              (bytesPerWord)
-import TinyRAM.DecodeInstruction (decodeInstruction)
-import TinyRAM.Disassembler (disassembleProgram, pairWords)
-import           TinyRAM.Run                (run)
-import           TinyRAM.Spec.Gen           (genMachineState)
+import           TinyRAM.Bytes                (bytesPerWord)
+import           TinyRAM.DecodeInstruction    (decodeInstruction)
+import           TinyRAM.Disassembler         (disassembleProgram, pairWords)
+import           TinyRAM.Run                  (run)
+import           TinyRAM.Spec.Gen             (genMachineState)
 import           TinyRAM.Spec.Prelude
-import TinyRAM.Types.Address (Address (..))
-import TinyRAM.Types.Flag (Flag (..))
-import           TinyRAM.Types.InputTape    (Auxiliary, InputTape (..), Primary)
-import           TinyRAM.Types.MaxSteps     (MaxSteps (..))
-import TinyRAM.Types.MemoryValues (MemoryValues (..))
-import TinyRAM.Types.Params (Params (..))
-import           TinyRAM.Types.Program      (Program (..))
-import TinyRAM.Types.ProgramCounter (ProgramCounter (..))
-import TinyRAM.Types.Register (Register (..))
-import TinyRAM.Types.RegisterCount (RegisterCount (..))
-import TinyRAM.Types.RegisterValues (RegisterValues (..))
-import           TinyRAM.Types.TinyRAMT     (TinyRAMT (..))
-import           TinyRAM.Types.Word         (Word (..))
-import           TinyRAM.Types.WordSize     (WordSize (..))
+import           TinyRAM.Types.Address        (Address (..))
+import           TinyRAM.Types.Flag           (Flag (..))
+import           TinyRAM.Types.InputTape      (Auxiliary, InputTape (..),
+                                               Primary)
+import           TinyRAM.Types.MaxSteps       (MaxSteps (..))
+import           TinyRAM.Types.MemoryValues   (MemoryValues (..))
+import           TinyRAM.Types.Params         (Params (..))
+import           TinyRAM.Types.Program        (Program (..))
+import           TinyRAM.Types.ProgramCounter (ProgramCounter (..))
+import           TinyRAM.Types.Register       (Register (..))
+import           TinyRAM.Types.RegisterCount  (RegisterCount (..))
+import           TinyRAM.Types.RegisterValues (RegisterValues (..))
+import           TinyRAM.Types.TinyRAMT       (TinyRAMT (..))
+import           TinyRAM.Types.Word           (Word (..))
+import           TinyRAM.Types.WordSize       (WordSize (..))
 
 
 spec :: Spec
@@ -67,7 +68,7 @@ coqTinyRAMSpec =
     readFromSecondaryTapeTest
     emptyReadTest
     invalidReadTest
-    --loadBeforeStoreTest -- TODO: waiting on Coq fix
+    programCounterPastEndTest
     generatedTests
 
 
@@ -121,11 +122,11 @@ invalidReadTest =
     result `shouldBe` (Just 0)
 
 
--- loadBeforeStoreTest :: Spec
--- loadBeforeStoreTest =
---   it "does not crash when loading before store" $ do
---     result <- runCoqTinyRAM (Program "\xD8\x00\xFF\xF8\xF8\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
---     result `shouldBe` (Just 0)
+programCounterPastEndTest :: Spec
+programCounterPastEndTest =
+  it "answers 1 if the program counter goes past the end of the program" $ do
+    result <- runCoqTinyRAM (Program "\xD8\x00\xFF\xF8\xF8\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
+    result `shouldBe` (Just 1)
 
 
 generatedTests :: Spec

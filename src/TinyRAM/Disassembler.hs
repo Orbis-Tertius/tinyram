@@ -1,5 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE OverloadedLabels  #-}
 
 
 module TinyRAM.Disassembler
@@ -11,21 +11,21 @@ module TinyRAM.Disassembler
   ) where
 
 
-import qualified Data.ByteString as BS
-import Data.List (intercalate)
-import Data.Word (Word8)
+import qualified Data.ByteString                   as BS
+import           Data.List                         (intercalate)
+import           Data.Word                         (Word8)
 
-import TinyRAM.Bytes (bytesPerWord)
-import TinyRAM.DecodeInstruction (decodeInstruction)
-import TinyRAM.Operations (getOperation)
-import TinyRAM.Prelude
-import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (..))
-import TinyRAM.Types.Instruction (Instruction (..))
-import TinyRAM.Types.Opcode (Opcode (..))
-import TinyRAM.Types.Register (Register (..))
-import TinyRAM.Types.RegisterCount (RegisterCount (..))
-import TinyRAM.Types.Word (Word (..))
-import TinyRAM.Types.WordSize (WordSize (..))
+import           TinyRAM.Bytes                     (bytesPerWord)
+import           TinyRAM.DecodeInstruction         (decodeInstruction)
+import           TinyRAM.Operations                (getOperation)
+import           TinyRAM.Prelude
+import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (..))
+import           TinyRAM.Types.Instruction         (Instruction (..))
+import           TinyRAM.Types.Opcode              (Opcode (..))
+import           TinyRAM.Types.Register            (Register (..))
+import           TinyRAM.Types.RegisterCount       (RegisterCount (..))
+import           TinyRAM.Types.Word                (Word (..))
+import           TinyRAM.Types.WordSize            (WordSize (..))
 
 
 disassembleInstruction :: Instruction -> String
@@ -37,7 +37,7 @@ disassembleInstruction i =
 
 
 showImmediateOrRegister :: ImmediateOrRegister -> String
-showImmediateOrRegister (IsImmediate i) = show (unWord i)
+showImmediateOrRegister (IsImmediate i)           = show (unWord i)
 showImmediateOrRegister (IsRegister (Register r)) = "r" <> show r
 
 
@@ -57,8 +57,8 @@ disassembleCoqTinyRAMProgram =
 
 
 pairWords :: [Word] -> [(Word, Word)]
-pairWords [] = []
-pairWords [x] = [(x,0)]
+pairWords []       = []
+pairWords [x]      = [(x,0)]
 pairWords (x:y:zs) = (x,y) : pairWords zs
 
 
@@ -70,10 +70,10 @@ bitStringToBytes x =
 
 
 bitStringToByte :: String -> Word8
-bitStringToByte "" = 0
+bitStringToByte ""       = 0
 bitStringToByte ('1':xs) = (2 ^ length xs) + bitStringToByte xs
 bitStringToByte ('0':xs) = bitStringToByte xs
-bitStringToByte _ = 0
+bitStringToByte _        = 0
 
 
 bytesToWordsBigEndian :: WordSize -> ByteString -> [Word]
