@@ -34,11 +34,17 @@ import TinyRAM.Disassembler (disassembleProgram, pairWords)
 import           TinyRAM.Run                (run)
 import           TinyRAM.Spec.Gen           (genMachineState)
 import           TinyRAM.Spec.Prelude
+import TinyRAM.Types.Address (Address (..))
+import TinyRAM.Types.Flag (Flag (..))
 import           TinyRAM.Types.InputTape    (Auxiliary, InputTape (..), Primary)
 import           TinyRAM.Types.MaxSteps     (MaxSteps (..))
+import TinyRAM.Types.MemoryValues (MemoryValues (..))
 import TinyRAM.Types.Params (Params (..))
 import           TinyRAM.Types.Program      (Program (..))
+import TinyRAM.Types.ProgramCounter (ProgramCounter (..))
+import TinyRAM.Types.Register (Register (..))
 import TinyRAM.Types.RegisterCount (RegisterCount (..))
+import TinyRAM.Types.RegisterValues (RegisterValues (..))
 import           TinyRAM.Types.TinyRAMT     (TinyRAMT (..))
 import           TinyRAM.Types.Word         (Word (..))
 import           TinyRAM.Types.WordSize     (WordSize (..))
@@ -93,14 +99,28 @@ readFromSecondaryTapeTest =
 generatedTests :: Spec
 generatedTests =
   it "produces the same result as the Haskell TinyRAM emulator" $
-    forAll (genMachineState ws rc) $ \s ->
+    forAll (genMachineState ws rc) $ \s' ->
       forAll (MaxSteps <$> choose (0,1000)) $ \maxSteps -> do
-        let progWords = (Map.elems (s ^. #programMemoryValues . #unProgramMemoryValues))
+        let s = (#programCounter .~ ProgramCounter 0)
+              . (#registerValues .~ RegisterValues
+                  (Map.fromList
+                    (take (unRegisterCount rc)
+                      (zip (Register <$> [0..]) (Word <$> [0..])))))
+              . (#conditionFlag .~ Flag 0)
+              . (#memoryValues .~ MemoryValues
+                  (Map.fromList
+                    (take (2 ^ unWordSize ws)
+                      (zip (Address . Word . (* fromIntegral (bytesPerWord ws)) <$> [0..])
+                           (Word <$> [0..])))))
+              $ s'
+            progWords = (Map.elems (s ^. #programMemoryValues . #unProgramMemoryValues))
             prog = Program $ wordsToBytes ws progWords
             instructions = decodeInstruction ws rc  <$> pairWords progWords
         writeFile "/tmp/run-coq-tinyram-asm" (disassembleProgram ws rc instructions)
         coqResult <- runCoqTinyRAM prog (s ^. #primaryInput) (s ^. #auxiliaryInput) maxSteps
+        putStrLn (show coqResult)
         let hsResult = runIdentity . runExceptT . runStateT (unTinyRAMT (run (Just maxSteps))) $ (ps, s)
+        putStrLn (show hsResult)
         case (coqResult, hsResult) of
           (_, Left _)       -> return () -- TODO more granularly compare error results
           (x, Right (y, _)) -> x `shouldBe` y
