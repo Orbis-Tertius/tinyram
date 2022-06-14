@@ -37,6 +37,7 @@ spec = describe "TinyRAM end to end" $ do
   shlTestCase
   shlTestCase2
   shrTestCase
+  cmovTestCase2
   cmpaeLessTestCase
   cmpaLessTestCase
   cmpeLessTestCase
@@ -246,6 +247,16 @@ shrTestCase =
       answer `shouldBe` Right 31
   where
     objectFilePath = ObjectFilePath "examples/shrTest.o"
+
+cmovTestCase2 :: Spec
+cmovTestCase2 =
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmovTest2.s") objectFilePath)) $
+    it "The example should result in 2642." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 4) (Just 100) program (InputTape []) (InputTape [])
+      answer `shouldBe` Right 2642
+  where
+    objectFilePath = ObjectFilePath "examples/cmovTest2.o"
 
 cmpaeLessTestCase :: Spec
 cmpaeLessTestCase =
