@@ -53,6 +53,18 @@ spec = describe "TinyRAM end to end" $ do
   cmpgeGreaterTestCase
   cmpgGreaterTestCase
 
+ 
+
+  umod0Test
+  umod1Test
+  addTestNegative
+  cmpaeNegTest
+  cmpaNegTest
+  cmpeNegTest
+  cmpgeNegTest
+  cmpgNegTest
+
+
 
 
 simpleTestCase :: Spec
@@ -384,3 +396,87 @@ cmpgGreaterTestCase =
       answer `shouldBe` Right (1)
   where 
     objectFilePath = ObjectFilePath "examples/cmpgGreaterTest.o"
+
+
+
+umod0Test :: Spec
+umod0Test = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/umod0Test.s") objectFilePath)) $
+    it "The UMOD 0 operation should result in 0." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right 0
+  where 
+    objectFilePath = ObjectFilePath "examples/umod0Test.o"
+
+umod1Test :: Spec
+umod1Test = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/umod1Test.s") objectFilePath)) $
+    it "The UMOD 1 operation should result in 0." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right 0
+  where 
+    objectFilePath = ObjectFilePath "examples/umod1Test.o"
+
+
+
+addTestNegative :: Spec
+addTestNegative = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/addTestNegative.s") objectFilePath)) $
+    it "The ADD operation should result in 3." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right 3
+  where 
+    objectFilePath = ObjectFilePath "examples/addTestNegative.o"
+
+cmpaeNegTest :: Spec
+cmpaeNegTest = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpaeNegTest.s") objectFilePath)) $
+    it "The CMPAE operation should result in setting the flag to 0." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (0)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpaeNegTest.o"
+
+cmpaNegTest :: Spec
+cmpaNegTest = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpaNegTest.s") objectFilePath)) $
+    it "The CMPA operation should result in setting the flag to 0." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (0)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpaNegTest.o"
+
+cmpeNegTest :: Spec
+cmpeNegTest = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpeNegTest.s") objectFilePath)) $
+    it "The CMPE operation should result in setting the flag to 0." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (0)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpeNegTest.o"
+
+cmpgeNegTest :: Spec
+cmpgeNegTest = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpgeNegTest.s") objectFilePath)) $
+    it "The CMPGE operation should result in setting the flag to 1." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (1)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpgeNegTest.o"
+
+cmpgNegTest :: Spec
+cmpgNegTest = 
+  before (handleCommand (CommandParse (AssemblyFilePath "examples/cmpgNegTest.s") objectFilePath)) $
+    it "The CMPG operation should result in setting the flag to 1." $ do
+      program <- readObjectFile objectFilePath
+      let answer = executeProgram (Params 16 16) (Just 1000) program (InputTape [1,2,3,4]) (InputTape [1,2,3])
+      answer `shouldBe` Right (1)
+  where 
+    objectFilePath = ObjectFilePath "examples/cmpgNegTest.o"
