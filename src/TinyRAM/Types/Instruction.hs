@@ -2,8 +2,7 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
 
-module TinyRAM.Types.Instruction ( Instruction (Instruction) ) where
-
+module TinyRAM.Types.Instruction (Instruction2 (Add), Instruction (Instruction)) where
 
 import           TinyRAM.Prelude
 import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
@@ -19,3 +18,6 @@ data Instruction =
   , rj     :: Register
   }
   deriving (Eq, Ord, Read, Show, Generic)
+
+data Instruction2 = 
+   Add Register Register ImmediateOrRegister

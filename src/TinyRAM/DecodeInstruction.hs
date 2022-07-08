@@ -11,7 +11,7 @@ import           Data.Bits                         (rotate)
 
 import           TinyRAM.Prelude
 import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (..))
-import           TinyRAM.Types.Instruction         (Instruction (..))
+import           TinyRAM.Types.Instruction         (Instruction2 (..))
 import           TinyRAM.Types.Opcode              (Opcode (..))
 import           TinyRAM.Types.Register            (Register (..))
 import           TinyRAM.Types.RegisterCount       (RegisterCount (..))
@@ -19,13 +19,15 @@ import           TinyRAM.Types.Word                (Word (..))
 import           TinyRAM.Types.WordSize            (WordSize)
 
 
-decodeInstruction :: WordSize -> RegisterCount -> (Word, Word) -> Instruction
-decodeInstruction ws rc i@(i0, _i1) =
-  Instruction
-  (decodeOpcode ws i0)
-  (decodeA ws i)
-  (decodeRI ws rc i0)
-  (decodeRJ ws rc i0)
+decodeInstruction :: WordSize -> RegisterCount -> (Word, Word) -> Instruction2
+decodeInstruction ws rc i@(i0, _i1) = undefined
+  --Instruction
+  --(decodeOpcode ws i0)
+  --(decodeA ws i)
+  --(decodeRI ws rc i0)
+  --(decodeRJ ws rc i0)
+
+  
 
 
 decodeOpcode :: WordSize -> Word -> Opcode
