@@ -11,6 +11,7 @@ module TinyRAM.Spec.CoqTinyRAMSpec
   ) where
 
 
+import           Control.Monad                (when)
 import           Control.Monad.Trans.Except   (runExceptT)
 import           Control.Monad.Trans.State    (StateT (runStateT))
 import           Data.Bits                    (testBit)
@@ -151,9 +152,9 @@ generatedTests =
             instructions = decodeInstruction ws rc  <$> pairWords progWords
         writeFile "/tmp/run-coq-tinyram-asm" (disassembleProgram ws rc instructions)
         coqResult <- runCoqTinyRAM prog (s ^. #primaryInput) (s ^. #auxiliaryInput) maxSteps
-        putStrLn (show coqResult)
+        when False $ putStrLn (show coqResult)
         let hsResult = runIdentity . runExceptT . runStateT (unTinyRAMT (run (Just maxSteps))) $ (ps, s)
-        putStrLn (show hsResult)
+        when False $ putStrLn (show hsResult)
         case (coqResult, hsResult) of
           (_, Left _)       -> return () -- TODO more granularly compare error results
           (x, Right (y, _)) -> x `shouldBe` y
@@ -197,18 +198,18 @@ runCoqTinyRAM (Program p)
     (_, Just pStdout) -> do
       _ <- hGetLine pStdout -- discard useless first line of output
       o1 <- hGetLine pStdout
-      putStrLn o1
+      when False $ putStrLn o1
       o2 <- hGetLine pStdout
-      putStrLn o2
+      when False $ putStrLn o2
       o3 <- hGetLine pStdout
-      putStrLn o3
+      when False $ putStrLn o3
       if isPrefixOf "Error: Program did not halt within" o3
         then return Nothing
         else do
           o4 <- hGetLine pStdout
-          putStrLn o4
+          when False $ putStrLn o4
           o5 <- hGetLine pStdout
-          putStrLn o5
+          when False $ putStrLn o5
           if isPrefixOf "\tNat: " o5
             then return (Word <$> readMaybe (drop 6 o5))
             else return Nothing
