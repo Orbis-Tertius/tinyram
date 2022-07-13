@@ -1,5 +1,5 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLabels  #-}
+{-# LANGUAGE NoImplicitPrelude   #-}
+{-# LANGUAGE OverloadedLabels    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 
@@ -127,7 +127,7 @@ subtractUnsigned ri rj a = do
   let k = 2 ^ (fromIntegral ws :: UnsignedInt)
       y = rj' + k - a'
   setRegisterValue ri (unUnsignedInt y .&. wsb)
-  setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb /= 0))
+  setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb == 0))
   incrementProgramCounter
 
 

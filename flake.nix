@@ -28,9 +28,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:input-output-hk/haskell.nix";
     };
+
+    coq-tinyram.url = "github:Orbis-Tertius/coq-tinyram";
   };
 
-  outputs = { self, nixpkgs, flake-utils, sydtest-src, validity-src, haskellNix,  flake-compat, flake-compat-ci }:
+  outputs = { self, nixpkgs, flake-utils, sydtest-src, validity-src, haskellNix,  flake-compat, flake-compat-ci, coq-tinyram }:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
         deferPluginErrors = true;
@@ -39,7 +41,6 @@
           (import "${sydtest-src}/nix/overlay.nix")
           (import "${validity-src}/nix/overlay.nix")
           (final: prev: {
-            # This overlay adds our project to pkgs
             tinyram =
               final.haskell-nix.project' {
                 src = ./.;
@@ -47,6 +48,12 @@
                 projectFileName = "stack.yaml";
                 modules = [{
                   packages = {
+                    tinyram.components.tests.spec = {
+                      pkgconfig = [ [ final.makeWrapper ] ];
+                      postInstall = ''
+                        wrapProgram $out/bin/spec --set COQ_TINYRAM_PATH "${coq-tinyram.defaultPackage.x86_64-linux}/bin/coq-tinyram"
+                      '';
+                    };
                   };
                 }];
                 shell.tools = {
@@ -59,10 +66,12 @@
                 };
                 # Non-Haskell shell tools go here
                 shell.buildInputs = with pkgs; [
-                  nixpkgs-fmt
+                  nixpkgs-fmt coq-tinyram
                 ];
                 shell.shellHook =
                   ''
+                  export COQ_TINYRAM_PATH=${coq-tinyram.defaultPackage.x86_64-linux}/bin/coq-tinyram
+                  alias coq-tinyram=$COQ_TINYRAM_PATH
                   manual-ci() (
                     set -e
 

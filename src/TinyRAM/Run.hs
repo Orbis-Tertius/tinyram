@@ -29,8 +29,7 @@ run n = do
   let  bytesPerWord' = bytesPerWord ws
   pc <- unProgramCounter <$> getProgramCounter
   unless (pc `mod` fromIntegral bytesPerWord' == 0) (throwError InvalidPCAlignment )
-  i0 <- getWord pc
-  i1 <- getWord (pc + fromIntegral bytesPerWord')
+  (i0, i1) <- fetchInstruction pc
   let i = decodeInstruction ws rc (i0, i1) in
     if i ^. #opcode == 31
     then do
