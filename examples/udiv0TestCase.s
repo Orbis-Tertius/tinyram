@@ -1,4 +1,4 @@
 ; TinyRAM V=1.000 W=16 K=16
 mov r2, 5
-mull r1, r2, 2
+udiv r1, r2, 0
 answer r1
