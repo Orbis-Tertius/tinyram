@@ -12,16 +12,13 @@ library
   exposed-modules:
     TinyRAM.Bytes
     TinyRAM.DecodeInstruction
-    TinyRAM.Disassembler
     TinyRAM.EntryPoint
     TinyRAM.EncodeInstruction
     TinyRAM.ExecuteInstruction
     TinyRAM.ExecuteProgram
     TinyRAM.Instructions
     TinyRAM.MachineState
-    TinyRAM.Operations
     TinyRAM.Params
-    TinyRAM.Parser
     TinyRAM.Prelude
     TinyRAM.Run
     TinyRAM.SignedArithmetic
@@ -37,8 +34,6 @@ library
     TinyRAM.Types.MachineState
     TinyRAM.Types.MaxSteps
     TinyRAM.Types.MemoryValues
-    TinyRAM.Types.Opcode
-    TinyRAM.Types.Operations
     TinyRAM.Types.Params
     TinyRAM.Types.Program
     TinyRAM.Types.ProgramCounter
@@ -67,7 +62,6 @@ library
     lens,
     mtl,
     optparse-applicative,
-    parsec,
     text -any,
     transformers,
     validity,
@@ -76,7 +70,7 @@ library
   hs-source-dirs: src
   default-language: Haskell2010
   ghc-options:
-          -Wall -Werror -Wcompat -fwarn-redundant-constraints -fwarn-incomplete-uni-patterns
+          -Wcompat -fwarn-redundant-constraints -fwarn-incomplete-uni-patterns
           -fwarn-tabs -fwarn-incomplete-record-updates -fwarn-identities -Wmissing-export-lists
           -threaded -rtsopts -with-rtsopts=-N
 
@@ -86,14 +80,11 @@ test-suite spec
   main-is: Spec.hs
 
   other-modules:
-    TinyRAM.Spec.AssemblerSpec
     TinyRAM.Spec.BytesSpec
     TinyRAM.Spec.CoqTinyRAMSpec
     TinyRAM.Spec.DecodeInstructionSpec
-    TinyRAM.Spec.EndToEndSpec
     TinyRAM.Spec.ExecuteInstructionSpec
     TinyRAM.Spec.Gen
-    TinyRAM.Spec.ParserSpec
     TinyRAM.Spec.Prelude
     TinyRAM.Spec.RunSpec
     TinyRAM.Spec.SignedArithmeticSpec
@@ -118,7 +109,6 @@ test-suite spec
     lens,
     mtl,
     optparse-applicative,
-    parsec,
     process,
     QuickCheck,
     random,

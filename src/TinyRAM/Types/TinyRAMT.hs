@@ -14,9 +14,9 @@ import           Control.Monad.Trans.State         (StateT, gets, modify)
 import qualified Data.Map                          as Map
 
 import           Control.Monad.Except              (MonadError (..))
+import           Control.Monad.State               (get)
 import           Control.Monad.Trans.Except        (ExceptT)
 import           TinyRAM.Bytes                     (bytesPerWord)
-import           TinyRAM.EncodeInstruction         (encodeInstruction)
 import           TinyRAM.Prelude
 import           TinyRAM.Types.HasMachineState     (Error (..),
                                                     HasMachineState (..))
@@ -78,16 +78,14 @@ instance (Monad m, MonadError Error (TinyRAMT m)) => HasMachineState (TinyRAMT m
   getConditionFlag = TinyRAMT $ gets (^. _2 . #conditionFlag)
   setConditionFlag flag = TinyRAMT $ modify (_2 . #conditionFlag .~ flag)
   fetchInstruction addr =
-    TinyRAMT . gets $ \s ->
+    TinyRAMT $ do
+      s <- get
       let m = s ^. _2 . #programMemoryValues. #unProgramMemoryValues
           ws = s ^. _1 . #wordSize
           rc = s ^. _1 . #registerCount
-          answer1 = encodeInstruction ws rc
-            (Instruction 31
-              (IsImmediate (Word 1)) (Register 0) (Register 0))
-      in fromMaybe answer1 $
-           (,) <$> Map.lookup addr m
-               <*> Map.lookup (addr + fromIntegral (bytesPerWord ws)) m
+       in case Map.lookup addr m of
+          Just instruction -> return instruction
+          Nothing          -> lift $ throwError InstructionFetchError
   getWord addr =
     TinyRAMT $ gets
       (Map.findWithDefault 0 addr . (^. _2 . #memoryValues . #unMemoryValues))
@@ -97,13 +95,6 @@ instance (Monad m, MonadError Error (TinyRAMT m)) => HasMachineState (TinyRAMT m
          .~ MemoryValues (Map.insert addr w (s ^. _2 . #memoryValues . #unMemoryValues))
          $ s
        )
-  setProgramWord addr w =
-    TinyRAMT $ modify
-      (\s -> _2 . #programMemoryValues
-         .~ ProgramMemoryValues (Map.insert addr w
-            (s ^. _2 . #programMemoryValues . #unProgramMemoryValues))
-         $ s
-      )
   readPrimaryInput = TinyRAMT $ do
     input <- gets (^. _2 . #primaryInput . #unInputTape)
     case input of

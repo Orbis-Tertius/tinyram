@@ -29,54 +29,41 @@ import           TinyRAM.Types.HasMachineState     (Error (..),
                                                     HasMachineState (..))
 import           TinyRAM.Types.HasParams           (HasParams)
 import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
-import           TinyRAM.Types.Instruction         (Instruction)
+import           TinyRAM.Types.Instruction         (BinOp (BinOp), Comp (Comp),
+                                                    Instruction (..),
+                                                    UnOp (UnOp))
 import           TinyRAM.Types.Register            (Register)
 
 
 executeInstruction :: ( HasMachineState m, HasParams m )
   => Instruction -> m ()
-executeInstruction i =
-  case i ^. #opcode of
-    0  -> threeArgOpcode andBits i
-    1  -> threeArgOpcode orBits i
-    2  -> threeArgOpcode xorBits i
-    3  -> twoArgOpcode notBits i
-    4  -> threeArgOpcode addUnsigned i
-    5  -> threeArgOpcode subtractUnsigned i
-    6  -> threeArgOpcode multiplyUnsignedLSB i
-    7  -> threeArgOpcode multiplyUnsignedMSB i
-    8  -> threeArgOpcode multiplySignedMSB i
-    9  -> threeArgOpcode divideUnsigned i
-    10 -> threeArgOpcode modulusUnsigned i
-    11 -> threeArgOpcode shiftLeft i
-    12 -> threeArgOpcode shiftRight i
-    13 -> twoArgOpcode compareEqual i
-    14 -> twoArgOpcode compareGreaterUnsigned i
-    15 -> twoArgOpcode compareGreaterOrEqualUnsigned i
-    16 -> twoArgOpcode compareGreaterSigned i
-    17 -> twoArgOpcode compareGreaterOrEqualSigned i
-    18 -> twoArgOpcode move i
-    19 -> twoArgOpcode conditionalMove i
-    20 -> oneArgOpcode jump i
-    21 -> oneArgOpcode jumpIfFlag i
-    22 -> oneArgOpcode jumpIfNotFlag i
-    26 -> twoArgOpcode (flip storeb) i
-    27 -> twoArgOpcode loadb i
-    28 -> twoArgOpcode (flip store) i
-    29 -> twoArgOpcode load i
-    30 -> twoArgOpcode readInputTape i
-    31 -> return ()
-    _  -> throwError InvalidOpcodeError
-
-
-threeArgOpcode :: (Register -> Register -> ImmediateOrRegister -> a) -> Instruction -> a
-threeArgOpcode f i =
-  f (i ^. #ri) (i ^. #rj) (i ^. #a)
-
-
-twoArgOpcode :: (Register -> ImmediateOrRegister -> a) -> Instruction -> a
-twoArgOpcode f i = f (i ^. #ri) (i ^. #a)
-
-
-oneArgOpcode :: (ImmediateOrRegister -> a) -> Instruction -> a
-oneArgOpcode f i = f (i ^. #a)
+executeInstruction i = case i of
+  And   (BinOp ri rj a) -> andBits ri rj a
+  Or    (BinOp ri rj a) -> orBits ri rj a
+  Xor   (BinOp ri rj a) -> xorBits ri rj a
+  Not   (UnOp ri a)     -> notBits ri a
+  Add   (BinOp ri rj a) -> addUnsigned ri rj a
+  Sub   (BinOp ri rj a) -> subtractUnsigned  ri rj a
+  Mull  (BinOp ri rj a) -> multiplyUnsignedLSB ri rj a
+  Umulh (BinOp ri rj a) -> multiplyUnsignedMSB ri rj a
+  Smulh (BinOp ri rj a) -> multiplySignedMSB ri rj a
+  Udiv  (BinOp ri rj a) -> divideUnsigned ri rj a
+  Umod  (BinOp ri rj a) -> modulusUnsigned ri rj a
+  Shl   (BinOp ri rj a) -> shiftLeft ri rj a
+  Shr   (BinOp ri rj a) -> shiftRight ri rj a
+  Cmpe  (Comp ri a)     -> compareEqual ri a
+  Cmpa  (Comp ri a)     -> compareGreaterUnsigned ri a
+  Cmpae (Comp ri a)     -> compareGreaterOrEqualUnsigned ri a
+  Cmpg  (Comp ri a)     -> compareGreaterSigned ri a
+  Cmpge (Comp ri a)     -> compareGreaterOrEqualSigned ri a
+  Mov   (UnOp ri a)     -> move ri a
+  Cmov  (UnOp ri a)     -> conditionalMove ri a
+  Jmp a                 -> jump a
+  Cjmp a                -> jumpIfFlag a
+  Cnjmp a               -> jumpIfNotFlag a
+  Storeb a ri           -> storeb a ri
+  Loadb ri a            -> loadb ri a
+  Storew a ri           -> store a ri
+  Loadw ri a            -> load ri a
+  Read ri a             -> readInputTape ri a
+  Answer a              -> return ()

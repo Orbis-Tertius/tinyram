@@ -1,29 +1,69 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedLabels  #-}
+
 module TinyRAM.EncodeInstruction (encodeInstruction) where
 
 import           TinyRAM.Prelude
 import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (..))
-import           TinyRAM.Types.Instruction         (Instruction)
-import           TinyRAM.Types.RegisterCount       (RegisterCount (..))
+import           TinyRAM.Types.Instruction         (BinOp (BinOp), Comp (Comp),
+                                                    Instruction (..),
+                                                    UnOp (UnOp))
 import           TinyRAM.Types.Word                (Word (..))
 import           TinyRAM.Types.WordSize            (WordSize (..))
 
 import           TinyRAM.DecodeInstruction         (bitsPerRegister)
+import           TinyRAM.Types.Register
+import           TinyRAM.Types.RegisterCount
 
 encodeInstruction :: WordSize -> RegisterCount -> Instruction -> (Word, Word)
-encodeInstruction w k instr =
+encodeInstruction w k instr = case instr of
+  And (BinOp ri rj a)   -> encode (0, ri, rj, a)
+  Or (BinOp ri rj a)    -> encode (1, ri, rj, a)
+  Xor (BinOp ri rj a)   -> encode (2, ri, rj, a)
+  Not (UnOp ri a)       -> encode (3, ri, Register 0, a)
+  Add (BinOp ri rj a)   -> encode (4, ri, rj, a)
+  Sub (BinOp ri rj a)   -> encode (5, ri, rj, a)
+  Mull (BinOp ri rj a)  -> encode (6, ri, rj, a)
+  Umulh (BinOp ri rj a) -> encode (7, ri, rj, a)
+  Smulh (BinOp ri rj a) -> encode (8, ri, rj, a)
+  Udiv (BinOp ri rj a)  -> encode (9, ri, rj, a)
+  Umod (BinOp ri rj a)  -> encode (10, ri, rj, a)
+  Shl (BinOp ri rj a)   -> encode (11, ri, rj, a)
+  Shr (BinOp ri rj a)   -> encode (12, ri, rj, a)
+  Cmpe (Comp ri a)      -> encode (13, ri, Register 0, a)
+  Cmpa (Comp ri a)      -> encode (14, ri, Register 0, a)
+  Cmpae (Comp ri a)     -> encode (15, ri, Register 0, a)
+  Cmpg (Comp ri a)      -> encode (16, ri, Register 0, a)
+  Cmpge (Comp ri a)     -> encode (17, ri, Register 0, a)
+  Mov (UnOp ri a)       -> encode (18, ri, Register 0, a)
+  Cmov (UnOp ri a)      -> encode (19, ri, Register 0, a)
+  Jmp a                 -> encode (20, Register 0, Register 0, a)
+  Cjmp a                -> encode (21, Register 0, Register 0, a)
+  Cnjmp a               -> encode (22, Register 0, Register 0, a)
+  Storeb a ri           -> encode (26, ri, Register 0, a)
+  Loadb ri a            -> encode (27, ri, Register 0, a)
+  Storew a ri           -> encode (28, ri, Register 0, a)
+  Loadw ri a            -> encode (29, ri, Register 0, a)
+  Read ri a             -> encode (30, ri, Register 0, a)
+  Answer a              -> encode (31, Register 0, Register 0, a)
+
+  where
+    encode = encodeInstruction' w k
+
+
+encodeInstruction' :: WordSize -> RegisterCount -> (Int, Register, Register, ImmediateOrRegister) -> (Word, Word)
+encodeInstruction' w k (opcode, ri, rj, a) =
   (
     Word . fromIntegral $
-    ((instr ^. #opcode . #unOpcode) `shift` (fromIntegral w - 5))
+    (opcode `shift` (fromIntegral w - 5))
     .|.
-    (isImmediate (instr ^. #a) `shift` (fromIntegral w - 6))
+    (isImmediate a `shift` (fromIntegral w - 6))
     .|.
-    (((instr ^. #ri . #unRegister)) `shift` (fromIntegral w - (6 + bitsPerRegister k)))
+    ((ri ^.  #unRegister) `shift` (fromIntegral w - (6 + bitsPerRegister k)))
     .|.
-    (((instr ^. #rj . #unRegister)) `shift` (fromIntegral w - (6 + 2 * bitsPerRegister k)))
+    ((rj ^.  #unRegister) `shift` (fromIntegral w - (6 + 2 * bitsPerRegister k)))
   ,
-    Word $ aVal (instr ^. #a)
+    Word $ aVal a
   )
   where
     isImmediate x =

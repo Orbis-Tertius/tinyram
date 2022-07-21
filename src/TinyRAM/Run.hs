@@ -14,9 +14,10 @@ import           TinyRAM.ExecuteInstruction    (executeInstruction)
 import           TinyRAM.MachineState          (getImmediateOrRegister)
 import           TinyRAM.Params                (getRegisterCount, getWordSize)
 import           TinyRAM.Prelude
-import           TinyRAM.Types.HasMachineState (Error (InvalidPCAlignment),
+import           TinyRAM.Types.HasMachineState (Error (InvalidBinaryEncoding, InvalidPCAlignment),
                                                 HasMachineState (..))
 import           TinyRAM.Types.HasParams       (HasParams)
+import           TinyRAM.Types.Instruction     (Instruction (Answer))
 import           TinyRAM.Types.MaxSteps        (MaxSteps (..))
 import           TinyRAM.Types.ProgramCounter  (ProgramCounter (..))
 import           TinyRAM.Types.Word            (Word)
@@ -29,13 +30,11 @@ run n = do
   let  bytesPerWord' = bytesPerWord ws
   pc <- unProgramCounter <$> getProgramCounter
   unless (pc `mod` fromIntegral bytesPerWord' == 0) (throwError InvalidPCAlignment )
-  (i0, i1) <- fetchInstruction pc
-  let i = decodeInstruction ws rc (i0, i1) in
-    if i ^. #opcode == 31
-    then do
-      a <- getImmediateOrRegister (i ^. #a)
-      return (Just a)
-    else
-      do
-      executeInstruction i
+  instruction <- fetchInstruction pc
+  case instruction of
+    Answer a -> do
+      code <- getImmediateOrRegister a
+      return (Just code)
+    instruction -> do
+      executeInstruction instruction
       run (subtract 1 <$> n)

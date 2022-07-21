@@ -28,9 +28,9 @@ import           System.Process               (CreateProcess (std_in, std_out),
 import           System.Random                (randomIO)
 import           Text.Read                    (readMaybe)
 
+import           Control.Monad
 import           TinyRAM.Bytes                (bytesPerWord)
-import           TinyRAM.DecodeInstruction    (decodeInstruction)
-import           TinyRAM.Disassembler         (disassembleProgram, pairWords)
+import           TinyRAM.EncodeInstruction    (encodeInstruction)
 import           TinyRAM.Run                  (run)
 import           TinyRAM.Spec.Gen             (genMachineState)
 import           TinyRAM.Spec.Prelude
@@ -146,14 +146,13 @@ generatedTests =
                       (zip (Address . Word . (* fromIntegral (bytesPerWord ws)) <$> [0..])
                            (Word <$> repeat 0)))))
               $ s'
-            progWords = (Map.elems (s ^. #programMemoryValues . #unProgramMemoryValues))
+            encode = encodeInstruction ws rc
+            progWords = (\(x, y) -> [x, y]) . encode =<< Map.elems (s ^. #programMemoryValues . #unProgramMemoryValues)
             prog = Program $ wordsToBytesBigEndian ws progWords
-            instructions = decodeInstruction ws rc  <$> pairWords progWords
-        writeFile "/tmp/run-coq-tinyram-asm" (disassembleProgram ws rc instructions)
         coqResult <- runCoqTinyRAM prog (s ^. #primaryInput) (s ^. #auxiliaryInput) maxSteps
-        putStrLn (show coqResult)
+        print coqResult
         let hsResult = runIdentity . runExceptT . runStateT (unTinyRAMT (run (Just maxSteps))) $ (ps, s)
-        putStrLn (show hsResult)
+        print hsResult
         case (coqResult, hsResult) of
           (_, Left _)       -> return () -- TODO more granularly compare error results
           (x, Right (y, _)) -> x `shouldBe` y

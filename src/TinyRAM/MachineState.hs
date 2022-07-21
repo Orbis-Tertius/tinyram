@@ -108,8 +108,8 @@ validateProgramMemoryKeys ps s =
 
 
 validateProgramMemoryValues :: Params -> MachineState -> Validation
-validateProgramMemoryValues ps s =
-  mconcat $ validateWord "Program Memory Value" ps <$> Map.elems (s ^. #programMemoryValues . #unProgramMemoryValues)
+validateProgramMemoryValues ps s = mempty
+  -- mconcat $ validateWord "Program Memory Value" ps <$> Map.elems (s ^. #programMemoryValues . #unProgramMemoryValues)
 
 
 validateInputTape :: Params -> InputTape a -> Validation

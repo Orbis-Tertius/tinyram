@@ -2,7 +2,7 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
 
-module TinyRAM.Types.Command ( Command (CommandRun, CommandParse, CommandDisassemble) ) where
+module TinyRAM.Types.Command ( Command (CommandRun) ) where
 
 
 import           TinyRAM.Prelude
@@ -21,12 +21,5 @@ data Command =
     , objectFilePath         :: ObjectFilePath
     , primaryInputTapePath   :: InputTapePath Primary
     , auxiliaryInputTapePath :: InputTapePath Auxiliary
-    }
-  | CommandParse
-    { assemblyFilePath :: AssemblyFilePath
-    , outputFilePath   :: ObjectFilePath
-    }
-  | CommandDisassemble
-    { inputFilePath :: ObjectFilePath
     }
   deriving Generic
