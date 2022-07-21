@@ -22,12 +22,12 @@ module TinyRAM.Spec.Gen
   ) where
 
 
+import           Control.Monad
 import           Data.GenValidity.ByteString       ()
 import qualified Data.Map                          as Map
 
-import           Control.Monad                     (join)
+import           Data.Tuple.Extra                  (uncurry3)
 import           TinyRAM.Bytes                     (bytesPerWord)
-import           TinyRAM.EncodeInstruction         (encodeInstruction)
 import           TinyRAM.Spec.Prelude
 import           TinyRAM.Types.Address             (Address (..))
 import           TinyRAM.Types.Flag                (Flag)
@@ -36,7 +36,6 @@ import           TinyRAM.Types.InputTape           (InputTape (..))
 import           TinyRAM.Types.Instruction         (Instruction (..))
 import           TinyRAM.Types.MachineState        (MachineState (..))
 import           TinyRAM.Types.MemoryValues        (MemoryValues (..))
-import           TinyRAM.Types.Opcode              (Opcode (..))
 import           TinyRAM.Types.Params              (Params (..))
 import           TinyRAM.Types.ProgramCounter      (ProgramCounter (..))
 import           TinyRAM.Types.ProgramMemoryValues (ProgramMemoryValues (..))
@@ -48,13 +47,6 @@ import           TinyRAM.Types.SignedInt           (SignedInt (..))
 import           TinyRAM.Types.Word                (Word (..))
 import           TinyRAM.Types.WordSize            (WordSize (..))
 
-
-instance GenValid Opcode where
-  -- TODO: SMULH is excluded because it doesn't work well in coq-tinyram. Re-add it.
-  -- TODO: all jump instructions are excluded because they don't
-  --   seem to work the same in coq-tinyram and here. Re-add them.
-  genValid = Opcode <$> oneof [choose (0,7), choose (9,19), choose (28, 31)]
-  shrinkValid = shrinkValidStructurally
 
 
 instance GenValid Flag where
@@ -80,15 +72,54 @@ genAddress ws = Address <$> genWord ws
 genInputTape :: WordSize -> Gen (InputTape a)
 genInputTape ws = InputTape <$> listOf (genWord ws)
 
-
+-- TODO: SMULH is excluded because it doesn't work well in coq-tinyram. Re-add it.
+-- TODO: all jump instructions are excluded because they don't
+--   seem to work the same in coq-tinyram and here. Re-add them.
+-- TODO: add jumps
 genInstruction :: WordSize -> RegisterCount -> Gen Instruction
-genInstruction ws rc =
-  Instruction
-  <$> genValid
-  <*> genImmediateOrRegister ws rc
-  <*> genRegister rc
-  <*> genRegister rc
+genInstruction ws rc = oneof $
+  ((<$> bop) . uncurry3 <$> [
+    And
+  , Or
+  , Xor
+  , Add
+  , Sub
+  , Mull
+  , Umulh
+  -- , Smulh
+  , Udiv
+  , Umod
+  , Shl
+  , Shr
+  ])
+  ++
+  ((<$> uop) . uncurry <$> [
+    Not
+  , Mov
+  , Cmov
+  , Cmpe
+  , Cmpa
+  , Cmpae
+  , Cmpg
+  , Cmpge
+  ])
+  ++
+  [
+    -- Storeb <$> immOrReg <*> reg
+    -- Loadb <$> reg <*> immOrReg
+    Storew <$> immOrReg <*> reg
+  , Loadw <$> reg <*> immOrReg
+  , Read <$> reg <*> immOrReg
+  , Answer <$> immOrReg
+  ]
+  where
+    bop = (,,) <$> reg <*> reg <*> immOrReg
 
+    uop = (,) <$> reg <*> immOrReg
+
+    reg = genRegister rc
+
+    immOrReg = genImmediateOrRegister ws rc
 
 genRegister :: RegisterCount -> Gen Register
 genRegister (RegisterCount rc) = Register <$> choose (0, rc - 1)
@@ -115,21 +146,16 @@ genMemoryValues :: WordSize -> Gen MemoryValues
 genMemoryValues ws =
   fmap (MemoryValues . Map.fromList
     . zip (Address . Word . (* fromIntegral (bytesPerWord ws)) <$> [0..]))
-    . vectorOf ((2 ^ (unWordSize ws)) `quot` bytesPerWord ws)
+    . vectorOf ((2 ^ unWordSize ws) `quot` bytesPerWord ws)
     $ genWord ws
 
 
 genProgramMemoryValues :: WordSize -> RegisterCount -> Gen ProgramMemoryValues
 genProgramMemoryValues ws rc =
-  fmap (ProgramMemoryValues . Map.fromList
-    . zip (Address . Word . (* fromIntegral (bytesPerWord ws)) <$> [0..]))
-    $ join <$> vectorOf ((2 ^ (unWordSize ws)) `quot` (2 * bytesPerWord ws)) instructionWords
+  fmap (ProgramMemoryValues . Map.fromList . zip addresses) instructions
   where
-  instructionWords = do
-    instruction <- genInstruction ws rc
-    let (lowWord, highWord) = encodeInstruction ws rc instruction
-    return [lowWord, highWord]
-
+  addresses = Address . Word . (* (2 * fromIntegral (bytesPerWord ws))) <$> [0..]
+  instructions = vectorOf ((2 ^ unWordSize ws) `quot` (2 * bytesPerWord ws)) (genInstruction ws rc)
 
 genParamsMachineState :: Gen (Params, MachineState)
 genParamsMachineState = do
@@ -153,11 +179,10 @@ genRegisterValues :: WordSize -> RegisterCount -> Gen RegisterValues
 genRegisterValues ws (RegisterCount n) =
   RegisterValues . Map.fromList
   <$>
-  sequence
-    (zipWith
+  zipWithM
       (\a b -> (a,) <$> b)
       (Register <$> [0..n-1])
-      (repeat (genWord ws)))
+      (repeat (genWord ws))
 
 
 genSignedInteger :: WordSize -> Gen SignedInt

@@ -11,4 +11,4 @@ import           TinyRAM.Prelude
 
 -- A register, represented by its zero-based index.
 newtype Register = Register { unRegister :: Int }
-  deriving (Eq, Ord, Read, Show, Generic, Enum, Num, Real, Integral)
+  deriving (Eq, Ord, Read, Show, Generic)

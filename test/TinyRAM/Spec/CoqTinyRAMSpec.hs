@@ -5,50 +5,43 @@
 
 
 module TinyRAM.Spec.CoqTinyRAMSpec
-  ( bytesToBitString
-  , byteToBitString
-  , spec
+  ( spec
   ) where
 
 
-import           Control.Monad.Trans.Except   (runExceptT)
-import           Control.Monad.Trans.State    (StateT (runStateT))
-import           Data.Bits                    (testBit)
-import           Data.ByteString              (pack, unpack)
-import qualified Data.ByteString              as BS
-import           Data.Functor.Identity        (runIdentity)
-import           Data.List                    (isPrefixOf)
-import qualified Data.Map                     as Map
-import           Data.Word                    (Word8)
-import           System.Environment           (getEnv)
-import           System.IO                    (hGetLine, writeFile)
-import           System.Process               (CreateProcess (std_in, std_out),
-                                               StdStream (CreatePipe),
-                                               createProcess, proc)
-import           System.Random                (randomIO)
-import           Text.Read                    (readMaybe)
+import           Control.Monad.Trans.Except        (runExceptT)
+import           Control.Monad.Trans.State         (StateT (runStateT))
+import           Data.ByteString                   (pack)
+import           Data.Functor.Identity             (runIdentity)
 
-import           TinyRAM.Bytes                (bytesPerWord)
-import           TinyRAM.DecodeInstruction    (decodeInstruction)
-import           TinyRAM.Disassembler         (disassembleProgram, pairWords)
-import           TinyRAM.Run                  (run)
-import           TinyRAM.Spec.Gen             (genMachineState)
+import qualified Data.Map                          as Map
+
+
+import           Control.Monad
+import           TinyRAM.Bytes                     (bytesPerWord)
+import           TinyRAM.Run                       (run)
+import           TinyRAM.Spec.CoqRun               (byteToBitString,
+                                                    bytesToBitString,
+                                                    runCoqTinyRAM, toProgram)
+import           TinyRAM.Spec.Gen                  (genProgramMemoryValues)
 import           TinyRAM.Spec.Prelude
-import           TinyRAM.Types.Address        (Address (..))
-import           TinyRAM.Types.Flag           (Flag (..))
-import           TinyRAM.Types.InputTape      (Auxiliary, InputTape (..),
-                                               Primary)
-import           TinyRAM.Types.MaxSteps       (MaxSteps (..))
-import           TinyRAM.Types.MemoryValues   (MemoryValues (..))
-import           TinyRAM.Types.Params         (Params (..))
-import           TinyRAM.Types.Program        (Program (..))
-import           TinyRAM.Types.ProgramCounter (ProgramCounter (..))
-import           TinyRAM.Types.Register       (Register (..))
-import           TinyRAM.Types.RegisterCount  (RegisterCount (..))
-import           TinyRAM.Types.RegisterValues (RegisterValues (..))
-import           TinyRAM.Types.TinyRAMT       (TinyRAMT (..))
-import           TinyRAM.Types.Word           (Word (..))
-import           TinyRAM.Types.WordSize       (WordSize (..))
+import           TinyRAM.Types.Address             (Address (..))
+import           TinyRAM.Types.Flag                (Flag (..))
+import           TinyRAM.Types.HasMachineState     (Error)
+import           TinyRAM.Types.InputTape
+import           TinyRAM.Types.MachineState
+import           TinyRAM.Types.MaxSteps            (MaxSteps (..))
+import           TinyRAM.Types.MemoryValues        (MemoryValues (..))
+import           TinyRAM.Types.Params              (Params (..))
+import           TinyRAM.Types.Program             (Program (..))
+import           TinyRAM.Types.ProgramCounter      (ProgramCounter (..))
+import           TinyRAM.Types.ProgramMemoryValues
+import           TinyRAM.Types.Register            (Register (..))
+import           TinyRAM.Types.RegisterCount       (RegisterCount (..))
+import           TinyRAM.Types.RegisterValues      (RegisterValues (..))
+import           TinyRAM.Types.TinyRAMT            (TinyRAMT (..))
+import           TinyRAM.Types.Word                (Word (..))
+import           TinyRAM.Types.WordSize            (WordSize (..))
 
 
 spec :: Spec
@@ -129,34 +122,47 @@ programCounterPastEndTest =
     result `shouldBe` (Just 1)
 
 
+emptyRegisterValues :: RegisterCount -> RegisterValues
+emptyRegisterValues rc = RegisterValues $ Map.fromList
+  (take (unRegisterCount rc) (zip (Register <$> [0..]) (Word <$> repeat 0)))
+
+emptyMemoryValues :: WordSize -> MemoryValues
+emptyMemoryValues ws = MemoryValues $ Map.fromList
+  (take (2 ^ unWordSize ws) (zip addresses (Word <$> repeat 0)))
+  where
+    addresses = Address . Word . (* fromIntegral (bytesPerWord ws)) <$> [0..]
+
+createMachineState :: WordSize  -> RegisterCount -> ProgramMemoryValues -> MachineState
+createMachineState ws rc v =  MachineState (ProgramCounter 0)
+              (emptyRegisterValues rc)
+              (Flag 0)
+              (emptyMemoryValues ws)
+              v
+              (InputTape [])
+              (InputTape [])
+
+execute :: MaxSteps
+ -> Params
+ -> MachineState
+ -> Either Error (Maybe Word, (Params, MachineState))
+execute maxSteps ps s = runIdentity . runExceptT . runStateT (unTinyRAMT (run (Just maxSteps))) $ (ps, s)
+
+
 generatedTests :: Spec
 generatedTests =
   it "produces the same result as the Haskell TinyRAM emulator" $
-    forAll (genMachineState ws rc) $ \s' ->
-      forAll (MaxSteps <$> choose (0,1000)) $ \maxSteps -> do
-        let s = (#programCounter .~ ProgramCounter 0)
-              . (#registerValues .~ RegisterValues
-                  (Map.fromList
-                    (take (unRegisterCount rc)
-                      (zip (Register <$> [0..]) (Word <$> repeat 0)))))
-              . (#conditionFlag .~ Flag 0)
-              . (#memoryValues .~ MemoryValues
-                  (Map.fromList
-                    (take (2 ^ unWordSize ws)
-                      (zip (Address . Word . (* fromIntegral (bytesPerWord ws)) <$> [0..])
-                           (Word <$> repeat 0)))))
-              $ s'
-            progWords = (Map.elems (s ^. #programMemoryValues . #unProgramMemoryValues))
-            prog = Program $ wordsToBytesBigEndian ws progWords
-            instructions = decodeInstruction ws rc  <$> pairWords progWords
-        writeFile "/tmp/run-coq-tinyram-asm" (disassembleProgram ws rc instructions)
+    forAll (genProgramMemoryValues ws rc) $ \programMemoryValues ->
+      forAll (MaxSteps <$> choose (1,1000)) $ \maxSteps -> do
+        let s = createMachineState ws rc programMemoryValues
+            prog = toProgram ws rc (s ^. #programMemoryValues)
         coqResult <- runCoqTinyRAM prog (s ^. #primaryInput) (s ^. #auxiliaryInput) maxSteps
-        putStrLn (show coqResult)
-        let hsResult = runIdentity . runExceptT . runStateT (unTinyRAMT (run (Just maxSteps))) $ (ps, s)
-        putStrLn (show hsResult)
+        -- print coqResult
+        let hsResult = execute maxSteps ps s
+        -- print hsResult
         case (coqResult, hsResult) of
           (_, Left _)       -> return () -- TODO more granularly compare error results
-          (x, Right (y, _)) -> x `shouldBe` y
+          (x, Right (y, _)) -> do
+            x `shouldBe` y
   where
     ws = WordSize 16
     rc = RegisterCount 4
@@ -170,53 +176,6 @@ bytesToBitStringSpec =
       bytesToBitString (pack [0, 13, 255, 64])
         `shouldBe` "00000000000011011111111101000000"
 
-
-runCoqTinyRAM :: Program
-              -> InputTape Primary
-              -> InputTape Auxiliary
-              -> MaxSteps
-              -> IO (Maybe Word)
-runCoqTinyRAM (Program p)
-              (InputTape ip)
-              (InputTape ia)
-              (MaxSteps maxSteps) = do
-  suffix :: Int <- randomIO
-  let wordSize = 16
-      tmpPath1 = "/tmp/run-coq-tinyram-prog-" <> show suffix
-      tmpPath2 = "/tmp/run-coq-tinyram-primary-input-" <> show suffix
-      tmpPath3 = "/tmp/run-coq-tinyram-secondary-input-" <> show suffix
-  writeFile tmpPath1 (bytesToBitString p)
-  writeFile tmpPath2 (bytesToBitString (wordsToBytesBigEndian wordSize ip))
-  writeFile tmpPath3 (bytesToBitString (wordsToBytesBigEndian wordSize ia))
-  (mpStdin, mpStdout, _pStderr, _pHandle) <- do
-    exePath <- getEnv "COQ_TINYRAM_PATH"
-    createProcess
-      ((proc exePath [tmpPath1, tmpPath2, tmpPath3, show maxSteps])
-        { std_in = CreatePipe, std_out = CreatePipe })
-  case (mpStdin, mpStdout) of
-    (_, Just pStdout) -> do
-      _ <- hGetLine pStdout -- discard useless first line of output
-      o1 <- hGetLine pStdout
-      putStrLn o1
-      o2 <- hGetLine pStdout
-      putStrLn o2
-      o3 <- hGetLine pStdout
-      putStrLn o3
-      if isPrefixOf "Error: Program did not halt within" o3
-        then return Nothing
-        else do
-          o4 <- hGetLine pStdout
-          putStrLn o4
-          o5 <- hGetLine pStdout
-          putStrLn o5
-          if isPrefixOf "\tNat: " o5
-            then return (Word <$> readMaybe (drop 6 o5))
-            else return Nothing
-    _ -> return Nothing
-
-
-bytesToBitString :: ByteString -> String
-bytesToBitString = concatMap byteToBitString . unpack
 
 
 byteToBitStringSpec :: Spec
@@ -234,27 +193,3 @@ byteToBitStringSpec =
       byteToBitString 254 `shouldBe` "11111110"
     it "works as expected on 255" $
       byteToBitString 255 `shouldBe` "11111111"
-
-
-byteToBitString :: Word8 -> String
-byteToBitString w =
-  [ if testBit w i then '1' else '0'
-  | i <- reverse [0..7]
-  ]
-
-
-wordsToBytesBigEndian :: WordSize -> [Word] -> ByteString
-wordsToBytesBigEndian ws wrds =
-  BS.concat $ wordsToByte <$> wrds
-  where
-    bytesPerWord' = bytesPerWord ws
-
-    shiftValue = (2 :: Word) ^ (8 :: Word)
-
-    -- encode words to little endian format
-    wordsToByte :: Word -> ByteString
-    wordsToByte wrd =
-      fst $ foldr
-              (\_ (a, cw) -> (flip BS.cons a (fromIntegral $ cw .&. (shiftValue - 1)), cw `div` shiftValue))
-              (BS.empty, wrd)
-              [1..bytesPerWord']
