@@ -7,7 +7,7 @@ module TinyRAM.DecodeInstruction
   ) where
 
 
-import Data.Bits (rotate)
+import           Data.Bits                         (rotate)
 
 import           TinyRAM.Prelude
 import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (..))

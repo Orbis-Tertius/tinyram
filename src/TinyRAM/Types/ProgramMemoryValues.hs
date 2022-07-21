@@ -3,7 +3,7 @@
 {-# LANGUAGE NoImplicitPrelude          #-}
 
 
-module TinyRAM.Types.MemoryValues ( MemoryValues (..) ) where
+module TinyRAM.Types.ProgramMemoryValues ( ProgramMemoryValues (..) ) where
 
 
 import           TinyRAM.Prelude
@@ -12,9 +12,9 @@ import           TinyRAM.Types.Word    (Word)
 
 
 -- A state of the RAM, giving the value at each address.
-newtype MemoryValues = MemoryValues
-  { unMemoryValues :: Map Address Word }
+newtype ProgramMemoryValues = ProgramMemoryValues
+  { unProgramMemoryValues :: Map Address Word }
   deriving (Eq, Ord, Read, Generic)
 
-instance Show MemoryValues where
-  show _ = "<MemoryValues>"
+instance Show ProgramMemoryValues where
+  show _ = "<ProgramMemoryValues>"
