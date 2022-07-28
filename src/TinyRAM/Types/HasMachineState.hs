@@ -11,13 +11,16 @@ import           Control.Monad.Except         (MonadError)
 import           TinyRAM.Prelude
 import           TinyRAM.Types.Address        (Address)
 import           TinyRAM.Types.Flag           (Flag)
+import           TinyRAM.Types.Instruction    (Instruction)
 import           TinyRAM.Types.ProgramCounter (ProgramCounter)
 import           TinyRAM.Types.Register       (Register)
 import           TinyRAM.Types.Word           (Word)
 
 
 data Error =
-    InvalidOpcodeError
+    InstructionFetchError
+  | InvalidBinaryEncoding
+  | InvalidOpcodeError
   | InvalidRegisterError
   | InvalidPCAlignment
   deriving (Eq, Show)
@@ -30,8 +33,7 @@ class (MonadError Error m) => HasMachineState m where
   getConditionFlag :: m Flag
   setConditionFlag :: Flag -> m ()
   getWord :: Address -> m Word
-  fetchInstruction :: Address -> m (Word, Word)
   setWord :: Address -> Word -> m ()
-  setProgramWord :: Address -> Word -> m ()
+  fetchInstruction :: Address -> m Instruction
   readPrimaryInput :: m (Maybe Word)
   readAuxiliaryInput :: m (Maybe Word)

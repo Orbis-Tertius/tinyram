@@ -4,7 +4,7 @@
 {-# LANGUAGE TupleSections     #-}
 
 
-module TinyRAM.ExecuteProgram ( executeProgram ) where
+module TinyRAM.ExecuteProgram ( executeProgram, executeProgram' ) where
 
 
 import           Control.Monad.Trans.Except        (runExceptT)
@@ -15,6 +15,7 @@ import qualified Data.Map                          as Map
 import           Data.Text                         (pack)
 
 import           TinyRAM.Bytes                     (bytesPerWord, bytesToWords)
+import           TinyRAM.DecodeInstruction         (decodeInstruction)
 import           TinyRAM.Prelude
 import           TinyRAM.Run                       (run)
 import           TinyRAM.Types.Flag                (Flag)
@@ -42,6 +43,16 @@ executeProgram
   -> Either Text Word
 executeProgram params maxSteps program primaryInput auxInput = do
   programMemoryValues <- programToMemoryValues params program
+  executeProgram' params maxSteps programMemoryValues primaryInput auxInput
+
+executeProgram'
+  :: Params
+  -> Maybe MaxSteps
+  -> ProgramMemoryValues
+  -> InputTape Primary
+  -> InputTape Auxiliary
+  -> Either Text Word
+executeProgram' params maxSteps programMemoryValues primaryInput auxInput = do
   let result =
         runIdentity $
         runExceptT $
@@ -81,10 +92,27 @@ programToMemoryValues params (Program p) =
   then Left "word size must be nonzero but it is zero"
   else
     case (params ^. #wordSize . #unWordSize) `rem` 8 of
-      0 ->
-        Right . ProgramMemoryValues . Map.fromList $ zip addresses (bytesToWords (params ^. #wordSize) p)
-      _ -> Left $ "word size must be a multiple of 8 but it is " <> pack (show (params ^. #wordSize . #unWordSize))
+      0 -> case maybeDWords of
+        Nothing     -> Left "uneven number of words"
+        Just dWords -> case sequence (decode <$> dWords) of
+          Nothing -> Left "instruction decoding failure"
+          Just instructions -> Right . ProgramMemoryValues . Map.fromList $ zip addresses instructions
+      _ -> Left $ "word size must be a multiple of 8 but it is " <>
+                  pack (show (params ^. #wordSize . #unWordSize))
   where
     bytesPerWord' = bytesPerWord (params ^. #wordSize)
 
     addresses = (* fromIntegral bytesPerWord') <$> [0..]
+
+    decode = decodeInstruction (params ^. #wordSize) (params ^. #registerCount)
+
+    maybeDWords =
+      let words' = bytesToWords (params ^. #wordSize) p
+       in if even (length words')
+          then Just (slicePair words')
+          else Nothing
+
+slicePair :: [a] -> [(a,a)]
+slicePair (x0:x1:xs) = (x0, x1) : slicePair xs
+slicePair []         = []
+slicePair _          = error "odd number of elements"

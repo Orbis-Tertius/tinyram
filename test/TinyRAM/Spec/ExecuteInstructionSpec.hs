@@ -21,9 +21,10 @@ import           TinyRAM.Spec.Prelude
 import           TinyRAM.Types.Address             (Address (..))
 import           TinyRAM.Types.Flag                (Flag (..))
 import           TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (IsImmediate, IsRegister))
-import           TinyRAM.Types.Instruction         (Instruction)
+import           TinyRAM.Types.Instruction         (Instruction (..))
 import           TinyRAM.Types.MachineState        (MachineState)
 import           TinyRAM.Types.Params              (Params)
+import           TinyRAM.Types.Register
 import           TinyRAM.Types.SignedInt           (SignedInt (..))
 import           TinyRAM.Types.TinyRAMT            (TinyRAMT (..))
 import           TinyRAM.Types.UnsignedInt         (UnsignedInt (..))
@@ -43,99 +44,98 @@ spec = describe "executeInstruction" $
 
 instructionStateTransition :: Params -> Instruction -> MachineState -> MachineState
 instructionStateTransition ps i =
-  case i ^. #opcode of
-    -- and
-    0  -> functionOpcode (.&.) (\x y -> conditionToFlag (x .&. y == 0)) i ws
-    -- or
-    1  -> functionOpcode (.|.) (\x y -> conditionToFlag (x .|. y == 0)) i ws
-    -- xor
-    2  -> functionOpcode xor   (\x y -> conditionToFlag (x `xor` y == 0)) i ws
-    -- not
-    3  -> functionOpcode (\a _ -> (2 ^ ws - 1) `xor` a) (\a _ -> conditionToFlag (complement a == 0)) i ws
-    -- add
-    4  -> functionOpcode (\x y -> (x + y) .&. wordSizeBitmask)
+  case i of
+    And   ri rj a   -> functionOpcode (.&.) (\x y -> conditionToFlag (x .&. y == 0)) (ri, rj, a) ws
+
+    Or    ri rj a   -> functionOpcode (.|.) (\x y -> conditionToFlag (x .|. y == 0)) (ri, rj, a) ws
+
+    Xor   ri rj a   -> functionOpcode xor   (\x y -> conditionToFlag (x `xor` y == 0)) (ri, rj, a) ws
+
+    Not   ri    a   -> functionOpcode1 (\a' -> (2 ^ ws - 1) `xor` a') (\a' -> conditionToFlag (complement a' == 0)) (ri, a) ws
+
+    Add   ri rj a   -> functionOpcode (\x y -> (x + y) .&. wordSizeBitmask)
                          (\x y -> conditionToFlag $ (x + y) .&. wordSizeBitmaskMSB /= 0)
-                         i ws
-    -- sub
-    5  -> functionOpcode (\x y -> (y + wordStrictBound - x) .&. wordSizeBitmask)
+                         (ri, rj, a) ws
+
+    Sub   ri rj a   -> functionOpcode (\x y -> (y + wordStrictBound - x) .&. wordSizeBitmask)
                          (\x y -> conditionToFlag ((y + wordStrictBound - x) .&. wordSizeBitmaskMSB == 0))
-                         i ws
-    -- mull
-    6  -> functionOpcode (\x y -> ((x * y) .&. wordSizeBitmask))
+                         (ri, rj, a) ws
+
+    Mull  ri rj a   -> functionOpcode (\x y -> (x * y) .&. wordSizeBitmask)
                          (\x y -> conditionToFlag ((x * y) .&. wordSizeBitmaskMSB /= 0))
-                         i ws
-    -- umulh
-    7  -> functionOpcode (\x y -> ((x * y) `shift` (negate (ws ^. #unWordSize))))
+                         (ri, rj, a) ws
+
+    Umulh ri rj a   -> functionOpcode (\x y -> (x * y) `shift` negate (ws ^. #unWordSize))
                          (\x y -> conditionToFlag ((x * y) .&. wordSizeBitmaskMSB /= 0))
-                         i ws
-    -- smulh
-    8  -> functionOpcode (\x y -> unSignedInt $ signedMultiplyHigh ws (SignedInt x) (SignedInt y))
-                         (\x y -> conditionToFlag $ (unUnsignedInt ( (getUnsignedComponent ws (SignedInt x))
-                                                                    * getUnsignedComponent ws (SignedInt y) )
+                         (ri, rj, a) ws
+
+    Smulh ri rj a   -> functionOpcode (\x y -> unSignedInt $ signedMultiplyHigh ws (SignedInt x) (SignedInt y))
+                         (\x y -> conditionToFlag $ (unUnsignedInt ( getUnsignedComponent ws (SignedInt x)
+                                                                   * getUnsignedComponent ws (SignedInt y) )
                                                        .&. wordSizeBitmaskMSB)
                                                      /= 0)
-                         i ws
-    -- udiv
-    9  -> functionOpcode (\x y -> if x == 0 then 0 else (y `div` x) .&. wordSizeBitmask)
+                         (ri, rj, a) ws
+
+    Udiv  ri rj a    -> functionOpcode (\x y -> if x == 0 then 0 else (y `div` x) .&. wordSizeBitmask)
                          (\x _ -> conditionToFlag (x == 0))
-                         i ws
-    -- umod
-    10 -> functionOpcode (\x y -> if x == 0 then 0 else (y `mod` x) .&. wordSizeBitmask)
+                         (ri, rj, a) ws
+
+    Umod  ri rj a    -> functionOpcode (\x y -> if x == 0 then 0 else (y `mod` x) .&. wordSizeBitmask)
                          (\x _ -> conditionToFlag (x == 0))
-                         i ws
-    -- shl
-    11 -> functionOpcode (\x y -> (y `shift` fromIntegral (min (fromIntegral ws) x)) .&. wordSizeBitmask)
+                         (ri, rj, a) ws
+
+    Shl   ri rj a    -> functionOpcode (\x y -> (y `shift` fromIntegral (min (fromIntegral ws) x)) .&. wordSizeBitmask)
                          (\_ y -> conditionToFlag $ y .&. (2 ^ (ws ^. #unWordSize - 1)) /= 0)
-                         i ws
-    -- shr
-    12 -> functionOpcode (\x y -> (y `shift` negate (fromIntegral (min (fromIntegral ws) x))) .&. wordSizeBitmask)
+                         (ri, rj, a) ws
+
+    Shr   ri rj a    -> functionOpcode (\x y -> (y `shift` negate (fromIntegral (min (fromIntegral ws) x))) .&. wordSizeBitmask)
                          (\_ y -> Flag . fromIntegral $ y .&. 1)
-                         i ws
-    -- cmpe
-    13 -> comparisonOpcode (==) i ws
-    -- cmpa
-    14 -> comparisonOpcode (<)  i ws
-    -- cmpae
-    15 -> comparisonOpcode (<=) i ws
-    -- cmpg
-    16 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) < decodeSignedInt ws (SignedInt y)) i ws
-    -- cmpge
-    17 -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) <= decodeSignedInt ws (SignedInt y)) i ws
-    -- mov
-    18 -> incrementPC ws
-        . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
-              .~ Just (getA i s)
+                         (ri, rj, a) ws
+
+    Cmpe  ri    a -> comparisonOpcode (==) (ri, a) ws
+
+    Cmpa  ri    a -> comparisonOpcode (<)  (ri, a) ws
+
+    Cmpae ri    a -> comparisonOpcode (<=) (ri, a) ws
+
+    Cmpg  ri    a -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) < decodeSignedInt ws (SignedInt y)) (ri, a) ws
+
+    Cmpge ri    a -> comparisonOpcode (\x y -> decodeSignedInt ws (SignedInt x) <= decodeSignedInt ws (SignedInt y)) (ri, a) ws
+
+    Mov ri a -> incrementPC ws
+        . (\s -> #registerValues . #unRegisterValues . at ri
+              .~ Just (getA a s)
               $ s)
-    -- cmov
-    19 -> incrementPC ws
+
+    Cmov ri a -> incrementPC ws
         . (\s ->
             if s ^. #conditionFlag == 0
             then s
-            else #registerValues . #unRegisterValues . at (i ^. #ri)
-              .~ Just (getA i s)
+            else #registerValues . #unRegisterValues . at ri
+              .~ Just (getA a s)
               $ s)
-    -- jmp
-    20 -> \s -> #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
-    -- cjmp
-    21 -> \s -> if s ^. #conditionFlag == 0
+
+    Jmp a -> \s -> #programCounter . #unProgramCounter . #unAddress .~ getA a s $ s
+
+    Cjmp a -> \s -> if s ^. #conditionFlag == 0
                 then incrementPC ws s
-                else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
-    -- cnjmp
-    22 -> \s -> if s ^. #conditionFlag == 1
+                else #programCounter . #unProgramCounter . #unAddress .~ getA a s $ s
+
+    Cnjmp a -> \s -> if s ^. #conditionFlag == 1
                 then incrementPC ws s
-                else #programCounter . #unProgramCounter . #unAddress .~ getA i s $ s
+                else #programCounter . #unProgramCounter . #unAddress .~ getA a s $ s
     -- store
-    28 -> incrementPC ws
-        . (\s -> #memoryValues . #unMemoryValues . at (fst $ alignToWord ws (Address (getA i s)))
-              .~ Just (getRI i s)
+    Storew a ri -> incrementPC ws
+        . (\s -> #memoryValues . #unMemoryValues . at (fst $ alignToWord ws (Address (getA a s)))
+              .~ Just (getRI ri s)
                $ s)
     -- load
-    29 -> incrementPC ws
-        . (\s -> #registerValues . #unRegisterValues . at (i ^. #ri)
-              .~ Just (fromMaybe 0 (s ^. #memoryValues . #unMemoryValues . at (fst $ alignToWord ws (Address (getA i s)))))
+    Loadw ri a -> incrementPC ws
+        . (\s -> #registerValues . #unRegisterValues . at ri
+              .~ Just (fromMaybe 0 (s ^. #memoryValues . #unMemoryValues . at (fst $ alignToWord ws (Address (getA a s)))))
                $ s)
     -- read
-    30 -> incrementPC ws . readInputTape i
+    Read ri a -> incrementPC ws . readInputTape ri a
     _  -> id
   where
     ws :: WordSize
@@ -165,78 +165,95 @@ alignToWord ws address =
 functionOpcode
   :: (Word -> Word -> Word)
   -> (Word -> Word -> Flag)
-  -> Instruction
+  -> (Register, Register, ImmediateOrRegister )
   -> WordSize
   -> MachineState
   -> MachineState
-functionOpcode f p i ws s =
+functionOpcode f p (ri, rj, a) ws s =
   incrementPC ws
   .
-  (#registerValues . #unRegisterValues . at (i ^. #ri)
-     .~ Just (f a rj))
+  (#registerValues . #unRegisterValues . at ri
+     .~ Just (f a' rj'))
   .
-  (#conditionFlag .~ p a rj)
+  (#conditionFlag .~ p a' rj')
   $
   s
-  where a  = getA i s
-        rj = getRJ i s
+  where a'  = getA a s
+        rj' = getRJ rj s
 
+functionOpcode1
+  :: (Word -> Word)
+  -> (Word -> Flag)
+  -> (Register, ImmediateOrRegister)
+  -> WordSize
+  -> MachineState
+  -> MachineState
+functionOpcode1 f p (ri, a) ws s =
+  incrementPC ws
+  .
+  (#registerValues . #unRegisterValues . at ri
+     .~ Just (f a'))
+  .
+  (#conditionFlag .~ p a')
+  $
+  s
+  where a'  = getA a s
 
 comparisonOpcode
   :: (Word -> Word -> Bool)
-  -> Instruction
+  -> (Register, ImmediateOrRegister)
   -> WordSize
   -> MachineState
   -> MachineState
-comparisonOpcode p i ws s =
+comparisonOpcode p (ri, a) ws s =
   incrementPC ws
   .
-  (#conditionFlag .~ conditionToFlag (p a ri))
+  (#conditionFlag .~ conditionToFlag (p a' ri'))
   $
   s
-  where a  = getA i s
-        ri = getRI i s
+  where a'  = getA a s
+        ri' = getRI ri s
 
 
-getA :: Instruction -> MachineState -> Word
-getA i s =
-  case i ^. #a of
+getA :: ImmediateOrRegister  -> MachineState -> Word
+getA a s =
+  case a  of
     IsImmediate x -> x
     IsRegister r ->
       fromMaybe (error "getA failed")
       $ s ^. #registerValues . #unRegisterValues . at r
 
 
-getRJ :: Instruction -> MachineState -> Word
-getRJ i s =
+getRJ :: Register -> MachineState -> Word
+getRJ rj s =
   fromMaybe (error "getRJ failed")
-  $ s ^. #registerValues . #unRegisterValues . at (i ^. #rj)
+  $ s ^. #registerValues . #unRegisterValues . at rj
 
 
-getRI :: Instruction -> MachineState -> Word
-getRI i s =
+getRI :: Register -> MachineState -> Word
+getRI ri s =
   fromMaybe (error "getRI failed")
-  $ s ^. #registerValues . #unRegisterValues . at (i ^. #ri)
+  $ s ^. #registerValues . #unRegisterValues . at ri
 
 
-readInputTape :: Instruction -> MachineState -> MachineState
-readInputTape i s =
-  case getA i s of
-    0 -> readPrimaryInputTape i s
-    1 -> readAuxiliaryInputTape i s
+readInputTape :: Register -> ImmediateOrRegister  -> MachineState -> MachineState
+readInputTape ri a s =
+  case getA a s of
+    0 -> readPrimaryInputTape ri s
+    1 -> readAuxiliaryInputTape ri s
     _ ->
-      (#registerValues . #unRegisterValues . at (i ^. #ri) .~ Just 0)
+      (#registerValues . #unRegisterValues . at ri .~ Just 0)
       .
       (#conditionFlag .~ 1)
       $
       s
 
 
-readPrimaryInputTape :: Instruction -> MachineState -> MachineState
-readPrimaryInputTape i s =
+readPrimaryInputTape :: Register -> MachineState -> MachineState
+readPrimaryInputTape ri s =
   case s ^. #primaryInput . #unInputTape of
     x:xs ->
-      (#registerValues . #unRegisterValues . at (i ^. #ri) .~ Just x)
+      (#registerValues . #unRegisterValues . at ri .~ Just x)
       .
       (#primaryInput . #unInputTape .~ xs)
       .
@@ -244,18 +261,18 @@ readPrimaryInputTape i s =
       $
       s
     [] ->
-      (#registerValues . #unRegisterValues . at (i ^. #ri) .~ Just 0)
+      (#registerValues . #unRegisterValues . at ri .~ Just 0)
       .
       (#conditionFlag .~ 1)
       $
       s
 
 
-readAuxiliaryInputTape :: Instruction -> MachineState -> MachineState
-readAuxiliaryInputTape i s =
+readAuxiliaryInputTape :: Register -> MachineState -> MachineState
+readAuxiliaryInputTape ri s =
   case s ^. #auxiliaryInput . #unInputTape of
     x:xs ->
-      (#registerValues . #unRegisterValues . at (i ^. #ri) .~ Just x)
+      (#registerValues . #unRegisterValues . at ri .~ Just x)
       .
       (#primaryInput . #unInputTape .~ xs)
       .
@@ -263,7 +280,7 @@ readAuxiliaryInputTape i s =
       $
       s
     [] ->
-      (#registerValues . #unRegisterValues . at (i ^. #ri) .~ Just 0)
+      (#registerValues . #unRegisterValues . at ri .~ Just 0)
       .
       (#conditionFlag .~ 1)
       $
