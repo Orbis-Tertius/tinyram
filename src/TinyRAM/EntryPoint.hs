@@ -10,23 +10,16 @@ module TinyRAM.EntryPoint
   , handleCommand
   , readAssemblyFile
   , readObjectFile
-  , assemble
   ) where
 
 
-import           Control.Applicative           ((<|>))
 import qualified Data.ByteString               as BS
-import qualified Data.ByteString.Char8         as BC
-import           Data.Text                     (pack, unpack)
+import           Data.Text                     (unpack)
 import qualified Options.Applicative           as O
-import           Text.Parsec                   (runParser)
 
 import           Numeric                       (showHex)
-import           TinyRAM.Bytes                 (bytesToWords, wordsToBytes)
-import           TinyRAM.Disassembler          (disassembleCoqTinyRAMProgram)
-import           TinyRAM.EncodeInstruction     (encodeInstruction)
+import           TinyRAM.Bytes                 (bytesToWords)
 import           TinyRAM.ExecuteProgram        (executeProgram)
-import           TinyRAM.Parser                (firstLine, instruction)
 import           TinyRAM.Prelude
 import           TinyRAM.Types.Command         (Command (..))
 import           TinyRAM.Types.InputTape       (Auxiliary, InputTape (..),
@@ -73,12 +66,6 @@ programFilePath =
   (O.metavar "PROGRAM" <>
    O.help "The path to the program binary file")
 
-programInputFilePath :: O.Parser AssemblyFilePath
-programInputFilePath =
-  O.argument (AssemblyFilePath <$> O.str)
-  (O.metavar "PROGRAM" <>
-   O.help "The path to the instructions program file")
-
 primaryInputTapePath :: O.Parser (InputTapePath Primary)
 primaryInputTapePath =
   O.argument (InputTapePath <$> O.str)
@@ -95,18 +82,12 @@ auxiliaryInputTapePath =
 
 runP :: O.Parser Command
 runP =
-  (CommandDisassemble <$> programFilePath) <|>
-  ( CommandParse
-  <$> programInputFilePath
-  <*> programFilePath
-  ) <|>
-  (CommandRun
+  CommandRun
   <$> (Params <$> wordSize <*> registerCount)
   <*> maxSteps
   <*> programFilePath
   <*> primaryInputTapePath
   <*> auxiliaryInputTapePath
-  )
 
 
 command :: O.ParserInfo Command
@@ -125,17 +106,10 @@ readAssemblyFile :: AssemblyFilePath -> IO Program
 readAssemblyFile (AssemblyFilePath path) =
   Program <$> BS.readFile path
 
+
 readObjectFile :: ObjectFilePath -> IO Program
 readObjectFile (ObjectFilePath path) =
   Program <$> BS.readFile path
-
-appendProgramFile :: ObjectFilePath -> ByteString -> IO ()
-appendProgramFile (ObjectFilePath path) value =
-  BS.appendFile path value
-
-writeProgramFile :: ObjectFilePath -> ByteString -> IO ()
-writeProgramFile (ObjectFilePath path) value =
-  BS.writeFile path value
 
 
 main :: IO ()
@@ -154,36 +128,4 @@ handleCommand pCmd =
       case executeProgram params' maxSteps' program primaryInput auxInput of
         Left err     -> putStrLn . unpack $ "Error: " <> err
         Right answer -> putStrLn $ "Answer: 0x" <> showHex (unWord answer) ""
-    CommandParse inputFile outputFile -> do
-      result <- assemble inputFile outputFile
-      case result of
-        Left err -> putStrLn $ "Error: " <> show err
-        Right () -> return ()
-    CommandDisassemble (ObjectFilePath inputFile) -> do
-      binary <- readFile inputFile
-      putStrLn (disassembleCoqTinyRAMProgram binary)
 
--- This could look better refactored to use ExceptT.
-assemble :: AssemblyFilePath -> ObjectFilePath -> IO (Either Text ())
-assemble inputFile outputFile = do
-  program <- lines . BC.unpack . unProgram <$> readAssemblyFile inputFile
-  case runParser firstLine () "First line" (head program) of
-    Right (ws, rcount) ->
-      if (6 + 2 * ceiling (logBase 2 (fromIntegral rcount :: Double)) > ws)
-        then return (Left "The constraint 6 + 2*ceil(log_2(K)) <= W is not satisfied.")
-        else do
-          writeProgramFile outputFile ""
-          results :: [Either Text ()] <-
-            mapM
-            (\x -> case runParser instruction () ("instruction: " <> x) x of
-                    Right (Just ins) -> do
-                      appendProgramFile
-                        outputFile
-                        (wordsToBytes ws . (\(w0,w1) -> [w0,w1]) $ encodeInstruction ws rcount ins)
-                      return (Right ())
-                    Right Nothing -> return (Left ("Parse Failed: " <> pack x))
-                    Left err -> return (Left (pack (show err)))
-            )
-            (tail program)
-          return (sequence_ results)
-    Left err -> return (Left (pack (show err)))
