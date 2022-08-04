@@ -19,6 +19,7 @@ import           TinyRAM.Types.Word           (Word)
 
 data Error =
     InstructionFetchError
+  | InfiniteLoopError Address
   | InvalidBinaryEncoding
   | InvalidOpcodeError
   | InvalidRegisterError
