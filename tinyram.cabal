@@ -3,7 +3,7 @@ name:               tinyram
 version:            0.1.0.0
 license: NONE
 license-files: LICENSE
-author:        Ardana Labs
+author:        Orbis Labs
 maintainer:    morgan.thomas@platonic.systems
 
 data-files: examples/*.s
