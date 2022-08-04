@@ -102,7 +102,7 @@ programToMemoryValues params (Program p) =
   where
     bytesPerWord' = bytesPerWord (params ^. #wordSize)
 
-    addresses = (* fromIntegral bytesPerWord') <$> [0..]
+    addresses = (* (2 * fromIntegral bytesPerWord')) <$> [0..]
 
     decode = decodeInstruction (params ^. #wordSize) (params ^. #registerCount)
 
@@ -113,6 +113,6 @@ programToMemoryValues params (Program p) =
           else Nothing
 
 slicePair :: [a] -> [(a,a)]
-slicePair (x0:x1:xs) = (x0, x1) : slicePair xs
+slicePair (x0:x1:xs) = (x1, x0) : slicePair xs
 slicePair []         = []
 slicePair _          = error "odd number of elements"
