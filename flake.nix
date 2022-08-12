@@ -6,6 +6,9 @@
     nixpkgs.url = "github:NixOS/nixpkgs/baaf9459d6105c243239289e1e82e3cdd5ac4809";
     nixpkgs.follows = "haskellNix/nixpkgs-unstable";
 
+    # ormolu does not compile in the above nixpkgs universe, so we need to do this
+    nixpkgs-2205.url = "github:NixOS/nixpkgs/22.05";
+
     #CI integration
     flake-compat-ci.url = "github:hercules-ci/flake-compat-ci";
     flake-compat = {
@@ -32,10 +35,11 @@
     coq-tinyram.url = "github:Orbis-Tertius/coq-tinyram";
   };
 
-  outputs = { self, nixpkgs, flake-utils, sydtest-src, validity-src, haskellNix,  flake-compat, flake-compat-ci, coq-tinyram }:
+  outputs = { self, nixpkgs, nixpkgs-2205, flake-utils, sydtest-src, validity-src, haskellNix,  flake-compat, flake-compat-ci, coq-tinyram }:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
         deferPluginErrors = true;
+        pkgs2205 = import nixpkgs-2205 { inherit system; };
         overlays = [
           haskellNix.overlay
           (import "${sydtest-src}/nix/overlay.nix")
@@ -66,7 +70,7 @@
                 };
                 # Non-Haskell shell tools go here
                 shell.buildInputs = with pkgs; [
-                  nixpkgs-fmt coq-tinyram
+                  nixpkgs-fmt coq-tinyram pkgs2205.ormolu
                 ];
                 shell.shellHook =
                   ''

@@ -6,7 +6,7 @@ GIT_ROOT=$(git rev-parse --show-toplevel)
 PRJ_ROOT="$GIT_ROOT"
 
 HS_FILES=$(find "$GIT_ROOT" -type f -name '*.hs' ! -path '*/dist-newstyle/*')
-stylish-haskell $HS_FILES --inplace
+ormolu -m inplace $HS_FILES
 
 # Exist with non zero status if we're now in unclean state
 if [ -z "$(git status --porcelain)" ]; then
