@@ -16,7 +16,7 @@ else
     if [ ! -z "$errdiff" ]; then
       printf "\tStyle errors detected:\n\n"
       echo "$errdiff"
-      printf "\n\tPlease run nix/style-check.sh to auto format the code and commit changes."
+      printf "\n\tPlease run ./lint.sh to auto format the code and commit changes."
       exit 1
     fi
 fi
