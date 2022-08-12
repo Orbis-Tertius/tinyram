@@ -155,7 +155,7 @@ instructionStateTransition ps i =
       incrementPC ws
         . ( \s ->
               #registerValues . #unRegisterValues . at ri
-                .~ Just (fromMaybe 0 (s ^. #memoryValues . #unMemoryValues . at (fst $ alignToWord ws (Address (getA a s)))))
+                ?~ fromMaybe 0 (s ^. #memoryValues . #unMemoryValues . at (fst $ alignToWord ws (Address (getA a s))))
                 $ s
           )
     -- read
@@ -211,7 +211,7 @@ functionOpcode1 ::
 functionOpcode1 f p (ri, a) ws s =
   incrementPC ws
     . ( #registerValues . #unRegisterValues . at ri
-          .~ Just (f a')
+          ?~ f a'
       )
     . (#conditionFlag .~ p a')
     $ s
@@ -277,11 +277,11 @@ readAuxiliaryInputTape :: Register -> MachineState -> MachineState
 readAuxiliaryInputTape ri s =
   case s ^. #auxiliaryInput . #unInputTape of
     x : xs ->
-      (#registerValues . #unRegisterValues . at ri .~ Just x)
+      (#registerValues . #unRegisterValues . at ri ?~ x)
         . (#primaryInput . #unInputTape .~ xs)
         . (#conditionFlag .~ 0)
         $ s
     [] ->
-      (#registerValues . #unRegisterValues . at ri .~ Just 0)
+      (#registerValues . #unRegisterValues . at ri ?~ 0)
         . (#conditionFlag .~ 1)
         $ s
