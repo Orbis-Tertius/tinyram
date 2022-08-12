@@ -90,11 +90,11 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1654885059,
-        "narHash": "sha256-y1VVKkCQIi/fM32nAr7d2/6yyttjBAizoiaZWA4K0Ic=",
+        "lastModified": 1659021063,
+        "narHash": "sha256-E+dsEL3cPWbAXFDcDuA9fAzkFvGJCOEH2OBmPvtODro=",
         "owner": "Orbis-Tertius",
         "repo": "coq-tinyram",
-        "rev": "9a1085c60565e8503dc1069f6cbb2d4be2852c1a",
+        "rev": "1ae7df80863dbb724b2933c26a08d7f391c9bf55",
         "type": "github"
       },
       "original": {
