@@ -65,50 +65,50 @@ coqTinyRAMSmokeTest :: Spec
 coqTinyRAMSmokeTest =
   it "passes a smoke test" $ do
     result <- runCoqTinyRAM (Program "\xFC\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
-    result `shouldBe` (Just 0)
+    result `shouldBe` Just 0
     return ()
 
 answerTest :: Spec
 answerTest =
   it "answers 4" $ do
     result <- runCoqTinyRAM (Program "\xFC\0\0\x04") (InputTape []) (InputTape []) (MaxSteps 6)
-    result `shouldBe` (Just 4)
+    result `shouldBe` Just 4
 
 answerRegisterTest :: Spec
 answerRegisterTest =
   it "answers 0" $ do
     result <- runCoqTinyRAM (Program "\xF8\0\0\x02") (InputTape []) (InputTape []) (MaxSteps 5)
-    result `shouldBe` (Just 0)
+    result `shouldBe` Just 0
 
 readFromPrimaryTapeTest :: Spec
 readFromPrimaryTapeTest =
   it "reads from the primary input tape and provides output" $ do
     result <- runCoqTinyRAM (Program "\xF4\0\0\0\xF8\0\0\0") (InputTape [2]) (InputTape []) (MaxSteps 6)
-    result `shouldBe` (Just 2)
+    result `shouldBe` Just 2
 
 readFromSecondaryTapeTest :: Spec
 readFromSecondaryTapeTest =
   it "reads from the secondary input tape and provides output" $ do
     result <- runCoqTinyRAM (Program "\xF4\0\0\x01\xF8\0\0\0") (InputTape []) (InputTape [2]) (MaxSteps 6)
-    result `shouldBe` (Just 2)
+    result `shouldBe` Just 2
 
 emptyReadTest :: Spec
 emptyReadTest =
   it "does not crash when reading from an empty tape" $ do
     result <- runCoqTinyRAM (Program "\xF4\0\0\0\xF8\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
-    result `shouldBe` (Just 0)
+    result `shouldBe` Just 0
 
 invalidReadTest :: Spec
 invalidReadTest =
   it "does not crash when reading from a non-existent tape with random crud in the unused part of the instruction" $ do
     result <- runCoqTinyRAM (Program "\xF4\x44\x44\x44\xF8\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
-    result `shouldBe` (Just 0)
+    result `shouldBe` Just 0
 
 programCounterPastEndTest :: Spec
 programCounterPastEndTest =
   it "answers 1 if the program counter goes past the end of the program" $ do
     result <- runCoqTinyRAM (Program "\xD8\x00\xFF\xF8\xF8\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
-    result `shouldBe` (Just 1)
+    result `shouldBe` Just 1
 
 emptyRegisterValues :: RegisterCount -> RegisterValues
 emptyRegisterValues rc =

@@ -114,7 +114,7 @@ runCoqTinyRAM
             -- putStrLn o4
             o5 <- hGetLine pStdout
             -- putStrLn o5
-            if isPrefixOf "\tNat: " o5
+            if "\tNat: " `isPrefixOf` o5
               then return (Word <$> readMaybe (drop 6 o5))
               else return Nothing
       _ -> return Nothing

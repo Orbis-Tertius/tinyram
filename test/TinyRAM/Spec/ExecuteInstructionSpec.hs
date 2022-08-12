@@ -120,7 +120,7 @@ instructionStateTransition ps i =
       incrementPC ws
         . ( \s ->
               #registerValues . #unRegisterValues . at ri
-                .~ Just (getA a s)
+                ?~ getA a s
                 $ s
           )
     Cmov ri a ->
@@ -130,7 +130,7 @@ instructionStateTransition ps i =
                 then s
                 else
                   #registerValues . #unRegisterValues . at ri
-                    .~ Just (getA a s)
+                    ?~ getA a s
                     $ s
           )
     Jmp a -> \s -> #programCounter . #unProgramCounter . #unAddress .~ getA a s $ s
@@ -147,7 +147,7 @@ instructionStateTransition ps i =
       incrementPC ws
         . ( \s ->
               #memoryValues . #unMemoryValues . at (fst $ alignToWord ws (Address (getA a s)))
-                .~ Just (getRI ri s)
+                ?~ getRI ri s
                 $ s
           )
     -- load
@@ -193,7 +193,7 @@ functionOpcode ::
 functionOpcode f p (ri, rj, a) ws s =
   incrementPC ws
     . ( #registerValues . #unRegisterValues . at ri
-          .~ Just (f a' rj')
+          ?~ f a' rj'
       )
     . (#conditionFlag .~ p a' rj')
     $ s
@@ -256,7 +256,7 @@ readInputTape ri a s =
     0 -> readPrimaryInputTape ri s
     1 -> readAuxiliaryInputTape ri s
     _ ->
-      (#registerValues . #unRegisterValues . at ri .~ Just 0)
+      (#registerValues . #unRegisterValues . at ri ?~ 0)
         . (#conditionFlag .~ 1)
         $ s
 
@@ -264,12 +264,12 @@ readPrimaryInputTape :: Register -> MachineState -> MachineState
 readPrimaryInputTape ri s =
   case s ^. #primaryInput . #unInputTape of
     x : xs ->
-      (#registerValues . #unRegisterValues . at ri .~ Just x)
+      (#registerValues . #unRegisterValues . at ri ?~ x)
         . (#primaryInput . #unInputTape .~ xs)
         . (#conditionFlag .~ 0)
         $ s
     [] ->
-      (#registerValues . #unRegisterValues . at ri .~ Just 0)
+      (#registerValues . #unRegisterValues . at ri ?~ 0)
         . (#conditionFlag .~ 1)
         $ s
 

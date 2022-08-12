@@ -17,7 +17,7 @@ module TinyRAM.Prelude
   )
 where
 
-import Control.Lens (at, (.~), (^.), _1, _2)
+import Control.Lens (at, (.~), (?~), (^.), _1, _2)
 import Control.Monad.Trans.Class (MonadTrans (lift))
 import Data.Bits (Bits (complement, shift, xor, (.&.), (.|.)))
 import Data.ByteString (ByteString)
