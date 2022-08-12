@@ -45,7 +45,13 @@ wordsToBytesBigEndian ws wrds =
     wordsToByte wrd =
       fst $
         foldr
-          (\_ (a, cw) -> (flip BS.cons a (fromIntegral $ cw .&. (shiftValue - 1)), cw `div` shiftValue))
+          ( \_ (a, cw) ->
+              ( BS.cons
+                  (fromIntegral $ cw .&. (shiftValue - 1))
+                  a,
+                cw `div` shiftValue
+              )
+          )
           (BS.empty, wrd)
           [1 .. bytesPerWord']
 
@@ -101,7 +107,7 @@ runCoqTinyRAM
         -- putStrLn o2
         o3 <- hGetLine pStdout
         -- putStrLn o3
-        if isPrefixOf "Error: Program did not halt within" o3
+        if "Error: Program did not halt within" `isPrefixOf` o3
           then return Nothing
           else do
             _ <- hGetLine pStdout

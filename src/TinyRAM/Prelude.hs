@@ -41,7 +41,7 @@ f <$$> x = fmap f <$> x
 
 toBinary :: Int -> Integer -> String
 toBinary size input =
-  let list = unfoldr (\x -> if x == 0 then Nothing else Just (x `mod` 2, x `div` 2)) $ input
+  let list = unfoldr (\x -> if x == 0 then Nothing else Just (x `mod` 2, x `div` 2)) input
       val =
         foldl
           (\acc -> (++ acc) . show)
