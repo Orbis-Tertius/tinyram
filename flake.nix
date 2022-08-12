@@ -65,7 +65,6 @@
                   ghcid = { };
                   hlint = { };
                   haskell-language-server = { };
-                  stylish-haskell = { };
                   sydtest-discover = { };
                 };
                 # Non-Haskell shell tools go here
