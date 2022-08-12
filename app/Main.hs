@@ -1,7 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
+module Main (main) where
 
-module Main ( main ) where
-
-
-import           TinyRAM.EntryPoint (main)
+import TinyRAM.EntryPoint (main)

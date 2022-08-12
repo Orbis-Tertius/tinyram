@@ -1,12 +1,9 @@
-{-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE NoImplicitPrelude          #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
+module TinyRAM.Types.Program (Program (..)) where
 
-module TinyRAM.Types.Program ( Program (..) ) where
+import TinyRAM.Prelude
 
-
-import           TinyRAM.Prelude
-
-
-newtype Program = Program { unProgram :: ByteString }
+newtype Program = Program {unProgram :: ByteString}
