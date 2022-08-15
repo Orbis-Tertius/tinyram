@@ -39,7 +39,7 @@
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
         deferPluginErrors = true;
-        pkgs2205 = import nixpkgs-2205 { inherit system; };
+        pkgs2205 = nixpkgs-2205.legacyPackages.${system};
         overlays = [
           haskellNix.overlay
           (import "${sydtest-src}/nix/overlay.nix")
