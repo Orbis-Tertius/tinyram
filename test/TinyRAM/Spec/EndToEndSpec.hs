@@ -11,7 +11,7 @@ import qualified Data.Word as W
 import TinyRAM.Bytes (bytesPerWord)
 import TinyRAM.ExecuteProgram (executeProgram')
 import TinyRAM.Spec.CoqRun
-import TinyRAM.Spec.Prelude
+import TinyRAM.Spec.Prelude hiding (negate)
 import TinyRAM.Types.Address
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (IsImmediate, IsRegister))
 import TinyRAM.Types.InputTape
@@ -33,7 +33,7 @@ spec = describe "TinyRAM end to end" $ do
   simpleTestCase
   addTestCase
   andTestCase
-  --andTestNegativeCase
+  andTestNegativeCase
   --cjmpTestCase
   cmpaeEqualTestCase
   cmpaeGreaterTestCase
@@ -140,16 +140,20 @@ andTestCase =
 --and r1, r2, -15
 --answer r1
 
---andTestNegativeCase :: Spec
---andTestNegativeCase =
---it "answers 10" $  do
---let program = construct [
---Mov (reg' 2)(imm 58)
---, And (reg' 0) (reg' 2) (imm (-15))
---, Answer (reg 0)
---]
---answer <- execute program (InputTape []) (InputTape [])
---answer `shouldBe` Right 10
+negate :: W.Word16 -> W.Word16
+negate x = 2 ^ (16 :: Integer) - x
+
+andTestNegativeCase :: Spec
+andTestNegativeCase =
+  it "answers 48" $ do
+    let program =
+          construct
+            [ Mov (reg' 2) (imm 58),
+              And (reg' 0) (reg' 2) (imm (negate 15)),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 48
 
 --breakWKconstraintTestCase :: Spec
 --breakWKconstraintTestCase =
