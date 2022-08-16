@@ -1,21 +1,18 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
-
 module TinyRAM.Bytes (bytesToWords, wordsToBytes, bytesPerWord) where
 
-
-import qualified Data.ByteString        as BS
-
-import           TinyRAM.Prelude
-import           TinyRAM.Types.Word     (Word)
-import           TinyRAM.Types.WordSize (WordSize (..))
+import qualified Data.ByteString as BS
+import TinyRAM.Prelude
+import TinyRAM.Types.Word (Word)
+import TinyRAM.Types.WordSize (WordSize (..))
 
 bytesPerWord :: WordSize -> Int
 bytesPerWord (WordSize ws) = ws `quot` 8
 
 bytesToWords :: WordSize -> ByteString -> [Word]
 bytesToWords ws bytes =
-    bytesToWord <$> wordBytes
+  bytesToWord <$> wordBytes
   where
     bytesPerWord' = bytesPerWord ws
 
@@ -25,8 +22,8 @@ bytesToWords ws bytes =
     bytesToWord :: ByteString -> Word
     bytesToWord =
       BS.foldr
-      (\a x -> x * shiftValue + fromIntegral a)
-      0
+        (\a x -> x * shiftValue + fromIntegral a)
+        0
 
     misalignment :: Int
     misalignment = BS.length bytes `rem` bytesPerWord'
@@ -43,10 +40,10 @@ bytesToWords ws bytes =
     f :: ByteString -> [ByteString]
     f bs =
       if BS.length bs < bytesPerWord'
-      then []
-      else
-        let (wb,bs') = BS.splitAt bytesPerWord' bs
-        in wb : f bs'
+        then []
+        else
+          let (wb, bs') = BS.splitAt bytesPerWord' bs
+           in wb : f bs'
 
 wordsToBytes :: WordSize -> [Word] -> ByteString
 wordsToBytes ws wrds =
@@ -59,7 +56,8 @@ wordsToBytes ws wrds =
     -- encode words to little endian format
     wordsToByte :: Word -> ByteString
     wordsToByte wrd =
-      fst $ foldr
-              (\_ (a, cw) -> (BS.snoc a (fromIntegral $ cw .&. (shiftValue - 1)), cw `div` shiftValue))
-              (BS.empty, wrd)
-              [1..bytesPerWord']
+      fst $
+        foldr
+          (\_ (a, cw) -> (BS.snoc a (fromIntegral $ cw .&. (shiftValue - 1)), cw `div` shiftValue))
+          (BS.empty, wrd)
+          [1 .. bytesPerWord']

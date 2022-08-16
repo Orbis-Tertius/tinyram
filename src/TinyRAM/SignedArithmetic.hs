@@ -1,21 +1,19 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
-
 module TinyRAM.SignedArithmetic
-  ( getSign
-  , getUnsignedComponent
-  , decodeSignedInt
-  , signedMultiplyHigh
-  ) where
+  ( getSign,
+    getUnsignedComponent,
+    decodeSignedInt,
+    signedMultiplyHigh,
+  )
+where
 
-
-import           TinyRAM.Prelude
-import           TinyRAM.Types.Sign        (Sign (..))
-import           TinyRAM.Types.SignedInt   (SignedInt (..))
-import           TinyRAM.Types.UnsignedInt (UnsignedInt (..))
-import           TinyRAM.Types.Word        (Word (..))
-import           TinyRAM.Types.WordSize    (WordSize (..))
-
+import TinyRAM.Prelude
+import TinyRAM.Types.Sign (Sign (..))
+import TinyRAM.Types.SignedInt (SignedInt (..))
+import TinyRAM.Types.UnsignedInt (UnsignedInt (..))
+import TinyRAM.Types.Word (Word (..))
+import TinyRAM.Types.WordSize (WordSize (..))
 
 getSign :: WordSize -> SignedInt -> Sign
 getSign ws x =
@@ -31,21 +29,20 @@ getUnsignedComponent ws x =
 decodeSignedInt :: WordSize -> SignedInt -> Integer
 decodeSignedInt ws (SignedInt (Word x)) =
   (x .&. (2 ^ (fromIntegral ws - 1 :: Integer) - 1))
-  -
-  (x .&. (2 ^ (fromIntegral ws - 1 :: Integer)))
-
+    - (x .&. (2 ^ (fromIntegral ws - 1 :: Integer)))
 
 signedMultiplyHigh :: WordSize -> SignedInt -> SignedInt -> SignedInt
 signedMultiplyHigh ws x y =
-  let xSign   = getSign ws x
-      ySign   = getSign ws y
-      xAbs    = getUnsignedComponent ws x
-      yAbs    = getUnsignedComponent ws y
-      zSign   = if x == SignedInt 0 || y == SignedInt 0
-                then 1
-                else xSign * ySign
-      zAbs    = xAbs * yAbs
+  let xSign = getSign ws x
+      ySign = getSign ws y
+      xAbs = getUnsignedComponent ws x
+      yAbs = getUnsignedComponent ws y
+      zSign =
+        if x == SignedInt 0 || y == SignedInt 0
+          then 1
+          else xSign * ySign
+      zAbs = xAbs * yAbs
       signBit = case zSign of
-                  -1 -> 2 ^ (ws - 1)
-                  _  -> 0
-  in SignedInt $ signBit .|. (unUnsignedInt zAbs `shift` negate (unWordSize ws))
+        -1 -> 2 ^ (ws - 1)
+        _ -> 0
+   in SignedInt $ signBit .|. (unUnsignedInt zAbs `shift` negate (unWordSize ws))
