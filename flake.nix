@@ -95,6 +95,10 @@
           flake = self;
           systems = [ "x86_64-linux" ];
         };
+        checks = flake.checks // {
+          hlint = lint-utils.outputs.linters.${system}.hlint ./.;
+          ormolu = lint-utils.outputs.linters.${system}.ormolu ./.;
+        };
         defaultPackage = flake.packages."tinyram:exe:tinyram";
       });
 }
