@@ -11,11 +11,11 @@ import qualified Data.Bifunctor as Bi
 import Data.Functor.Identity (Identity (runIdentity))
 import qualified Data.Map as Map
 import Data.Text (pack)
-import TinyRAM.Types.Address (Address)
 import TinyRAM.Bytes (bytesPerWord, bytesToWords)
 import TinyRAM.DecodeInstruction (decodeInstruction)
 import TinyRAM.Prelude
 import TinyRAM.Run (run)
+import TinyRAM.Types.Address (Address)
 import TinyRAM.Types.Flag (Flag)
 import TinyRAM.Types.InputTape
   ( Auxiliary,

@@ -14,6 +14,7 @@ import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.State (StateT, gets, modify)
 import qualified Data.Map as Map
 import TinyRAM.Prelude
+import TinyRAM.Types.Address (Address)
 import TinyRAM.Types.HasMachineState
   ( Error (..),
     HasMachineState (..),
@@ -24,7 +25,6 @@ import TinyRAM.Types.InputTape
     InputTape (InputTape),
     Primary,
   )
-import TinyRAM.Types.Address (Address)
 import TinyRAM.Types.Instruction (Instruction)
 import TinyRAM.Types.MachineState (MachineState)
 import TinyRAM.Types.MemoryValues (MemoryValues (..))
@@ -32,7 +32,7 @@ import TinyRAM.Types.Params (Params)
 import TinyRAM.Types.RegisterValues (RegisterValues (..))
 
 newtype TinyRAMT m a = TinyRAMT {unTinyRAMT :: StateT (Params, MachineState) (ExceptT Error m) a}
-  deriving stock Generic
+  deriving stock (Generic)
 
 instance MonadTrans TinyRAMT where
   lift = TinyRAMT . lift . lift

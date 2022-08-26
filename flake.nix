@@ -8,6 +8,11 @@
 
     # ormolu does not compile in the above nixpkgs universe, so we need to do this
     nixpkgs-2205.url = "github:NixOS/nixpkgs/22.05";
+    lint-utils = {
+      url = "git+https://gitlab.homotopic.tech/nix/lint-utils";
+      inputs.flake-utils.follows = "flake-utils";
+      inputs.nixpkgs.follows = "nixpkgs-2205";
+    };
 
     #CI integration
     flake-compat-ci.url = "github:hercules-ci/flake-compat-ci";
@@ -35,7 +40,7 @@
     coq-tinyram.url = "github:Orbis-Tertius/coq-tinyram";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-2205, flake-utils, sydtest-src, validity-src, haskellNix,  flake-compat, flake-compat-ci, coq-tinyram }:
+  outputs = { self, nixpkgs, nixpkgs-2205, flake-utils, sydtest-src, validity-src, haskellNix,  flake-compat, flake-compat-ci, coq-tinyram, lint-utils }:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
         deferPluginErrors = true;
@@ -97,7 +102,7 @@
         };
         checks = flake.checks // {
           hlint = lint-utils.outputs.linters.${system}.hlint ./.;
-          ormolu = lint-utils.outputs.linters.${system}.ormolu ./.;
+          ormolu = lint-utils.outputs.linters.${system}.ormoluStandardGhc8107 ./.;
         };
         defaultPackage = flake.packages."tinyram:exe:tinyram";
       });
