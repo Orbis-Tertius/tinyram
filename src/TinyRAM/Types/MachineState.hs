@@ -27,4 +27,4 @@ data MachineState = MachineState
     primaryInput :: InputTape Primary,
     auxiliaryInput :: InputTape Auxiliary
   }
-  deriving (Eq, Ord, Read, Show, Generic)
+  deriving stock (Eq, Ord, Read, Show, Generic)

@@ -8,7 +8,8 @@ import TinyRAM.Prelude
 
 -- An integral sign (either -1 or 1). 1 indicates non-negative; -1 indicates negative.
 newtype Sign = Sign {unSign :: Int}
-  deriving (Eq, Ord, Read, Show, Generic, Enum, Num, Real, Integral)
+  deriving stock (Eq, Ord, Read, Show, Generic)
+  deriving newtype (Enum, Num, Real, Integral)
 
 instance Bounded Sign where
   minBound = -1

@@ -11,6 +11,7 @@ import qualified Data.Bifunctor as Bi
 import Data.Functor.Identity (Identity (runIdentity))
 import qualified Data.Map as Map
 import Data.Text (pack)
+import TinyRAM.Types.Address (Address)
 import TinyRAM.Bytes (bytesPerWord, bytesToWords)
 import TinyRAM.DecodeInstruction (decodeInstruction)
 import TinyRAM.Prelude
@@ -100,6 +101,7 @@ programToMemoryValues params (Program p) =
   where
     bytesPerWord' = bytesPerWord (params ^. #wordSize)
 
+    addresses :: [Address]
     addresses = (* (2 * fromIntegral bytesPerWord')) <$> [0 ..]
 
     decode = decodeInstruction (params ^. #wordSize) (params ^. #registerCount)

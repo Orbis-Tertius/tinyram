@@ -12,4 +12,4 @@ import TinyRAM.Prelude
 import TinyRAM.Types.InputTape (Auxiliary, Primary)
 
 newtype InputTapePath a = InputTapePath {unInputTapePath :: FilePath}
-  deriving (Generic)
+  deriving stock (Generic)

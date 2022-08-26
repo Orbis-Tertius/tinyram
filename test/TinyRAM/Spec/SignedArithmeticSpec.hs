@@ -66,8 +66,10 @@ signedMultiplyHighSpec = describe "signedMultiplyHigh" $
               zA = abs z
               zL = zA .&. (2 ^ ws - 1)
               zH = zA `shift` negate (fromIntegral ws)
+              zS :: Integer
               zS = if z < 0 then -1 else 1
               a = signedMultiplyHigh ws x y
+              aS :: Integer
               aS = if unSignedInt a >= 2 ^ (ws - 1) then -1 else 1
               aA = unWord $ unSignedInt a .&. (2 ^ (ws - 1) - 1)
           aS `shouldBe` zS

@@ -10,4 +10,4 @@ import TinyRAM.Types.Word (Word)
 data ImmediateOrRegister
   = IsImmediate Word
   | IsRegister Register
-  deriving (Eq, Ord, Read, Show, Generic)
+  deriving stock (Eq, Ord, Read, Show, Generic)

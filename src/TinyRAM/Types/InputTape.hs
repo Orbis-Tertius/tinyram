@@ -20,4 +20,4 @@ data Primary
 -- Phantom type tells us if this is a primary
 -- or auxiliary input tape state.
 newtype InputTape a = InputTape {unInputTape :: [Word]}
-  deriving (Eq, Ord, Read, Show, Generic)
+  deriving stock (Eq, Ord, Read, Show, Generic)

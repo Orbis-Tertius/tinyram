@@ -10,7 +10,7 @@ where
 import TinyRAM.Prelude
 
 newtype AssemblyFilePath = AssemblyFilePath {unAssemblyFilePath :: FilePath}
-  deriving (Generic)
+  deriving stock (Generic)
 
 newtype ObjectFilePath = ObjectFilePath {unObjectFilePath :: FilePath}
-  deriving (Generic)
+  deriving stock (Generic)

@@ -9,4 +9,5 @@ import TinyRAM.Types.Word (Word)
 
 -- A word representing a signed integer.
 newtype SignedInt = SignedInt {unSignedInt :: Word}
-  deriving (Eq, Read, Show, Generic, Enum)
+  deriving stock (Eq, Read, Show, Generic)
+  deriving newtype (Enum)

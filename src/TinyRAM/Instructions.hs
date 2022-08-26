@@ -145,7 +145,8 @@ subtractUnsigned ri rj a = do
   ws <- getWordSize
   wsb <- getWordSizeBitmask
   msb <- getWordSizeBitmaskMSB
-  let k = 2 ^ (fromIntegral ws :: UnsignedInt)
+  let k :: UnsignedInt
+      k = 2 ^ (fromIntegral ws :: UnsignedInt)
       y = rj' + k - a'
   setRegisterValue ri (unUnsignedInt y .&. wsb)
   setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb == 0))
@@ -388,7 +389,8 @@ storeb a ri = do
   a' <- Address <$> getImmediateOrRegister a
   ri' <- getRegisterValue ri
   wordSize <- getWordSize
-  let riTrunc = fromIntegral ri' .&. 0xff
+  let riTrunc :: Integer
+      riTrunc = fromIntegral ri' .&. 0xff
       (aAligned, aOffset) = alignToWord wordSize a'
   prevWord <- getWord aAligned
   setWord aAligned (setByte prevWord aOffset riTrunc)
@@ -457,10 +459,12 @@ setByte word offset val =
     val' :: Word
     val' = fromIntegral val `shift` shift'
 
+    shift' :: Int
     shift' = fromInteger $ 8 * offset
 
 extractByte :: Word -> Integer -> Word
 extractByte word offset =
   (word `shift` shift') .&. 0xff
   where
+    shift' :: Int
     shift' = -(fromInteger $ 8 * offset)
