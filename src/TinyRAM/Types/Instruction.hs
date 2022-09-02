@@ -38,4 +38,4 @@ data Instruction
   | Loadw Register ImmediateOrRegister
   | Read Register ImmediateOrRegister
   | Answer ImmediateOrRegister
-  deriving (Eq, Ord, Read, Show, Generic)
+  deriving stock (Eq, Ord, Read, Show, Generic)

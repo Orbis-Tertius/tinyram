@@ -11,4 +11,4 @@ data Params = Params
   { wordSize :: WordSize,
     registerCount :: RegisterCount
   }
-  deriving (Eq, Ord, Read, Show, Generic)
+  deriving stock (Eq, Ord, Read, Show, Generic)

@@ -8,4 +8,5 @@ import TinyRAM.Prelude
 
 -- The total number of registers, a positive integer.
 newtype RegisterCount = RegisterCount {unRegisterCount :: Int}
-  deriving (Eq, Ord, Read, Show, Generic, Enum, Num, Real, Integral)
+  deriving stock (Eq, Ord, Read, Show, Generic)
+  deriving newtype (Enum, Num, Real, Integral)

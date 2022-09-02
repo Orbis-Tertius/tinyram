@@ -9,4 +9,5 @@ import TinyRAM.Types.Address (Address)
 
 -- An address representing a value of the program counter.
 newtype ProgramCounter = ProgramCounter {unProgramCounter :: Address}
-  deriving (Eq, Ord, Read, Show, Generic, Enum, Num, Real, Integral, Bits)
+  deriving stock (Eq, Ord, Read, Show, Generic)
+  deriving newtype (Enum, Num, Real, Integral, Bits)

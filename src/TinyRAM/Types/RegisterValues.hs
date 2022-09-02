@@ -11,4 +11,4 @@ import TinyRAM.Types.Word (Word)
 -- stored in each one.
 newtype RegisterValues = RegisterValues
   {unRegisterValues :: Map Register Word}
-  deriving (Eq, Ord, Read, Show, Generic)
+  deriving stock (Eq, Ord, Read, Show, Generic)

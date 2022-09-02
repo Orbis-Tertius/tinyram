@@ -15,6 +15,7 @@ import TinyRAM.Bytes (bytesPerWord, bytesToWords)
 import TinyRAM.DecodeInstruction (decodeInstruction)
 import TinyRAM.Prelude
 import TinyRAM.Run (run)
+import TinyRAM.Types.Address (Address)
 import TinyRAM.Types.Flag (Flag)
 import TinyRAM.Types.InputTape
   ( Auxiliary,
@@ -100,6 +101,7 @@ programToMemoryValues params (Program p) =
   where
     bytesPerWord' = bytesPerWord (params ^. #wordSize)
 
+    addresses :: [Address]
     addresses = (* (2 * fromIntegral bytesPerWord')) <$> [0 ..]
 
     decode = decodeInstruction (params ^. #wordSize) (params ^. #registerCount)

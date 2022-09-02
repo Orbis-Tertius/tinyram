@@ -20,4 +20,4 @@ data Command = CommandRun
     primaryInputTapePath :: InputTapePath Primary,
     auxiliaryInputTapePath :: InputTapePath Auxiliary
   }
-  deriving (Generic)
+  deriving stock (Generic)

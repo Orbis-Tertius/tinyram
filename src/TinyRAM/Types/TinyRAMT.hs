@@ -14,6 +14,7 @@ import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.State (StateT, gets, modify)
 import qualified Data.Map as Map
 import TinyRAM.Prelude
+import TinyRAM.Types.Address (Address)
 import TinyRAM.Types.HasMachineState
   ( Error (..),
     HasMachineState (..),
@@ -24,13 +25,14 @@ import TinyRAM.Types.InputTape
     InputTape (InputTape),
     Primary,
   )
+import TinyRAM.Types.Instruction (Instruction)
 import TinyRAM.Types.MachineState (MachineState)
 import TinyRAM.Types.MemoryValues (MemoryValues (..))
 import TinyRAM.Types.Params (Params)
 import TinyRAM.Types.RegisterValues (RegisterValues (..))
 
 newtype TinyRAMT m a = TinyRAMT {unTinyRAMT :: StateT (Params, MachineState) (ExceptT Error m) a}
-  deriving (Generic)
+  deriving stock (Generic)
 
 instance MonadTrans TinyRAMT where
   lift = TinyRAMT . lift . lift
@@ -43,7 +45,6 @@ instance Monad m => Applicative (TinyRAMT m) where
   (TinyRAMT f) <*> (TinyRAMT a) = TinyRAMT $ f <*> a
 
 instance Monad m => Monad (TinyRAMT m) where
-  return = TinyRAMT . return
   (TinyRAMT x) >>= f = TinyRAMT $ x >>= (unTinyRAMT . f)
 
 instance Monad m => HasParams (TinyRAMT m) where
@@ -79,7 +80,8 @@ instance (Monad m, MonadError Error (TinyRAMT m)) => HasMachineState (TinyRAMT m
   fetchInstruction addr =
     TinyRAMT $ do
       s <- get
-      let m = s ^. _2 . #programMemoryValues . #unProgramMemoryValues
+      let m :: Map Address Instruction
+          m = s ^. _2 . #programMemoryValues . #unProgramMemoryValues
        in case Map.lookup addr m of
             Just instruction -> return instruction
             Nothing -> lift $ throwError InstructionFetchError

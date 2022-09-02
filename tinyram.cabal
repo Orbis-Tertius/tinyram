@@ -8,7 +8,27 @@ maintainer:    morgan.thomas@platonic.systems
 
 data-files: examples/*.s
 
+common globals
+  default-language: Haskell2010
+  ghc-options:
+    -Weverything
+    -Werror
+    -Wno-missing-local-signatures
+    -Wno-missing-import-lists
+    -Wno-all-missed-specialisations
+    -Wno-implicit-prelude
+    -Wno-missing-safe-haskell-mode
+    -Wno-prepositive-qualified-module
+    -Wno-safe
+    -Wno-unsafe
+    -threaded
+    -rtsopts
+    -with-rtsopts=-N
+  default-extensions:
+    DerivingStrategies
+
 library
+  import: globals
   exposed-modules:
     TinyRAM.Bytes
     TinyRAM.DecodeInstruction
@@ -51,14 +71,10 @@ library
 
   build-depends:
     base >= 4.9 && < 5,
-    aeson,
     bytestring,
     containers,
-    either,
-    extra,
     generic-lens,
     ghc-prim,
-    hedgehog -any,
     lens,
     mtl,
     optparse-applicative,
@@ -68,14 +84,10 @@ library
     validity-bytestring
 
   hs-source-dirs: src
-  default-language: Haskell2010
-  ghc-options:
-          -Wall -Werror -Wcompat -fwarn-redundant-constraints -fwarn-incomplete-uni-patterns
-          -fwarn-tabs -fwarn-incomplete-record-updates -fwarn-identities -Wmissing-export-lists
-          -threaded -rtsopts -with-rtsopts=-N
 
 
 test-suite spec
+  import: globals
   type: exitcode-stdio-1.0
   main-is: Spec.hs
 
@@ -96,41 +108,28 @@ test-suite spec
 
   build-depends:
     base >= 4.9 && < 5,
-    aeson,
     bytestring,
     containers,
     either,
     extra,
-    generic-lens,
     genvalidity,
     genvalidity-bytestring,
     genvalidity-sydtest,
-    genvalidity-sydtest-aeson,
     ghc-prim,
-    hedgehog -any,
     lens,
-    mtl,
-    optparse-applicative,
     process,
     QuickCheck,
     random,
     sydtest,
-    sydtest-discover,
     text -any,
     transformers,
-    validity,
 
     tinyram
 
   hs-source-dirs: test
-  default-language: Haskell2010
-  ghc-options:
-          -Wall -Werror -Wcompat -fwarn-redundant-constraints -fwarn-incomplete-uni-patterns
-          -fwarn-tabs -fwarn-incomplete-record-updates -fwarn-identities -Wmissing-export-lists
-          -threaded -rtsopts -with-rtsopts=-N
-
 
 executable tinyram
+  import: globals
   main-is:
     Main.hs
 
@@ -138,8 +137,3 @@ executable tinyram
     tinyram
 
   hs-source-dirs: app
-  default-language: Haskell2010
-  ghc-options:
-          -Wall -Werror -Wcompat -fwarn-redundant-constraints -fwarn-incomplete-uni-patterns
-          -fwarn-tabs -fwarn-incomplete-record-updates -fwarn-identities -Wmissing-export-lists
-

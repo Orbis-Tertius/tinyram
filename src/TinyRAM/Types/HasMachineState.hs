@@ -19,7 +19,7 @@ data Error
   | InvalidOpcodeError
   | InvalidRegisterError
   | InvalidPCAlignment
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
 
 class (MonadError Error m) => HasMachineState m where
   getProgramCounter :: m ProgramCounter
