@@ -45,7 +45,7 @@ decodeInstruction ws rc i@(i0, _) =
     27 -> Just $ Loadb ri a
     28 -> Just $ Storew a ri
     29 -> Just $ Loadw ri a
-    30 -> Just $ Read ri a
+    30 -> Just $ Out a
     31 -> Just $ Answer a
     _ -> Nothing
   where

@@ -41,7 +41,7 @@ encodeInstruction w k instr = case instr of
   Loadb ri a -> encode (27, ri, Register 0, a)
   Storew a ri -> encode (28, ri, Register 0, a)
   Loadw ri a -> encode (29, ri, Register 0, a)
-  Read ri a -> encode (30, ri, Register 0, a)
+  Out a -> encode (30, Register 0, Register 0, a)
   Answer a -> encode (31, Register 0, Register 0, a)
   where
     encode = encodeInstruction' w k

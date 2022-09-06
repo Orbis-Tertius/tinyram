@@ -67,7 +67,7 @@ execute prog t1 t2 =
         r <- coqResult
         return $
           ((,) <$> maybeToRight "Coq failed" r <*> haskellResult)
-            >>= ( \(c, h) ->
+            >>= ( \(c, (h, _)) ->
                     if c == h
                       then Right c
                       else Left $ T.pack $ "Coq: " ++ show c ++ ", Haskell: " ++ show h

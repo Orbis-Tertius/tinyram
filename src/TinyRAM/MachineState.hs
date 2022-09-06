@@ -27,7 +27,7 @@ import TinyRAM.Types.Flag (Flag)
 import TinyRAM.Types.HasMachineState (HasMachineState (..))
 import TinyRAM.Types.HasParams (HasParams)
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (IsImmediate, IsRegister))
-import TinyRAM.Types.InputTape (InputTape (..))
+import TinyRAM.Types.InputTape
 import TinyRAM.Types.MachineState (MachineState)
 import TinyRAM.Types.Params (Params)
 import TinyRAM.Types.Register (Register (..))
@@ -64,8 +64,6 @@ validateMachineState ps s =
     <> validateMemoryValues ps s
     <> validateProgramMemoryKeys ps s
     <> validateProgramMemoryValues ps s
-    <> validateInputTape ps (s ^. #primaryInput)
-    <> validateInputTape ps (s ^. #auxiliaryInput)
 
 validateProgramCounter :: Params -> MachineState -> Validation
 validateProgramCounter ps s =
