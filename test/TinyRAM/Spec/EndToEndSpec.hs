@@ -48,7 +48,7 @@ spec = describe "TinyRAM end to end" $ do
   --mullTestCase
   --umulhTestCase
   --smulhTestCase
-  --udivTestCase
+  udivTestCase
   --udiv0TestCase
   --umodTestCase
   --umod0TestCase
@@ -73,6 +73,7 @@ spec = describe "TinyRAM end to end" $ do
   --cmpgeGreaterTestCase
   --cmpgeLessTestCase
   --cmpgeNegTestCase
+  --answerR1TestCase
 
   
 
@@ -551,7 +552,24 @@ addTestNegativeTestCase =
   --mullTestCase
   --umulhTestCase
   --smulhTestCase
-  --udivTestCase
+
+  --; TinyRAM V=1.000 W=16 K=16
+  --mov r2, 5
+  --udiv r1, r2, 2
+  --answer r1
+
+udivTestCase :: Spec
+udivTestCase =
+  it "answers 0" $ do
+    let program =
+          construct
+            [ Mov (reg' 2) (imm 5),
+              Udiv (reg' 0) (reg' 2) (imm (negate 2)),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 0
+
   --udiv0TestCase
   --umodTestCase
   --umod0TestCase
@@ -559,3 +577,14 @@ addTestNegativeTestCase =
   --shlTestCase
   --shlFlagTestCase.s
   --shrTestCase
+
+-- answerR1TestCase :: Spec
+-- answerR1TestCase = 
+--   it "answers 1" $ do
+--     let program = 
+--           construct
+--             [ Mov (reg' 1) (imm  1),
+--               Answer (reg 1)
+--             ]
+--     answer <- execute program (InputTape []) (InputTape [])
+--     answer `shouldBe` Right 1
