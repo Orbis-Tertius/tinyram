@@ -35,13 +35,47 @@ spec = describe "TinyRAM end to end" $ do
   andTestCase
   andTestNegativeCase
   --cjmpTestCase
+  --jmpTestExampleNonTermCase
+  --nonExistentTapeTestCase
+  --negativeTestCase
+  --negative8bitTestCase
+  --breakWKconstraintTestCase
+  --orTestCase
+  --xorTestCase
+  --addTestNegative
+  --subTestCase
+  --notTestCase
+  --mullTestCase
+  --umulhTestCase
+  --smulhTestCase
+  --udivTestCase
+  --udiv0TestCase
+  --umodTestCase
+  --umod0TestCase
+  --umod1TestCase
+  --shlTestCase
+  --shlFlagTestCase.s
+  --shrTestCase
+
   cmpaeEqualTestCase
   cmpaeGreaterTestCase
   --cmpaeLessTestCase
+  --cmpaeNegTestCase
   cmpaEqualTestCase
   cmpaGreaterTestCase
+  --cmpaLessTestCase
+  --cmpaNegTestCase
+  --cmpeEqualTestCase
+  --cmpeGreaterTestCase
+  --cmpeLessTestCase
+  --cmpeNegTestCase
+  --cmpgeEqualTestCase
+  --cmpgeGreaterTestCase
+  --cmpgeLessTestCase
+  --cmpgeNegTestCase
 
---cmpaLessTestCase
+  
+
 
 ws :: WordSize
 ws = 16
@@ -250,6 +284,23 @@ cmpaeGreaterTestCase =
 --answer <- execute program (InputTape []) (InputTape [])
 --answer `shouldBe` Left 0
 
+-- cmpaeNegTestCase :: Spec
+-- cmpaeNegTestCase =
+--   it "answers 0" $ do
+--     let program =
+--           construct
+--             [ Mov (reg' 0) (imm 0),
+--               Mov (reg' 2) (imm 2),
+--               Mov (reg' 3) (imm (negate 2)),
+--               Cmpae (reg' 2) (reg 3),
+--               Cmov (reg' 0) (imm 1),
+--               Answer (reg 0)
+--             ]
+--     answer <- execute program (InputTape []) (InputTape [])
+--     answer `shouldBe` Right 0
+
+
+
 --; TinyRAM V=1.000 W=16 K=16
 --mov r1, 0
 --mov r2, 2
@@ -327,3 +378,161 @@ cmpaGreaterTestCase =
 --cmov r1, 1
 --answer r1
 --cmpaneg
+
+-- cmpaNegTestCase :: Spec
+-- cmpaNegTestCase =
+--   it "answers 0" $ do
+--     let program =
+--           construct
+--             [ Mov (reg' 0) (imm 0),
+--               Mov (reg' 2) (imm 2),
+--               Mov (reg' 3) (imm (negate 2)),
+--               Cmpae (reg' 2) (reg 3),
+--               Cmov (reg' 0) (imm 1),
+--               Answer (reg 0)
+--             ]
+--     answer <- execute program (InputTape []) (InputTape [])
+--     answer `shouldBe` Right 0
+
+-- cmpeEqualTestCase :: Spec
+-- cmpeEqualTestCase =
+--   it "answers 0" $ do
+--     let program =
+--           construct
+--             [ Mov (reg' 0) (imm 0),
+--               Mov (reg' 2) (imm 2),
+--               Mov (reg' 3) (imm (negate 2)),
+--               Cmpae (reg' 2) (reg 3),
+--               Cmov (reg' 0) (imm 1),
+--               Answer (reg 0)
+--             ]
+--     answer <- execute program (InputTape []) (InputTape [])
+--     answer `shouldBe` Right 0
+
+--cmpeGreaterTestCase :: Spec
+--cmpeGreaterTestCase =
+  --it "answers 0" $ do
+    --let program =
+          --construct
+            --[ Mov (reg' 0) (imm 0),
+              --Mov (reg' 2) (imm 2),
+              --Mov (reg' 3) (imm 1),
+              --Cmpae (reg' 2) (reg 3),
+              --Cmov (reg' 0) (imm 1),
+              --Answer (reg 0)
+            --]
+    --answer <- execute program (InputTape []) (InputTape [])
+    --answer `shouldBe` Right 0
+
+-- cmpeLessTestCase :: Spec
+-- cmpeLessTestCase =
+--   it "answers 0" $ do
+--     let program =
+--           construct
+--             [ Mov (reg' 0) (imm 0),
+--               Mov (reg' 2) (imm 2),
+--               Mov (reg' 3) (imm (negate 2)),
+--               Cmpae (reg' 2) (reg 3),
+--               Cmov (reg' 0) (imm 1),
+--               Answer (reg 0)
+--             ]
+--     answer <- execute program (InputTape []) (InputTape [])
+--     answer `shouldBe` Right 0
+
+--cmpeNegTestCase :: Spec
+--cmpeNegTestCase =
+  --it "answers 0" $ do
+    --let program =
+          --construct
+            --[ Mov (reg' 0) (imm 0),
+              --Mov (reg' 2) (imm 2),
+              --Mov (reg' 3) (imm (negate 2)),
+              --Cmpae (reg' 2) (reg 3),
+              --Cmov (reg' 0) (imm 1),
+              --Answer (reg 0)
+            --]
+    --answer <- execute program (InputTape []) (InputTape [])
+    --answer `shouldBe` Right 0
+
+--cmpgeEqualTestCase :: Spec
+--cmpgeEqualTestCase =
+  --it "answers 0" $ do
+    --let program =
+          --construct
+            --[ Mov (reg' 0) (imm 0),
+              --Mov (reg' 2) (imm 2),
+              --Mov (reg' 3) (imm -2),
+              --Cmpae (reg' 2) (reg 3),
+              --Cmov (reg' 0) (imm 1),
+              --Answer (reg 0)
+            --]
+    --answer <- execute program (InputTape []) (InputTape [])
+    --answer `shouldBe` Right 0
+
+--cmpgeGreaterTestCase :: Spec
+--cmpgeGreaterTestCase =
+  --it "answers 0" $ do
+    --let program =
+          --construct
+            --[ Mov (reg' 0) (imm 0),
+              --Mov (reg' 2) (imm 2),
+              --Mov (reg' 3) (imm -2),
+              --Cmpae (reg' 2) (reg 3),
+              --Cmov (reg' 0) (imm 1),
+              --Answer (reg 0)
+            --]
+    --answer <- execute program (InputTape []) (InputTape [])
+    --answer `shouldBe` Right 0
+
+--cmpgeLessTestCase :: Spec
+--cmpgeLessTestCase =
+  --it "answers 0" $ do
+    --let program =
+          --construct
+            --[ Mov (reg' 0) (imm 0),
+              --Mov (reg' 2) (imm 2),
+              --Mov (reg' 3) (imm -2),
+              --Cmpae (reg' 2) (reg 3),
+              --Cmov (reg' 0) (imm 1),
+              --Answer (reg 0)
+            --]
+    --answer <- execute program (InputTape []) (InputTape [])
+    --answer `shouldBe` Right 0
+
+--cmpgeNegTestCase :: Spec
+--cmpgeNegTestCase =
+  --it "answers 0" $ do
+    --let program =
+          --construct
+            --[ Mov (reg' 0) (imm 0),
+              --Mov (reg' 2) (imm 2),
+              --Mov (reg' 3) (imm -2),
+              --Cmpae (reg' 2) (reg 3),
+              --Cmov (reg' 0) (imm 1),
+              --Answer (reg 0)
+            --]
+    --answer <- execute program (InputTape []) (InputTape [])
+    --answer `shouldBe` Right 0
+
+  --cjmpTestCase
+  --jmpTestExampleNonTermCase
+  --nonExistentTapeTestCase
+  --negativeTestCase
+  --negative8bitTestCase
+  --breakWKconstraintTestCase
+  --orTestCase
+  --xorTestCase
+  --addTestNegative
+  --subTestCase
+  --notTestCase
+  --mullTestCase
+  --umulhTestCase
+  --smulhTestCase
+  --udivTestCase
+  --udiv0TestCase
+  --umodTestCase
+  --umod0TestCase
+  --umod1TestCase
+  --shlTestCase
+  --shlFlagTestCase.s
+  --shrTestCase
