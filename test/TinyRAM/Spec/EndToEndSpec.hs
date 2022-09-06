@@ -73,6 +73,7 @@ spec = describe "TinyRAM end to end" $ do
   --cmpgeGreaterTestCase
   --cmpgeLessTestCase
   --cmpgeNegTestCase
+  answerR1TestCase
 
   
 
@@ -559,3 +560,14 @@ addTestNegativeTestCase =
   --shlTestCase
   --shlFlagTestCase.s
   --shrTestCase
+
+answerR1TestCase :: Spec
+answerR1TestCase = 
+  it "answers 1" $ do
+    let program = 
+          construct
+            [ Mov (reg' 1) (imm  1),
+              Answer (reg 1)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 1
