@@ -40,9 +40,9 @@ spec = describe "TinyRAM end to end" $ do
   --negativeTestCase
   --negative8bitTestCase
   --breakWKconstraintTestCase
-  --orTestCase
+  orTestCase
   --xorTestCase
-  --addTestNegative
+  addTestNegativeTestCase
   --subTestCase
   --notTestCase
   --mullTestCase
@@ -520,9 +520,32 @@ cmpaGreaterTestCase =
   --negativeTestCase
   --negative8bitTestCase
   --breakWKconstraintTestCase
-  --orTestCase
+
+orTestCase :: Spec
+orTestCase =
+  it "answers 63" $ do
+    let program =
+          construct
+            [ Mov (reg' 2) (imm 58),
+              Or (reg' 0) (reg' 2) (imm 15),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 63
+  
   --xorTestCase
-  --addTestNegative
+addTestNegativeTestCase :: Spec
+addTestNegativeTestCase =
+  it "answers 3" $ do
+    let program =
+          construct
+            [ Mov (reg' 1) (imm 5),
+              Add (reg' 0) (reg' 1) (imm (negate 2)),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 3
+  
   --subTestCase
   --notTestCase
   --mullTestCase
