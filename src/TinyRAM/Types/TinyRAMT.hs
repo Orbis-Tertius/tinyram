@@ -2,7 +2,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedLabels #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 
@@ -14,18 +13,13 @@ import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.State (StateT, gets, modify)
 import qualified Data.Map as Map
 import TinyRAM.Prelude
-import TinyRAM.Types.Address (Address)
+import TinyRAM.Types.Address
 import TinyRAM.Types.HasMachineState
   ( Error (..),
     HasMachineState (..),
   )
 import TinyRAM.Types.HasParams (HasParams (getParams))
-import TinyRAM.Types.InputTape
-  ( Auxiliary,
-    InputTape (InputTape),
-    Primary,
-  )
-import TinyRAM.Types.Instruction (Instruction)
+import TinyRAM.Types.Instruction
 import TinyRAM.Types.MachineState (MachineState)
 import TinyRAM.Types.MemoryValues (MemoryValues (..))
 import TinyRAM.Types.Params (Params)
@@ -97,17 +91,12 @@ instance (Monad m, MonadError Error (TinyRAMT m)) => HasMachineState (TinyRAMT m
               .~ MemoryValues (Map.insert addr w (s ^. _2 . #memoryValues . #unMemoryValues))
               $ s
         )
-  readPrimaryInput = TinyRAMT $ do
-    input <- gets (^. _2 . #primaryInput . #unInputTape)
-    case input of
-      [] -> return Nothing
-      (w : input') -> do
-        modify (_2 . #primaryInput .~ InputTape @Primary input')
-        return (Just w)
-  readAuxiliaryInput = TinyRAMT $ do
-    input <- gets (^. _2 . #auxiliaryInput . #unInputTape)
-    case input of
-      [] -> return Nothing
-      (w : input') -> do
-        modify (_2 . #auxiliaryInput .~ InputTape @Auxiliary input')
-        return (Just w)
+  consoleOut c =
+    TinyRAMT $
+      modify
+        ( \s ->
+            _2 . #stdout
+              .~ c :
+            (s ^. _2 . #stdout)
+              $ s
+        )

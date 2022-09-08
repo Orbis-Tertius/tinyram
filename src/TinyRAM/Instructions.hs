@@ -29,10 +29,11 @@ module TinyRAM.Instructions
     storeb,
     load,
     loadb,
-    readInputTape,
+    out,
   )
 where
 
+import Control.Monad.Except (throwError)
 import TinyRAM.Bytes (bytesPerWord)
 import TinyRAM.MachineState
   ( conditionToFlag,
@@ -52,7 +53,10 @@ import TinyRAM.SignedArithmetic
   )
 import TinyRAM.Types.Address (Address (..))
 import TinyRAM.Types.Flag (Flag (..))
-import TinyRAM.Types.HasMachineState (HasMachineState (..))
+import TinyRAM.Types.HasMachineState
+  ( Error (InvalidPrintCharacter),
+    HasMachineState (..),
+  )
 import TinyRAM.Types.HasParams (HasParams)
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
 import TinyRAM.Types.ProgramCounter (ProgramCounter (..))
@@ -423,24 +427,15 @@ loadb ri a = do
   setRegisterValue ri b
   incrementProgramCounter
 
-readInputTape ::
+out ::
   (HasMachineState m, HasParams m) =>
-  Register ->
   ImmediateOrRegister ->
   m ()
-readInputTape ri a = do
-  a' <- getImmediateOrRegister a
-  next <- case a' of
-    0 -> readPrimaryInput
-    1 -> readAuxiliaryInput
-    _ -> return Nothing
-  case next of
-    Just next' -> do
-      setRegisterValue ri next'
-      setConditionFlag 0
-    Nothing -> do
-      setRegisterValue ri 0
-      setConditionFlag 1
+out a = do
+  Word character <- getImmediateOrRegister a
+  if character .&. 0xff /= character
+    then throwError InvalidPrintCharacter
+    else consoleOut (toEnum $ fromIntegral character)
   incrementProgramCounter
 
 alignToWord :: WordSize -> Address -> (Address, Integer)

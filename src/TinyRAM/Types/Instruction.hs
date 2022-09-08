@@ -36,6 +36,6 @@ data Instruction
   | Loadb Register ImmediateOrRegister
   | Storew ImmediateOrRegister Register
   | Loadw Register ImmediateOrRegister
-  | Read Register ImmediateOrRegister
+  | Out ImmediateOrRegister
   | Answer ImmediateOrRegister
   deriving stock (Eq, Ord, Read, Show, Generic)

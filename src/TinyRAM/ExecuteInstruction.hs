@@ -24,7 +24,7 @@ import TinyRAM.Instructions
     multiplyUnsignedMSB,
     notBits,
     orBits,
-    readInputTape,
+    out,
     shiftLeft,
     shiftRight,
     store,
@@ -69,5 +69,5 @@ executeInstruction i = case i of
   Loadb ri a -> loadb ri a
   Storew a ri -> store a ri
   Loadw ri a -> load ri a
-  Read ri a -> readInputTape ri a
+  Out a -> out a
   Answer _ -> return ()
