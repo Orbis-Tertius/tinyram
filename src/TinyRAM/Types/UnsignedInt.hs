@@ -8,4 +8,5 @@ import TinyRAM.Prelude
 import TinyRAM.Types.Word (Word)
 
 newtype UnsignedInt = UnsignedInt {unUnsignedInt :: Word}
-  deriving (Eq, Ord, Read, Show, Generic, Enum, Num, Real, Integral)
+  deriving stock (Eq, Ord, Read, Show, Generic)
+  deriving newtype (Enum, Num, Real, Integral)

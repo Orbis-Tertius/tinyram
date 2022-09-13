@@ -462,6 +462,29 @@
         "type": "github"
       }
     },
+    "lint-utils": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs-2205"
+        ]
+      },
+      "locked": {
+        "lastModified": 1655192403,
+        "narHash": "sha256-XyKDvRGDh8VXA6zN8DUTnDaTMrk0MxMKg70MaAX1A2Y=",
+        "ref": "refs/heads/master",
+        "rev": "a7ae54afdc4c05a5aabf202d5a76d02705eb6147",
+        "revCount": 28,
+        "type": "git",
+        "url": "https://gitlab.homotopic.tech/nix/lint-utils"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://gitlab.homotopic.tech/nix/lint-utils"
+      }
+    },
     "nix-doom-emacs": {
       "inputs": {
         "doom-emacs": "doom-emacs",
@@ -794,6 +817,7 @@
         "flake-compat-ci": "flake-compat-ci",
         "flake-utils": "flake-utils_2",
         "haskellNix": "haskellNix",
+        "lint-utils": "lint-utils",
         "nixpkgs": [
           "haskellNix",
           "nixpkgs-unstable"

@@ -8,7 +8,8 @@ import TinyRAM.Prelude
 
 -- The word size, a positive integer.
 newtype WordSize = WordSize {unWordSize :: Int}
-  deriving (Eq, Ord, Read, Show, Generic, Enum, Num, Real, Integral)
+  deriving stock (Eq, Ord, Read, Show, Generic)
+  deriving newtype (Enum, Num, Real, Integral)
 
 instance Validity WordSize where
   validate (WordSize ws)

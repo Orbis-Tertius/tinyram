@@ -83,7 +83,8 @@ runCoqTinyRAM
   (InputTape ia)
   (MaxSteps maxSteps) = do
     suffix :: Int <- randomIO
-    let wordSize = 16
+    let wordSize :: WordSize
+        wordSize = 16
         tmpPath1 = "/tmp/run-coq-tinyram-prog-" <> show suffix
         tmpPath2 = "/tmp/run-coq-tinyram-primary-input-" <> show suffix
         tmpPath3 = "/tmp/run-coq-tinyram-secondary-input-" <> show suffix

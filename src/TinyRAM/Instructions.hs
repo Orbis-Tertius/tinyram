@@ -29,10 +29,11 @@ module TinyRAM.Instructions
     storeb,
     load,
     loadb,
-    readInputTape,
+    out,
   )
 where
 
+import Control.Monad.Except (throwError)
 import TinyRAM.Bytes (bytesPerWord)
 import TinyRAM.MachineState
   ( conditionToFlag,
@@ -52,7 +53,10 @@ import TinyRAM.SignedArithmetic
   )
 import TinyRAM.Types.Address (Address (..))
 import TinyRAM.Types.Flag (Flag (..))
-import TinyRAM.Types.HasMachineState (HasMachineState (..))
+import TinyRAM.Types.HasMachineState
+  ( Error (InvalidPrintCharacter),
+    HasMachineState (..),
+  )
 import TinyRAM.Types.HasParams (HasParams)
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister)
 import TinyRAM.Types.ProgramCounter (ProgramCounter (..))
@@ -145,7 +149,8 @@ subtractUnsigned ri rj a = do
   ws <- getWordSize
   wsb <- getWordSizeBitmask
   msb <- getWordSizeBitmaskMSB
-  let k = 2 ^ (fromIntegral ws :: UnsignedInt)
+  let k :: UnsignedInt
+      k = 2 ^ (fromIntegral ws :: UnsignedInt)
       y = rj' + k - a'
   setRegisterValue ri (unUnsignedInt y .&. wsb)
   setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb == 0))
@@ -388,7 +393,8 @@ storeb a ri = do
   a' <- Address <$> getImmediateOrRegister a
   ri' <- getRegisterValue ri
   wordSize <- getWordSize
-  let riTrunc = fromIntegral ri' .&. 0xff
+  let riTrunc :: Integer
+      riTrunc = fromIntegral ri' .&. 0xff
       (aAligned, aOffset) = alignToWord wordSize a'
   prevWord <- getWord aAligned
   setWord aAligned (setByte prevWord aOffset riTrunc)
@@ -421,24 +427,15 @@ loadb ri a = do
   setRegisterValue ri b
   incrementProgramCounter
 
-readInputTape ::
+out ::
   (HasMachineState m, HasParams m) =>
-  Register ->
   ImmediateOrRegister ->
   m ()
-readInputTape ri a = do
-  a' <- getImmediateOrRegister a
-  next <- case a' of
-    0 -> readPrimaryInput
-    1 -> readAuxiliaryInput
-    _ -> return Nothing
-  case next of
-    Just next' -> do
-      setRegisterValue ri next'
-      setConditionFlag 0
-    Nothing -> do
-      setRegisterValue ri 0
-      setConditionFlag 1
+out a = do
+  Word character <- getImmediateOrRegister a
+  if character .&. 0xff /= character
+    then throwError InvalidPrintCharacter
+    else consoleOut (toEnum $ fromIntegral character)
   incrementProgramCounter
 
 alignToWord :: WordSize -> Address -> (Address, Integer)
@@ -457,10 +454,12 @@ setByte word offset val =
     val' :: Word
     val' = fromIntegral val `shift` shift'
 
+    shift' :: Int
     shift' = fromInteger $ 8 * offset
 
 extractByte :: Word -> Integer -> Word
 extractByte word offset =
   (word `shift` shift') .&. 0xff
   where
+    shift' :: Int
     shift' = -(fromInteger $ 8 * offset)

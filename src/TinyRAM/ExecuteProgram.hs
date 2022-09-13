@@ -15,16 +15,17 @@ import TinyRAM.Bytes (bytesPerWord, bytesToWords)
 import TinyRAM.DecodeInstruction (decodeInstruction)
 import TinyRAM.Prelude
 import TinyRAM.Run (run)
+import TinyRAM.Types.Address
 import TinyRAM.Types.Flag (Flag)
 import TinyRAM.Types.InputTape
   ( Auxiliary,
-    InputTape,
+    InputTape (InputTape),
     Primary,
   )
 import TinyRAM.Types.MachineState (MachineState (..))
 import TinyRAM.Types.MaxSteps (MaxSteps)
 import TinyRAM.Types.MemoryValues (MemoryValues (..))
-import TinyRAM.Types.Params (Params)
+import TinyRAM.Types.Params (Params (Params))
 import TinyRAM.Types.Program (Program (..))
 import TinyRAM.Types.ProgramCounter (ProgramCounter)
 import TinyRAM.Types.ProgramMemoryValues (ProgramMemoryValues (..))
@@ -32,7 +33,8 @@ import TinyRAM.Types.Register (Register (..))
 import TinyRAM.Types.RegisterCount (RegisterCount (..))
 import TinyRAM.Types.RegisterValues (RegisterValues (..))
 import TinyRAM.Types.TinyRAMT (TinyRAMT (..))
-import TinyRAM.Types.Word (Word)
+import TinyRAM.Types.Word (Word (Word))
+import TinyRAM.Types.WordSize
 
 executeProgram ::
   Params ->
@@ -40,10 +42,24 @@ executeProgram ::
   Program ->
   InputTape Primary ->
   InputTape Auxiliary ->
-  Either Text Word
+  Either Text (Word, String)
 executeProgram params maxSteps program primaryInput auxInput = do
   programMemoryValues <- programToMemoryValues params program
   executeProgram' params maxSteps programMemoryValues primaryInput auxInput
+
+initializeMemoryWith :: Params -> InputTape Primary -> InputTape Auxiliary -> MemoryValues
+initializeMemoryWith (Params ws _) (InputTape primary) (InputTape auxiliary) =
+  MemoryValues $ Map.fromList $ zip addresses concatenated
+  where
+    concatenated =
+      auxiliary
+        ++ [Word (fromIntegral $ length auxiliary)]
+        ++ primary
+        ++ [Word (fromIntegral $ length primary)]
+
+    lastWord = ((2 ^ unWordSize ws) `quot` bytesPerWord ws) - 1
+    offset = lastWord - length concatenated + 1
+    addresses = Address . Word . (* fromIntegral (bytesPerWord ws)) <$> [fromIntegral offset ..]
 
 executeProgram' ::
   Params ->
@@ -51,29 +67,29 @@ executeProgram' ::
   ProgramMemoryValues ->
   InputTape Primary ->
   InputTape Auxiliary ->
-  Either Text Word
-executeProgram' params maxSteps programMemoryValues primaryInput auxInput = do
+  Either Text (Word, String)
+executeProgram' params maxSteps programMemoryValues primary auxiliary = do
+  let memoryValues = initializeMemoryWith params primary auxiliary
   let result =
         runIdentity $
           runExceptT $
             runStateT
               (unTinyRAMT (run maxSteps))
-              (params, initialMachineState params (MemoryValues mempty) programMemoryValues primaryInput auxInput)
-  (maybeWord, _) <- Bi.first (pack . show) result
-  maybe (Left $ "program did not terminate in " <> pack (show maxSteps)) Right maybeWord
+              (params, initialMachineState params memoryValues programMemoryValues)
+  (maybeWord, (_, state)) <- Bi.first (pack . show) result
+  maybe (Left $ "program did not terminate in " <> pack (show maxSteps)) Right ((,state ^. #stdout) <$> maybeWord)
 
 initialMachineState ::
   Params ->
   MemoryValues ->
   ProgramMemoryValues ->
-  InputTape Primary ->
-  InputTape Auxiliary ->
   MachineState
 initialMachineState params =
   MachineState
     (0 :: ProgramCounter)
     (initialRegisterValues (params ^. #registerCount))
     (0 :: Flag)
+    []
 
 initialRegisterValues :: RegisterCount -> RegisterValues
 initialRegisterValues (RegisterCount n) =
@@ -100,6 +116,7 @@ programToMemoryValues params (Program p) =
   where
     bytesPerWord' = bytesPerWord (params ^. #wordSize)
 
+    addresses :: [Address]
     addresses = (* (2 * fromIntegral bytesPerWord')) <$> [0 ..]
 
     decode = decodeInstruction (params ^. #wordSize) (params ^. #registerCount)

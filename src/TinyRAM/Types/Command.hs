@@ -4,11 +4,8 @@
 module TinyRAM.Types.Command (Command (CommandRun)) where
 
 import TinyRAM.Prelude
-import TinyRAM.Types.InputTapePath
-  ( Auxiliary,
-    InputTapePath,
-    Primary,
-  )
+import TinyRAM.Types.InputTape (Auxiliary, Primary)
+import TinyRAM.Types.InputTapePath (InputTapePath)
 import TinyRAM.Types.MaxSteps (MaxSteps)
 import TinyRAM.Types.Params (Params)
 import TinyRAM.Types.ProgramFilePath (ObjectFilePath)
@@ -20,4 +17,4 @@ data Command = CommandRun
     primaryInputTapePath :: InputTapePath Primary,
     auxiliaryInputTapePath :: InputTapePath Auxiliary
   }
-  deriving (Generic)
+  deriving stock (Generic)

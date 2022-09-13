@@ -42,6 +42,7 @@ signedMultiplyHigh ws x y =
           then 1
           else xSign * ySign
       zAbs = xAbs * yAbs
+      signBit :: Word
       signBit = case zSign of
         -1 -> 2 ^ (ws - 1)
         _ -> 0
