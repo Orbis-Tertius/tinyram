@@ -83,7 +83,8 @@ spec = describe "run" $ do
     forAll genParamsMachineState $ \(ps, _state) ->
       forAll (genImmediateOrRegister (ps ^. #wordSize) (ps ^. #registerCount)) $
         \(a :: ImmediateOrRegister) ->
-          let m = do
+          let m :: TinyRAMT Identity (Maybe Word, Maybe Word)
+              m = do
                 expectedAnswer' <- getImmediateOrRegister a
                 answer' <- run (Just 100)
                 return (answer', Just expectedAnswer')

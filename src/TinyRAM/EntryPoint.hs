@@ -15,6 +15,7 @@ import qualified Data.ByteString as BS
 import Data.Text (unpack)
 import Numeric (showHex)
 import qualified Options.Applicative as O
+import System.IO (hPutStr, stderr)
 import TinyRAM.Bytes (bytesToWords)
 import TinyRAM.ExecuteProgram (executeProgram)
 import TinyRAM.Prelude
@@ -135,4 +136,6 @@ handleCommand pCmd =
       auxInput <- readInputTapeFile ws atp
       case executeProgram params' maxSteps' program primaryInput auxInput of
         Left err -> putStrLn . unpack $ "Error: " <> err
-        Right answer -> putStrLn $ "Answer: 0x" <> showHex (unWord answer) ""
+        Right (answer, stdout) -> do
+          putStrLn $ "Answer: 0x" <> showHex (unWord answer) ""
+          hPutStr stderr $ reverse stdout

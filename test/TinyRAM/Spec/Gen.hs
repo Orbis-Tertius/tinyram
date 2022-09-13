@@ -103,7 +103,6 @@ genInstruction ws rc =
            -- Loadb <$> reg <*> immOrReg
            Storew <$> immOrReg <*> reg,
            Loadw <$> reg <*> immOrReg,
-           Read <$> reg <*> immOrReg,
            Answer <$> immOrReg
          ]
   where
@@ -128,10 +127,9 @@ genMachineState ws rc =
     <$> genProgramCounter ws
     <*> genRegisterValues ws rc
     <*> genValid
+    <*> genValid
     <*> genMemoryValues ws
     <*> genProgramMemoryValues ws rc
-    <*> genInputTape ws
-    <*> genInputTape ws
 
 genMemoryValues :: WordSize -> Gen MemoryValues
 genMemoryValues ws =

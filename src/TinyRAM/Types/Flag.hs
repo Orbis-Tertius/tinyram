@@ -8,7 +8,8 @@ import TinyRAM.Prelude
 
 -- A flag value (either 1 or 0).
 newtype Flag = Flag {unFlag :: Int}
-  deriving (Eq, Ord, Read, Show, Generic, Enum, Num, Real, Integral)
+  deriving stock (Eq, Ord, Read, Show, Generic)
+  deriving newtype (Enum, Num, Real, Integral)
 
 instance Bounded Flag where
   minBound = 0

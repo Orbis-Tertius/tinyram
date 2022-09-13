@@ -9,4 +9,5 @@ import TinyRAM.Prelude
 -- The maximum number of instructions which the emulator is allowed
 -- to execute in running a program.
 newtype MaxSteps = MaxSteps {unMaxSteps :: Integer}
-  deriving (Eq, Ord, Read, Show, Generic, Enum, Num, Real, Integral)
+  deriving stock (Eq, Ord, Read, Show, Generic)
+  deriving newtype (Enum, Num, Real, Integral)

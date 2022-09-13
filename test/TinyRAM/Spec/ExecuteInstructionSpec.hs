@@ -158,8 +158,6 @@ instructionStateTransition ps i =
                 ?~ fromMaybe 0 (s ^. #memoryValues . #unMemoryValues . at (fst $ alignToWord ws (Address (getA a s))))
                 $ s
           )
-    -- read
-    Read ri a -> incrementPC ws . readInputTape ri a
     _ -> id
   where
     ws :: WordSize
@@ -249,39 +247,3 @@ getRI :: Register -> MachineState -> Word
 getRI ri s =
   fromMaybe (error "getRI failed") $
     s ^. #registerValues . #unRegisterValues . at ri
-
-readInputTape :: Register -> ImmediateOrRegister -> MachineState -> MachineState
-readInputTape ri a s =
-  case getA a s of
-    0 -> readPrimaryInputTape ri s
-    1 -> readAuxiliaryInputTape ri s
-    _ ->
-      (#registerValues . #unRegisterValues . at ri ?~ 0)
-        . (#conditionFlag .~ 1)
-        $ s
-
-readPrimaryInputTape :: Register -> MachineState -> MachineState
-readPrimaryInputTape ri s =
-  case s ^. #primaryInput . #unInputTape of
-    x : xs ->
-      (#registerValues . #unRegisterValues . at ri ?~ x)
-        . (#primaryInput . #unInputTape .~ xs)
-        . (#conditionFlag .~ 0)
-        $ s
-    [] ->
-      (#registerValues . #unRegisterValues . at ri ?~ 0)
-        . (#conditionFlag .~ 1)
-        $ s
-
-readAuxiliaryInputTape :: Register -> MachineState -> MachineState
-readAuxiliaryInputTape ri s =
-  case s ^. #auxiliaryInput . #unInputTape of
-    x : xs ->
-      (#registerValues . #unRegisterValues . at ri ?~ x)
-        . (#primaryInput . #unInputTape .~ xs)
-        . (#conditionFlag .~ 0)
-        $ s
-    [] ->
-      (#registerValues . #unRegisterValues . at ri ?~ 0)
-        . (#conditionFlag .~ 1)
-        $ s

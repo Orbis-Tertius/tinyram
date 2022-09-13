@@ -125,15 +125,13 @@ emptyMemoryValues ws =
     addresses = Address . Word . (* fromIntegral (bytesPerWord ws)) <$> [0 ..]
 
 createMachineState :: WordSize -> RegisterCount -> ProgramMemoryValues -> MachineState
-createMachineState ws rc v =
+createMachineState ws rc =
   MachineState
     (ProgramCounter 0)
     (emptyRegisterValues rc)
     (Flag 0)
+    []
     (emptyMemoryValues ws)
-    v
-    (InputTape [])
-    (InputTape [])
 
 execute ::
   MaxSteps ->
@@ -149,7 +147,7 @@ generatedTests =
       forAll (MaxSteps <$> choose (1, 1000)) $ \maxSteps -> do
         let s = createMachineState ws rc programMemoryValues
             prog = toProgram ws rc (s ^. #programMemoryValues)
-        coqResult <- runCoqTinyRAM prog (s ^. #primaryInput) (s ^. #auxiliaryInput) maxSteps
+        coqResult <- runCoqTinyRAM prog (InputTape []) (InputTape []) maxSteps -- TODO align Coq TinyRAM
         -- print coqResult
         let hsResult = execute maxSteps ps s
         -- print hsResult

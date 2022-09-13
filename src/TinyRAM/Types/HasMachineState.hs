@@ -19,7 +19,8 @@ data Error
   | InvalidOpcodeError
   | InvalidRegisterError
   | InvalidPCAlignment
-  deriving (Eq, Show)
+  | InvalidPrintCharacter
+  deriving stock (Eq, Show)
 
 class (MonadError Error m) => HasMachineState m where
   getProgramCounter :: m ProgramCounter
@@ -31,5 +32,4 @@ class (MonadError Error m) => HasMachineState m where
   getWord :: Address -> m Word
   setWord :: Address -> Word -> m ()
   fetchInstruction :: Address -> m Instruction
-  readPrimaryInput :: m (Maybe Word)
-  readAuxiliaryInput :: m (Maybe Word)
+  consoleOut :: Char -> m ()
