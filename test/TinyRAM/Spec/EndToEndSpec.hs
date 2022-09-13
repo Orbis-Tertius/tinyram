@@ -43,8 +43,8 @@ spec = describe "TinyRAM end to end" $ do
   orTestCase
   --xorTestCase
   addTestNegativeTestCase
-  --subTestCase
-  --notTestCase
+  subTestCase
+  --notTestCase check strange behavior
   --mullTestCase
   --umulhTestCase
   --smulhTestCase
@@ -548,7 +548,41 @@ addTestNegativeTestCase =
     answer `shouldBe` Right 3
   
   --subTestCase
+-- ; TinyRAM V=1.000 W=16 K=16
+-- mov r2, 5
+-- sub r1, r2, 2
+-- answer r1
+
+subTestCase :: Spec
+subTestCase =
+  it "answers 3" $ do
+    let program =
+          construct
+            [ Mov (reg' 1) (imm 5),
+              Sub (reg' 0) (reg' 1) (imm 2),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 3
+
   --notTestCase
+  --; TinyRAM V=1.000 W=16 K=16
+  --mov r2, 11
+  --not r1, r2
+  --answer r1
+
+-- notTestCase :: Spec
+-- notTestCase =
+--   it "answers -11" $ do
+--     let program =
+--           construct
+--             [ Mov (reg' 1) (imm 11),
+--               Not (reg' 0) (reg 1),
+--               Answer (reg 0)
+--             ]
+--     answer <- execute program (InputTape []) (InputTape [])
+--     answer `shouldBe` Right -11
+
   --mullTestCase
   --umulhTestCase
   --smulhTestCase
