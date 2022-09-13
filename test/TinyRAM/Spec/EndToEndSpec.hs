@@ -41,7 +41,7 @@ spec = describe "TinyRAM end to end" $ do
   --negative8bitTestCase
   --breakWKconstraintTestCase
   orTestCase
-  --xorTestCase
+  xorTestCase
   addTestNegativeTestCase
   --subTestCase
   --notTestCase
@@ -535,6 +535,25 @@ orTestCase =
     answer `shouldBe` Right 63
   
   --xorTestCase
+-- ; TinyRAM V=1.000 W=16 K=16
+-- mov r2, 15
+-- xor r1, r2, r2
+-- answer r1
+--should be 0
+
+xorTestCase :: Spec
+xorTestCase =
+  it "answers 63" $ do
+    let program =
+          construct
+            [ Mov (reg' 2) (imm 15),
+              Xor (reg' 0) (reg' 2) (reg 2),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 63
+
+
 addTestNegativeTestCase :: Spec
 addTestNegativeTestCase =
   it "answers 3" $ do
