@@ -50,7 +50,7 @@ spec = describe "TinyRAM end to end" $ do
   smulhTestCase
   udivTestCase
   udiv0TestCase
-  --umodTestCase
+  umodTestCase
   --umod0TestCase
   --umod1TestCase
   --shlTestCase
@@ -692,7 +692,24 @@ udiv0TestCase =
     answer `shouldBe` Right 0
 
 
-  --umodTestCase
+  -- umodTestCase
+  -- ; TinyRAM V=1.000 W=16 K=16
+  -- mov r2, 5
+  -- umod r1, r2, 2
+  -- answer r1
+
+umodTestCase :: Spec
+umodTestCase =
+  it "answers 1" $ do
+    let program =
+          construct
+            [ Mov (reg' 2) (imm 5),
+              Umod (reg' 0) (reg' 2) (imm 2),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 1
+
   --umod0TestCase
   --umod1TestCase
   --shlTestCase
