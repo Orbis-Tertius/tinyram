@@ -45,7 +45,7 @@ spec = describe "TinyRAM end to end" $ do
   addTestNegativeTestCase
   subTestCase
   --notTestCase check strange behavior
-  --mullTestCase
+  mullTestCase
   --umulhTestCase
   --smulhTestCase
   udivTestCase
@@ -543,7 +543,7 @@ orTestCase =
 
 xorTestCase :: Spec
 xorTestCase =
-  it "answers 63" $ do
+  it "answers 15" $ do
     let program =
           construct
             [ Mov (reg' 2) (imm 15),
@@ -551,7 +551,7 @@ xorTestCase =
               Answer (reg 0)
             ]
     answer <- execute program (InputTape []) (InputTape [])
-    answer `shouldBe` Right 63
+    answer `shouldBe` Right 15
 
 
 addTestNegativeTestCase :: Spec
@@ -603,6 +603,25 @@ subTestCase =
 --     answer `shouldBe` Right -11
 
   --mullTestCase
+  --; TinyRAM V=1.000 W=16 K=16
+  --mov r2, 5
+  --mull r1, r2, 2
+  --answer r1
+
+mullTestCase :: Spec
+mullTestCase =
+  it "answers 10" $ do
+    let program =
+          construct
+            [ Mov (reg' 1) (imm 5),
+              Mull (reg' 0) (reg' 1) (imm 2),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 10
+
+
+
   --umulhTestCase
   --smulhTestCase
 
