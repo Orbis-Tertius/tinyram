@@ -65,15 +65,15 @@ spec = describe "TinyRAM end to end" $ do
   cmpaGreaterTestCase
   --cmpaLessTestCase
   --cmpaNegTestCase
-  --cmpeEqualTestCase
-  --cmpeGreaterTestCase
-  --cmpeLessTestCase
-  --cmpeNegTestCase
+  cmpeEqualTestCase
+  -- cmpeGreaterTestCase --bugged
+  --cmpeLessTestCase --bugged
+  --cmpeNegTestCase --bugged
   cmpgeEqualTestCase
   cmpgeGreaterTestCase
   --cmpgeLessTestCase --bugged
   cmpgeNegTestCase 
-  --answerR1TestCase --bugged
+  --answerR1TestCase --bugged reported
 
   
 
@@ -395,35 +395,35 @@ cmpaGreaterTestCase =
 --     answer <- execute program (InputTape []) (InputTape [])
 --     answer `shouldBe` Right 0
 
--- cmpeEqualTestCase :: Spec
--- cmpeEqualTestCase =
+cmpeEqualTestCase :: Spec
+cmpeEqualTestCase =
+  it "answers 1" $ do
+    let program =
+          construct
+            [ Mov (reg' 0) (imm 0),
+              Mov (reg' 2) (imm 2),
+              Mov (reg' 3) (imm 2),
+              Cmpe (reg' 2) (reg 3),
+              Cmov (reg' 0) (imm 1),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 1
+
+-- cmpeGreaterTestCase :: Spec
+-- cmpeGreaterTestCase =
 --   it "answers 0" $ do
 --     let program =
 --           construct
 --             [ Mov (reg' 0) (imm 0),
 --               Mov (reg' 2) (imm 2),
---               Mov (reg' 3) (imm (negate 2)),
---               Cmpae (reg' 2) (reg 3),
+--               Mov (reg' 3) (imm 1),
+--               Cmpe (reg' 2) (reg 3),
 --               Cmov (reg' 0) (imm 1),
 --               Answer (reg 0)
 --             ]
 --     answer <- execute program (InputTape []) (InputTape [])
 --     answer `shouldBe` Right 0
-
---cmpeGreaterTestCase :: Spec
---cmpeGreaterTestCase =
-  --it "answers 0" $ do
-    --let program =
-          --construct
-            --[ Mov (reg' 0) (imm 0),
-              --Mov (reg' 2) (imm 2),
-              --Mov (reg' 3) (imm 1),
-              --Cmpae (reg' 2) (reg 3),
-              --Cmov (reg' 0) (imm 1),
-              --Answer (reg 0)
-            --]
-    --answer <- execute program (InputTape []) (InputTape [])
-    --answer `shouldBe` Right 0
 
 -- cmpeLessTestCase :: Spec
 -- cmpeLessTestCase =
@@ -431,29 +431,29 @@ cmpaGreaterTestCase =
 --     let program =
 --           construct
 --             [ Mov (reg' 0) (imm 0),
---               Mov (reg' 2) (imm 2),
---               Mov (reg' 3) (imm (negate 2)),
---               Cmpae (reg' 2) (reg 3),
+--               Mov (reg' 2) (imm 1),
+--               Mov (reg' 3) (imm 2),
+--               Cmpe (reg' 2) (reg 3),
 --               Cmov (reg' 0) (imm 1),
 --               Answer (reg 0)
 --             ]
 --     answer <- execute program (InputTape []) (InputTape [])
 --     answer `shouldBe` Right 0
 
---cmpeNegTestCase :: Spec
---cmpeNegTestCase =
-  --it "answers 0" $ do
-    --let program =
-          --construct
-            --[ Mov (reg' 0) (imm 0),
-              --Mov (reg' 2) (imm 2),
-              --Mov (reg' 3) (imm (negate 2)),
-              --Cmpae (reg' 2) (reg 3),
-              --Cmov (reg' 0) (imm 1),
-              --Answer (reg 0)
-            --]
-    --answer <- execute program (InputTape []) (InputTape [])
-    --answer `shouldBe` Right 0
+-- cmpeNegTestCase :: Spec
+-- cmpeNegTestCase =
+--   it "answers 0" $ do
+--     let program =
+--           construct
+--             [ Mov (reg' 0) (imm 0),
+--               Mov (reg' 2) (imm 1),
+--               Mov (reg' 3) (imm 2),
+--               Cmpe (reg' 2) (reg 3),
+--               Cmov (reg' 0) (imm 1),
+--               Answer (reg 0)
+--             ]
+--     answer <- execute program (InputTape []) (InputTape [])
+--     answer `shouldBe` Right 0
 
 cmpgeEqualTestCase :: Spec
 cmpgeEqualTestCase =
