@@ -69,7 +69,7 @@ spec = describe "TinyRAM end to end" $ do
   --cmpeGreaterTestCase
   --cmpeLessTestCase
   --cmpeNegTestCase
-  --cmpgeEqualTestCase
+  cmpgeEqualTestCase
   cmpgeGreaterTestCase
   --cmpgeLessTestCase --bugged
   cmpgeNegTestCase 
@@ -455,20 +455,20 @@ cmpaGreaterTestCase =
     --answer <- execute program (InputTape []) (InputTape [])
     --answer `shouldBe` Right 0
 
---cmpgeEqualTestCase :: Spec
---cmpgeEqualTestCase =
-  --it "answers 0" $ do
-    --let program =
-          --construct
-            --[ Mov (reg' 0) (imm 0),
-              --Mov (reg' 2) (imm 2),
-              --Mov (reg' 3) (imm -2),
-              --Cmpae (reg' 2) (reg 3),
-              --Cmov (reg' 0) (imm 1),
-              --Answer (reg 0)
-            --]
-    --answer <- execute program (InputTape []) (InputTape [])
-    --answer `shouldBe` Right 0
+cmpgeEqualTestCase :: Spec
+cmpgeEqualTestCase =
+  it "answers 1" $ do
+    let program =
+          construct
+            [ Mov (reg' 0) (imm 0),
+              Mov (reg' 2) (imm 2),
+              Mov (reg' 3) (imm 2),
+              Cmpge (reg' 2) (reg 3),
+              Cmov (reg' 0) (imm 1),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 1
 
 cmpgeGreaterTestCase :: Spec
 cmpgeGreaterTestCase =
@@ -485,20 +485,20 @@ cmpgeGreaterTestCase =
     answer <- execute program (InputTape []) (InputTape [])
     answer `shouldBe` Right 1
 
-cmpgeLessTestCase :: Spec
-cmpgeLessTestCase =
-  it "answers 0" $ do
-    let program =
-          construct
-            [ Mov (reg' 0) (imm 0),
-              Mov (reg' 2) (imm 1),
-              Mov (reg' 3) (imm 2),
-              Cmpge (reg' 2) (reg 3),
-              Cmov (reg' 0) (imm 1),
-              Answer (reg 0)
-            ]
-    answer <- execute program (InputTape []) (InputTape [])
-    answer `shouldBe` Right 0
+-- cmpgeLessTestCase :: Spec
+-- cmpgeLessTestCase =
+--   it "answers 0" $ do
+--     let program =
+--           construct
+--             [ Mov (reg' 0) (imm 0),
+--               Mov (reg' 2) (imm 1),
+--               Mov (reg' 3) (imm 2),
+--               Cmpge (reg' 2) (reg 3),
+--               Cmov (reg' 0) (imm 1),
+--               Answer (reg 0)
+--             ]
+--     answer <- execute program (InputTape []) (InputTape [])
+--     answer `shouldBe` Right 0
 
 cmpgeNegTestCase :: Spec
 cmpgeNegTestCase =
