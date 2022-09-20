@@ -35,10 +35,10 @@ spec = describe "TinyRAM end to end" $ do
   addTestCase
   andTestCase
   andTestNegativeCase
-  --cjmpTestCase --finish test case
-  jmpTestExampleNonTermCase --couldn't match expected type of register or immediate
-  negativeTestCase --negative answer bugged
-  --negative8bitTestCase --negative answer bugged
+  cjmpTestCase
+  jmpTestExampleNonTermCase 
+  negativeTestCase 
+  negative8bitTestCase 
   orTestCase
   --xorTestCase --bugged reported
   addTestNegativeTestCase
@@ -52,17 +52,17 @@ spec = describe "TinyRAM end to end" $ do
   umodTestCase
   umod0TestCase
   umod1TestCase
-  shlTestCase --binary issue
-  shlFlagTestCase --binary issue
+  shlTestCase 
+  shlFlagTestCase 
   shrTestCase
 
   cmpaeEqualTestCase
   cmpaeGreaterTestCase
-  --cmpaeLessTestCase --bugged 
-  --cmpaeNegTestCase  --bugged 
+  --cmpaeLessTestCase --bugged reported
+  --cmpaeNegTestCase  --bugged reported
   cmpaEqualTestCase
   cmpaGreaterTestCase
-  --cmpaLessTestCase --bugged 
+  --cmpaLessTestCase --bugged reported
   --cmpaNegTestCase --bugged reported
   cmpeEqualTestCase
   -- cmpeGreaterTestCase --bugged reported
@@ -198,17 +198,19 @@ andTestNegativeCase =
 --answer 0
 --;Expected result: 0
 
---cjmpTestCase :: Spec
---cjmpTestCase =
---it "answers 0" $ do
---let program = construct [
---Udiv (imm 2) (imm 0)
---, Cnjmp (imm 5)
---, Answer (imm 1)
---, Answer (imm 0)
---]
---answer <- execute program (InputTape []) (InputTape [])
---answer `shouldBe` Right 0
+cjmpTestCase :: Spec
+cjmpTestCase =
+  it "answers 1" $ do
+    let program = 
+          construct 
+            [ Mov (reg' 1) (imm 2),
+              Udiv (reg' 0) (reg' 1) (imm 0),
+              Cjmp (imm 12),
+              Answer (imm 1),
+              Answer (imm 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 1
 
 --; TinyRAM V=1.000 W=16 K=16
 --mov r1, 0
@@ -551,15 +553,15 @@ negativeTestCase =
     answer `shouldBe` Right (Word (fromIntegral(negate 4)))
 
   --negative8bitTestCase
--- negative8bitTestCase :: Spec
--- negative8bitTestCase =
---   it "answers -4" $ do
---     let program =
---           construct
---             [ Answer (imm (negate 2))
---             ]
---     answer <- execute program (InputTape []) (InputTape [])
---     answer `shouldBe` Right -2
+negative8bitTestCase :: Spec
+negative8bitTestCase =
+  it "answers -2" $ do
+    let program =
+          construct
+            [ Answer (imm (negate 2))
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right (Word (fromIntegral(negate 2)))
 
 
 orTestCase :: Spec
@@ -640,7 +642,7 @@ subTestCase =
 --               Answer (reg 0)
 --             ]
 --     answer <- execute program (InputTape []) (InputTape [])
---     answer `shouldBe` Right 11
+--     answer `shouldBe` Right (Word (fromIntegral(negate 11)))
 
   --mullTestCase
   --; TinyRAM V=1.000 W=16 K=16
