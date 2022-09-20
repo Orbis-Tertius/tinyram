@@ -10,23 +10,23 @@ import qualified Data.Text as T
 import qualified Data.Word as W
 import TinyRAM.Bytes (bytesPerWord)
 import TinyRAM.ExecuteProgram (executeProgram')
-import TinyRAM.Spec.CoqRun
+import TinyRAM.Spec.CoqRun (runCoqTinyRAM, toProgram)
 import TinyRAM.Spec.Prelude hiding (negate)
-import TinyRAM.Types.Address
+import TinyRAM.Types.Address (Address (..))
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (IsImmediate, IsRegister))
 import TinyRAM.Types.InputTape
   ( Auxiliary,
     InputTape (..),
     Primary,
   )
-import TinyRAM.Types.Instruction
+import TinyRAM.Types.Instruction (Instruction (..))
 import TinyRAM.Types.MaxSteps (MaxSteps)
 import TinyRAM.Types.Params (Params (..))
-import TinyRAM.Types.ProgramMemoryValues
-import TinyRAM.Types.Register
-import TinyRAM.Types.RegisterCount
-import TinyRAM.Types.Word
-import TinyRAM.Types.WordSize
+import TinyRAM.Types.ProgramMemoryValues (ProgramMemoryValues (..))
+import TinyRAM.Types.Register (Register (..))
+import TinyRAM.Types.RegisterCount (RegisterCount (..))
+import TinyRAM.Types.Word (Word (..))
+import TinyRAM.Types.WordSize (WordSize (..))
 
 spec :: Spec
 spec = describe "TinyRAM end to end" $ do
@@ -75,6 +75,9 @@ spec = describe "TinyRAM end to end" $ do
   cmpgeNegTestCase
 
 --answerR1TestCase --bugged reported
+
+negate :: W.Word16 -> W.Word16
+negate x = 2 ^ (16 :: Integer) - x
 
 ws :: WordSize
 ws = 16
@@ -172,9 +175,6 @@ andTestCase =
 --mov r2, 58
 --and r1, r2, -15
 --answer r1
-
-negate :: W.Word16 -> W.Word16
-negate x = 2 ^ (16 :: Integer) - x
 
 andTestNegativeCase :: Spec
 andTestNegativeCase =
