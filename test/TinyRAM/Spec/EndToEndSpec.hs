@@ -72,11 +72,9 @@ spec = describe "TinyRAM end to end" $ do
   cmpgeEqualTestCase
   cmpgeGreaterTestCase
   --cmpgeLessTestCase --bugged
-  cmpgeNegTestCase 
-  --answerR1TestCase --bugged reported
+  cmpgeNegTestCase
 
-  
-
+--answerR1TestCase --bugged reported
 
 ws :: WordSize
 ws = 16
@@ -300,8 +298,6 @@ cmpaeGreaterTestCase =
 --     answer <- execute program (InputTape []) (InputTape [])
 --     answer `shouldBe` Right 0
 
-
-
 --; TinyRAM V=1.000 W=16 K=16
 --mov r1, 0
 --mov r2, 2
@@ -515,12 +511,12 @@ cmpgeNegTestCase =
     answer <- execute program (InputTape []) (InputTape [])
     answer `shouldBe` Right 1
 
-  --cjmpTestCase
-  --jmpTestExampleNonTermCase
-  --nonExistentTapeTestCase
-  --negativeTestCase
-  --negative8bitTestCase
-  --breakWKconstraintTestCase
+--cjmpTestCase
+--jmpTestExampleNonTermCase
+--nonExistentTapeTestCase
+--negativeTestCase
+--negative8bitTestCase
+--breakWKconstraintTestCase
 
 orTestCase :: Spec
 orTestCase =
@@ -533,8 +529,8 @@ orTestCase =
             ]
     answer <- execute program (InputTape []) (InputTape [])
     answer `shouldBe` Right 63
-  
-  --xorTestCase
+
+--xorTestCase
 -- ; TinyRAM V=1.000 W=16 K=16
 -- mov r2, 15
 -- xor r1, r2, r2
@@ -553,7 +549,6 @@ orTestCase =
 --     answer <- execute program (InputTape []) (InputTape [])
 --     answer `shouldBe` Right 15
 
-
 addTestNegativeTestCase :: Spec
 addTestNegativeTestCase =
   it "answers 3" $ do
@@ -565,8 +560,8 @@ addTestNegativeTestCase =
             ]
     answer <- execute program (InputTape []) (InputTape [])
     answer `shouldBe` Right 3
-  
-  --subTestCase
+
+--subTestCase
 -- ; TinyRAM V=1.000 W=16 K=16
 -- mov r2, 5
 -- sub r1, r2, 2
@@ -584,11 +579,11 @@ subTestCase =
     answer <- execute program (InputTape []) (InputTape [])
     answer `shouldBe` Right 3
 
-  --notTestCase
-  --; TinyRAM V=1.000 W=16 K=16
-  --mov r2, 11
-  --not r1, r2
-  --answer r1
+--notTestCase
+--; TinyRAM V=1.000 W=16 K=16
+--mov r2, 11
+--not r1, r2
+--answer r1
 
 -- notTestCase :: Spec
 -- notTestCase =
@@ -602,11 +597,11 @@ subTestCase =
 --     answer <- execute program (InputTape []) (InputTape [])
 --     answer `shouldBe` Right -11
 
-  --mullTestCase
-  --; TinyRAM V=1.000 W=16 K=16
-  --mov r2, 5
-  --mull r1, r2, 2
-  --answer r1
+--mullTestCase
+--; TinyRAM V=1.000 W=16 K=16
+--mov r2, 5
+--mull r1, r2, 2
+--answer r1
 
 mullTestCase :: Spec
 mullTestCase =
@@ -620,11 +615,11 @@ mullTestCase =
     answer <- execute program (InputTape []) (InputTape [])
     answer `shouldBe` Right 10
 
-  --umulhTestCase
-  --; TinyRAM V=1.000 W=16 K=16
-  --mov r2, 5
-  --umulh r1, r2, 2
-  --answer r1
+--umulhTestCase
+--; TinyRAM V=1.000 W=16 K=16
+--mov r2, 5
+--umulh r1, r2, 2
+--answer r1
 
 umulhTestCase :: Spec
 umulhTestCase =
@@ -638,7 +633,7 @@ umulhTestCase =
     answer <- execute program (InputTape []) (InputTape [])
     answer `shouldBe` Right 10
 
-  --smulhTestCase
+--smulhTestCase
 -- ; TinyRAM V=1.000 W=16 K=16
 -- mov r2, 5
 -- smulh r1, r2, 2
@@ -656,10 +651,10 @@ smulhTestCase =
     answer <- execute program (InputTape []) (InputTape [])
     answer `shouldBe` Right 10
 
-  --; TinyRAM V=1.000 W=16 K=16
-  --mov r2, 5
-  --udiv r1, r2, 2
-  --answer r1
+--; TinyRAM V=1.000 W=16 K=16
+--mov r2, 5
+--udiv r1, r2, 2
+--answer r1
 
 udivTestCase :: Spec
 udivTestCase =
@@ -673,11 +668,11 @@ udivTestCase =
     answer <- execute program (InputTape []) (InputTape [])
     answer `shouldBe` Right 0
 
-  -- udiv0TestCase
-  -- ; TinyRAM V=1.000 W=16 K=16
-  -- mov r2, 5
-  -- udiv r1, r2, 0
-  -- answer r1
+-- udiv0TestCase
+-- ; TinyRAM V=1.000 W=16 K=16
+-- mov r2, 5
+-- udiv r1, r2, 0
+-- answer r1
 
 udiv0TestCase :: Spec
 udiv0TestCase =
@@ -691,12 +686,11 @@ udiv0TestCase =
     answer <- execute program (InputTape []) (InputTape [])
     answer `shouldBe` Right 0
 
-
-  -- umodTestCase
-  -- ; TinyRAM V=1.000 W=16 K=16
-  -- mov r2, 5
-  -- umod r1, r2, 2
-  -- answer r1
+-- umodTestCase
+-- ; TinyRAM V=1.000 W=16 K=16
+-- mov r2, 5
+-- umod r1, r2, 2
+-- answer r1
 
 umodTestCase :: Spec
 umodTestCase =
@@ -710,11 +704,11 @@ umodTestCase =
     answer <- execute program (InputTape []) (InputTape [])
     answer `shouldBe` Right 1
 
-  --umod0TestCase
-  -- ; TinyRAM V=1.000 W=16 K=16
-  -- mov r2, 5
-  -- umod r1, r2, 0
-  -- answer r1
+--umod0TestCase
+-- ; TinyRAM V=1.000 W=16 K=16
+-- mov r2, 5
+-- umod r1, r2, 0
+-- answer r1
 
 umod0TestCase :: Spec
 umod0TestCase =
@@ -728,18 +722,17 @@ umod0TestCase =
     answer <- execute program (InputTape []) (InputTape [])
     answer `shouldBe` Right 0
 
-  --umod1TestCase
-  -- ; TinyRAM V=1.000 W=16 K=16
-  -- mov r2, 5
-  -- umod r1, r2, 1
-  -- answer r1
+--umod1TestCase
+-- ; TinyRAM V=1.000 W=16 K=16
+-- mov r2, 5
+-- umod r1, r2, 1
+-- answer r1
 
-
-  --umod0TestCase
-  -- ; TinyRAM V=1.000 W=16 K=16
-  -- mov r2, 5
-  -- umod r1, r2, 0
-  -- answer r1
+--umod0TestCase
+-- ; TinyRAM V=1.000 W=16 K=16
+-- mov r2, 5
+-- umod r1, r2, 0
+-- answer r1
 
 umod1TestCase :: Spec
 umod1TestCase =
@@ -753,11 +746,11 @@ umod1TestCase =
     answer <- execute program (InputTape []) (InputTape [])
     answer `shouldBe` Right 0
 
-  --shlTestCase
-  -- ; TinyRAM V=1.000 W=16 K=16
-  -- mov r2, 11111
-  -- shl r1, r2, 1
-  -- answer r1
+--shlTestCase
+-- ; TinyRAM V=1.000 W=16 K=16
+-- mov r2, 11111
+-- shl r1, r2, 1
+-- answer r1
 
 -- shlTestCase :: Spec
 -- shlTestCase =
@@ -771,17 +764,17 @@ umod1TestCase =
 --     answer <- execute program (InputTape []) (InputTape [])
 --     answer `shouldBe` Right 0
 
-  --shlFlagTestCase.s
-  -- ; TinyRAM V=1.000 W=16 K=16
-  -- mov r2, 11111
-  -- sub r1, r2, 1
-  -- answer r1
+--shlFlagTestCase.s
+-- ; TinyRAM V=1.000 W=16 K=16
+-- mov r2, 11111
+-- sub r1, r2, 1
+-- answer r1
 
-  --shrTestCase
-  --; TinyRAM V=1.000 W=16 K=16
-  -- mov r2, 63
-  -- shr r1, r2, 1
-  -- answer r1
+--shrTestCase
+--; TinyRAM V=1.000 W=16 K=16
+-- mov r2, 63
+-- shr r1, r2, 1
+-- answer r1
 
 shrTestCase :: Spec
 shrTestCase =
@@ -795,11 +788,10 @@ shrTestCase =
     answer <- execute program (InputTape []) (InputTape [])
     answer `shouldBe` Right 0
 
-
 -- answerR1TestCase :: Spec
--- answerR1TestCase = 
+-- answerR1TestCase =
 --   it "answers 1" $ do
---     let program = 
+--     let program =
 --           construct
 --             [ Mov (reg' 1) (imm  1),
 --               Answer (reg 1)
