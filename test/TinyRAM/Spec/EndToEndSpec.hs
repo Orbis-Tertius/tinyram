@@ -11,23 +11,23 @@ import qualified Data.Text as T
 import qualified Data.Word as W
 import TinyRAM.Bytes (bytesPerWord)
 import TinyRAM.ExecuteProgram (executeProgram')
-import TinyRAM.Spec.CoqRun
+import TinyRAM.Spec.CoqRun (runCoqTinyRAM, toProgram)
 import TinyRAM.Spec.Prelude hiding (negate)
-import TinyRAM.Types.Address
+import TinyRAM.Types.Address (Address (..))
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (IsImmediate, IsRegister))
 import TinyRAM.Types.InputTape
   ( Auxiliary,
     InputTape (..),
     Primary,
   )
-import TinyRAM.Types.Instruction
+import TinyRAM.Types.Instruction (Instruction (..))
 import TinyRAM.Types.MaxSteps (MaxSteps)
 import TinyRAM.Types.Params (Params (..))
-import TinyRAM.Types.ProgramMemoryValues
-import TinyRAM.Types.Register
-import TinyRAM.Types.RegisterCount
-import TinyRAM.Types.Word
-import TinyRAM.Types.WordSize
+import TinyRAM.Types.ProgramMemoryValues (ProgramMemoryValues (..))
+import TinyRAM.Types.Register (Register (..))
+import TinyRAM.Types.RegisterCount (RegisterCount (..))
+import TinyRAM.Types.Word (Word (..))
+import TinyRAM.Types.WordSize (WordSize (..))
 
 spec :: Spec
 spec = describe "TinyRAM end to end" $ do
@@ -76,6 +76,9 @@ spec = describe "TinyRAM end to end" $ do
 
   
 
+
+negate :: W.Word16 -> W.Word16
+negate x = 2 ^ (16 :: Integer) - x
 
 ws :: WordSize
 ws = 16
@@ -173,9 +176,6 @@ andTestCase =
 --mov r2, 58
 --and r1, r2, -15
 --answer r1
-
-negate :: W.Word16 -> W.Word16
-negate x = 2 ^ (16 :: Integer) - x
 
 andTestNegativeCase :: Spec
 andTestNegativeCase =
@@ -668,15 +668,15 @@ mullTestCase =
 
 umulhTestCase :: Spec
 umulhTestCase =
-  it "answers 10" $ do
+  it "answers 0" $ do
     let program =
           construct
             [ Mov (reg' 1) (imm 5),
-              Mull (reg' 0) (reg' 1) (imm 2),
+              Umulh (reg' 0) (reg' 1) (imm 2),
               Answer (reg 0)
             ]
     answer <- execute program (InputTape []) (InputTape [])
-    answer `shouldBe` Right 10
+    answer `shouldBe` Right 0
 
   --smulhTestCase
 -- ; TinyRAM V=1.000 W=16 K=16
@@ -686,15 +686,15 @@ umulhTestCase =
 
 smulhTestCase :: Spec
 smulhTestCase =
-  it "answers 10" $ do
+  it "answers 0" $ do
     let program =
           construct
             [ Mov (reg' 1) (imm 5),
-              Mull (reg' 0) (reg' 1) (imm 2),
+              Smulh (reg' 0) (reg' 1) (imm 2),
               Answer (reg 0)
             ]
     answer <- execute program (InputTape []) (InputTape [])
-    answer `shouldBe` Right 10
+    answer `shouldBe` Right 0
 
   --; TinyRAM V=1.000 W=16 K=16
   --mov r2, 5
@@ -841,11 +841,11 @@ shrTestCase =
     let program =
           construct
             [ Mov (reg' 2) (imm 63),
-              Umod (reg' 0) (reg' 2) (imm 1),
+              Shr (reg' 0) (reg' 2) (imm 1),
               Answer (reg 0)
             ]
     answer <- execute program (InputTape []) (InputTape [])
-    answer `shouldBe` Right 0
+    answer `shouldBe` Right 31
 
 
 -- answerR1TestCase :: Spec
