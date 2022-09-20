@@ -782,11 +782,11 @@ shrTestCase =
     let program =
           construct
             [ Mov (reg' 2) (imm 63),
-              Umod (reg' 0) (reg' 2) (imm 1),
+              Shr (reg' 0) (reg' 2) (imm 1),
               Answer (reg 0)
             ]
     answer <- execute program (InputTape []) (InputTape [])
-    answer `shouldBe` Right 0
+    answer `shouldBe` Right 31
 
 -- answerR1TestCase :: Spec
 -- answerR1TestCase =
