@@ -623,15 +623,15 @@ mullTestCase =
 
 umulhTestCase :: Spec
 umulhTestCase =
-  it "answers 10" $ do
+  it "answers 0" $ do
     let program =
           construct
             [ Mov (reg' 1) (imm 5),
-              Mull (reg' 0) (reg' 1) (imm 2),
+              Umulh (reg' 0) (reg' 1) (imm 2),
               Answer (reg 0)
             ]
     answer <- execute program (InputTape []) (InputTape [])
-    answer `shouldBe` Right 10
+    answer `shouldBe` Right 0
 
 --smulhTestCase
 -- ; TinyRAM V=1.000 W=16 K=16
@@ -641,15 +641,15 @@ umulhTestCase =
 
 smulhTestCase :: Spec
 smulhTestCase =
-  it "answers 10" $ do
+  it "answers 0" $ do
     let program =
           construct
             [ Mov (reg' 1) (imm 5),
-              Mull (reg' 0) (reg' 1) (imm 2),
+              Smulh (reg' 0) (reg' 1) (imm 2),
               Answer (reg 0)
             ]
     answer <- execute program (InputTape []) (InputTape [])
-    answer `shouldBe` Right 10
+    answer `shouldBe` Right 0
 
 --; TinyRAM V=1.000 W=16 K=16
 --mov r2, 5
