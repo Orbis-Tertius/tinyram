@@ -1,26 +1,27 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
 module TinyRAM.Cast
-  ( word8ToWord
-  , word8ToInt
-  , wordToWord8
-  , intToInteger
-  , integerToInt
-  , intToProgramCounter
-  , wordToInt
-  , wordSizetoInt
-  , wordSizeToWord
-  , wordSizeToInteger
-  , intToAddress
-  , addressToInt
-  , word16ToInteger
-  , unsignedIntToInt
-  , wordSizeToUnsignedInt
-  , intToChar
-  ) where
+  ( word8ToWord,
+    word8ToInt,
+    wordToWord8,
+    intToInteger,
+    integerToInt,
+    intToProgramCounter,
+    wordToInt,
+    wordSizetoInt,
+    wordSizeToWord,
+    wordSizeToInteger,
+    intToAddress,
+    addressToInt,
+    word16ToInteger,
+    unsignedIntToInt,
+    wordSizeToUnsignedInt,
+    intToChar,
+  )
+where
 
-import GHC.Word (Word8, Word16)
 import Data.Bits (toIntegralSized)
+import GHC.Word (Word16, Word8)
 import Safe (toEnumMay)
 import TinyRAM.Die (die)
 import TinyRAM.Prelude
@@ -29,7 +30,6 @@ import TinyRAM.Types.ProgramCounter (ProgramCounter (..))
 import TinyRAM.Types.UnsignedInt (UnsignedInt (..))
 import TinyRAM.Types.Word (Word (..))
 import TinyRAM.Types.WordSize (WordSize (..))
-
 
 word8ToWord :: Word8 -> Word
 word8ToWord = Word . fromMaybe (die "word8ToWord partiality") . toIntegralSized

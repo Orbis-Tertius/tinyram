@@ -18,13 +18,13 @@ import System.Process
 import System.Random (randomIO)
 import Text.Read (readMaybe)
 import TinyRAM.Bytes (bytesPerWord)
+import TinyRAM.Cast (wordToWord8)
 import TinyRAM.EncodeInstruction
 import TinyRAM.Types.InputTape
   ( Auxiliary,
     InputTape (..),
     Primary,
   )
-import TinyRAM.Cast (wordToWord8)
 import TinyRAM.Types.MaxSteps
 import TinyRAM.Types.Program
 import TinyRAM.Types.ProgramMemoryValues

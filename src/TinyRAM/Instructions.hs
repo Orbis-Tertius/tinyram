@@ -35,7 +35,7 @@ where
 
 import Control.Monad.Except (throwError)
 import TinyRAM.Bytes (bytesPerWord)
-import TinyRAM.Cast (wordSizeToInteger, unsignedIntToInt, wordSizeToUnsignedInt, wordToInt, integerToInt, intToAddress, addressToInt, intToChar)
+import TinyRAM.Cast (addressToInt, intToAddress, intToChar, integerToInt, unsignedIntToInt, wordSizeToInteger, wordSizeToUnsignedInt, wordToInt)
 import TinyRAM.MachineState
   ( conditionToFlag,
     getImmediateOrRegister,

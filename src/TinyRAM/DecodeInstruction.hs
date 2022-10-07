@@ -6,9 +6,9 @@ module TinyRAM.DecodeInstruction
   )
 where
 
-import TinyRAM.Cast (integerToInt, wordSizetoInt, wordToInt, intToInteger)
 import Crypto.Number.Basic (log2)
 import Data.Bits (rotate)
+import TinyRAM.Cast (intToInteger, integerToInt, wordSizetoInt, wordToInt)
 import TinyRAM.Prelude
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (..))
 import TinyRAM.Types.Instruction (Instruction (..))
@@ -16,7 +16,6 @@ import TinyRAM.Types.Register (Register (..))
 import TinyRAM.Types.RegisterCount (RegisterCount (..))
 import TinyRAM.Types.Word (Word (..))
 import TinyRAM.Types.WordSize (WordSize)
-
 
 decodeInstruction :: WordSize -> RegisterCount -> (Word, Word) -> Maybe Instruction
 decodeInstruction ws rc i@(i0, _) =

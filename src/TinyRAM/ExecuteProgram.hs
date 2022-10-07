@@ -12,7 +12,7 @@ import Data.Functor.Identity (Identity (runIdentity))
 import qualified Data.Map as Map
 import Data.Text (pack)
 import TinyRAM.Bytes (bytesPerWord, bytesToWords)
-import TinyRAM.Cast (intToInteger, intToAddress)
+import TinyRAM.Cast (intToAddress, intToInteger)
 import TinyRAM.DecodeInstruction (decodeInstruction)
 import TinyRAM.Die (die)
 import TinyRAM.Prelude
@@ -61,8 +61,9 @@ initializeMemoryWith (Params ws _) (InputTape primary) (InputTape auxiliary) =
 
     lastWord = ((2 ^ unWordSize ws) `quot` bytesPerWord ws) - 1
     offset = lastWord - length concatenated + 1
-    addresses = Address . Word . (* intToInteger (bytesPerWord ws))
-      <$> [intToInteger offset ..]
+    addresses =
+      Address . Word . (* intToInteger (bytesPerWord ws))
+        <$> [intToInteger offset ..]
 
 executeProgram' ::
   Params ->
