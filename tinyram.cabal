@@ -31,7 +31,9 @@ library
   import: globals
   exposed-modules:
     TinyRAM.Bytes
+    TinyRAM.Cast
     TinyRAM.DecodeInstruction
+    TinyRAM.Die
     TinyRAM.EntryPoint
     TinyRAM.EncodeInstruction
     TinyRAM.ExecuteInstruction

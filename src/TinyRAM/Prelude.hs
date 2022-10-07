@@ -22,7 +22,7 @@ import Control.Monad.Trans.Class (MonadTrans (lift))
 import Data.Bits (Bits (complement, shift, xor, (.&.), (.|.)))
 import Data.ByteString (ByteString)
 import Data.Generics.Labels ()
-import Data.List (unfoldr)
+import Data.List (unfoldr, foldl')
 import Data.Map (Map)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
@@ -43,7 +43,7 @@ toBinary :: Int -> Integer -> String
 toBinary size input =
   let list = unfoldr (\x -> if x == 0 then Nothing else Just (x `mod` 2, x `div` 2)) input
       val =
-        foldl
+        foldl'
           (\acc -> (++ acc) . show)
           ""
           list

@@ -18,7 +18,7 @@ import TinyRAM.Types.Sign (Sign)
 import TinyRAM.Types.SignedInt (SignedInt (..))
 import TinyRAM.Types.UnsignedInt (UnsignedInt (..))
 import TinyRAM.Types.Word (Word (..))
-import TinyRAM.Types.WordSize (WordSize)
+import TinyRAM.Types.WordSize (WordSize (unWordSize))
 
 spec :: Spec
 spec = describe "SignedArithmetic" $ do
@@ -65,7 +65,7 @@ signedMultiplyHighSpec = describe "signedMultiplyHigh" $
               z = x' * y'
               zA = abs z
               zL = zA .&. (2 ^ ws - 1)
-              zH = zA `shift` negate (fromIntegral ws)
+              zH = zA `shift` negate (unWordSize ws)
               zS :: Integer
               zS = if z < 0 then -1 else 1
               a = signedMultiplyHigh ws x y

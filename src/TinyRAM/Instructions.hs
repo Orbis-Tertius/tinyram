@@ -35,6 +35,7 @@ where
 
 import Control.Monad.Except (throwError)
 import TinyRAM.Bytes (bytesPerWord)
+import TinyRAM.Cast (wordSizeToInteger, unsignedIntToInt, wordSizeToUnsignedInt, wordToInt, integerToInt, intToAddress, addressToInt)
 import TinyRAM.MachineState
   ( conditionToFlag,
     getImmediateOrRegister,
@@ -150,7 +151,7 @@ subtractUnsigned ri rj a = do
   wsb <- getWordSizeBitmask
   msb <- getWordSizeBitmaskMSB
   let k :: UnsignedInt
-      k = 2 ^ (fromIntegral ws :: UnsignedInt)
+      k = 2 ^ (wordSizeToInteger ws)
       y = rj' + k - a'
   setRegisterValue ri (unUnsignedInt y .&. wsb)
   setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb == 0))
@@ -246,9 +247,9 @@ shiftLeft ri rj a = do
   rj' <- getRegisterValue rj
   ws <- getWordSize
   wsb <- getWordSizeBitmask
-  setRegisterValue ri $ (rj' `shift` fromIntegral (min (fromIntegral ws) a')) .&. wsb
+  setRegisterValue ri $ (rj' `shift` unsignedIntToInt (min (wordSizeToUnsignedInt ws) a')) .&. wsb
   setConditionFlag . conditionToFlag $
-    (rj' .&. (2 ^ (fromIntegral ws - 1 :: Integer))) /= 0
+    (rj' .&. (2 ^ (wordSizeToInteger ws - 1))) /= 0
   incrementProgramCounter
 
 shiftRight ::
@@ -261,8 +262,8 @@ shiftRight ri rj a = do
   a' <- UnsignedInt <$> getImmediateOrRegister a
   rj' <- getRegisterValue rj
   ws <- getWordSize
-  setRegisterValue ri $ rj' `shift` fromIntegral (negate (min (fromIntegral ws) a'))
-  setConditionFlag . Flag . fromIntegral $ rj' .&. 1
+  setRegisterValue ri $ rj' `shift` unsignedIntToInt (negate (min (wordSizeToUnsignedInt ws) a'))
+  setConditionFlag . Flag . wordToInt $ rj' .&. 1
   incrementProgramCounter
 
 compareEqual ::
@@ -394,7 +395,7 @@ storeb a ri = do
   ri' <- getRegisterValue ri
   wordSize <- getWordSize
   let riTrunc :: Integer
-      riTrunc = fromIntegral ri' .&. 0xff
+      riTrunc = unWord ri' .&. 0xff
       (aAligned, aOffset) = alignToWord wordSize a'
   prevWord <- getWord aAligned
   setWord aAligned (setByte prevWord aOffset riTrunc)
@@ -435,14 +436,14 @@ out a = do
   Word character <- getImmediateOrRegister a
   if character .&. 0xff /= character
     then throwError InvalidPrintCharacter
-    else consoleOut (toEnum $ fromIntegral character)
+    else consoleOut (toEnum $ integerToInt character)
   incrementProgramCounter
 
 alignToWord :: WordSize -> Address -> (Address, Integer)
 alignToWord ws address =
-  (address - fromIntegral offset, toInteger offset)
+  (address - intToAddress offset, toInteger offset)
   where
-    offset = fromIntegral address `rem` bytesPerWord ws
+    offset = addressToInt address `rem` bytesPerWord ws
 
 setByte :: Word -> Integer -> Integer -> Word
 setByte word offset val =
@@ -452,7 +453,7 @@ setByte word offset val =
     mask = complement (0xff `shift` shift')
 
     val' :: Word
-    val' = fromIntegral val `shift` shift'
+    val' = Word val `shift` shift'
 
     shift' :: Int
     shift' = fromInteger $ 8 * offset

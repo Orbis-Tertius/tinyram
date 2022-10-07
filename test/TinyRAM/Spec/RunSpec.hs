@@ -42,7 +42,7 @@ spec = describe "run" $ do
     forAll genParamsMachineState $ \x@(ps, _state) ->
       let answer = run'' x
        in case answer of
-            Nothing -> return ()
+            Nothing -> pure ()
             Just answer' -> validateWord "Answer" ps answer' `shouldBe` mempty
 
   it "does not change the params" $
@@ -50,14 +50,14 @@ spec = describe "run" $ do
       let answer = run' x
        in case answer of
             Right (_, (ps', _)) -> ps' `shouldBe` ps
-            Left _ -> return ()
+            Left _ -> pure ()
 
   it "results in a valid machine state" $
     forAll genParamsMachineState $ \x@(ps, _state) ->
       let eitherState = snd . snd <$> run' x
        in case eitherState of
             Right s -> validateMachineState ps s `shouldBe` mempty
-            Left _ -> return ()
+            Left _ -> pure ()
 
   it "produces the same result when split into multiple runs" $
     forAll genParamsMachineState $ \x ->
@@ -73,11 +73,11 @@ spec = describe "run" $ do
           pc = x ^. _2 . #programCounter . #unProgramCounter
           i = x ^. _2 . #programMemoryValues . #unProgramMemoryValues . at pc
        in case i of
-            Just (Answer _) -> return ()
+            Just (Answer _) -> pure ()
             (Just inst) ->
               let b = runIdentity . runExceptT . runStateT (unTinyRAMT (executeInstruction inst)) $ x
                in (snd <$> a) `shouldBe` (snd <$> b)
-            Nothing -> return ()
+            Nothing -> pure ()
 
   it "halts on an answer instruction" $
     forAll genParamsMachineState $ \(ps, _state) ->
@@ -87,7 +87,7 @@ spec = describe "run" $ do
               m = do
                 expectedAnswer' <- getImmediateOrRegister a
                 answer' <- run (Just 100)
-                return (answer', Just expectedAnswer')
+                pure (answer', Just expectedAnswer')
               pc = _state ^. #programCounter . #unProgramCounter
               updated = Map.insert pc (Answer a) $ _state ^. #programMemoryValues . #unProgramMemoryValues
               s' = #programMemoryValues .~ ProgramMemoryValues updated $ _state
