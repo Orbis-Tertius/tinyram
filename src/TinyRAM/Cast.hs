@@ -8,6 +8,7 @@ module TinyRAM.Cast
   , integerToInt
   , intToProgramCounter
   , wordToInt
+  , wordSizetoInt
   , wordSizeToWord
   , wordSizeToInteger
   , intToAddress
@@ -74,3 +75,6 @@ wordSizeToUnsignedInt = UnsignedInt . Word . wordSizeToInteger
 
 intToChar :: Int -> Char
 intToChar = fromMaybe (die "intToChar partiality") . toEnumMay
+
+wordSizetoInt :: WordSize -> Int
+wordSizetoInt = integerToInt . wordSizeToInteger

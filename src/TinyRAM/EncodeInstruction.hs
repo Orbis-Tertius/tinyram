@@ -3,7 +3,7 @@
 
 module TinyRAM.EncodeInstruction (encodeInstruction) where
 
-import TinyRAM.Cast (intToInteger)
+import TinyRAM.Cast (intToInteger, wordSizetoInt)
 import TinyRAM.DecodeInstruction (bitsPerRegister)
 import TinyRAM.Prelude
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (..))
@@ -49,11 +49,11 @@ encodeInstruction w k instr = case instr of
 
 encodeInstruction' :: WordSize -> RegisterCount -> (Int, Register, Register, ImmediateOrRegister) -> (Word, Word)
 encodeInstruction' w k (opcode, ri, rj, a) =
-  ( Word . fromIntegral $
-      (opcode `shift` (fromIntegral w - 5))
-        .|. (isImmediate a `shift` (fromIntegral w - 6))
-        .|. ((ri ^. #unRegister) `shift` (fromIntegral w - (6 + bitsPerRegister k)))
-        .|. ((rj ^. #unRegister) `shift` (fromIntegral w - (6 + 2 * bitsPerRegister k))),
+  ( Word . intToInteger $
+      (opcode `shift` (wordSizetoInt w - 5))
+        .|. (isImmediate a `shift` (wordSizetoInt w - 6))
+        .|. ((ri ^. #unRegister) `shift` (wordSizetoInt w - (6 + bitsPerRegister k)))
+        .|. ((rj ^. #unRegister) `shift` (wordSizetoInt w - (6 + 2 * bitsPerRegister k))),
     Word $ aVal a
   )
   where

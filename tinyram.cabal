@@ -75,6 +75,7 @@ library
     base >= 4.9 && < 5,
     bytestring,
     containers,
+    cryptonite,
     generic-lens,
     ghc-prim,
     lens,
