@@ -32,29 +32,31 @@ import TinyRAM.Types.WordSize (WordSize (..))
 spec :: Spec
 spec = describe "TinyRAM end to end" $ do
   simpleTestCase
-  addTestCase
-  andTestCase
+  addTestCase --flag for overflow
+  andTestCase --flag is 0^W
   andTestNegativeCase
   cjmpTestCase
   jmpTestExampleNonTermCase 
   negativeTestCase 
   negative8bitTestCase 
-  orTestCase
-  --xorTestCase --bugged reported
+  orTestCase --flag is 0^W
+  --xorTestCase --bugged reported --flag is 0^W
   addTestNegativeTestCase
-  subTestCase
-  notTestCase --negative answer bugged
-  mullTestCase
-  umulhTestCase
-  smulhTestCase
-  udivTestCase
-  udiv0TestCase
-  umodTestCase
+  subTestCase --flag for borrowing
+  --notTestCase --negative answer bugged --flag is 0^W
+  mullTestCase --flag for overflow
+  umulhTestCase --flag for overflow
+  smulhTestCase --flag for over/underflow
+  udivTestCase --flag is [A]u = 0
+  udiv0TestCase 
+  umodTestCase --flag is [A]u = 0
   umod0TestCase
   umod1TestCase
-  shlTestCase 
+  shlTestCase --flag is most significant bit of rj
   shlFlagTestCase 
-  shrTestCase
+  shrTestCase --flag is least significant bit of rj
+
+  --Comparison tests all use the flag. A duplicate test can check the inverse.
 
   cmpaeEqualTestCase
   cmpaeGreaterTestCase
@@ -632,17 +634,17 @@ subTestCase =
   --not r1, r2
   --answer r1
 
-notTestCase :: Spec
-notTestCase =
-  it "answers -11" $ do
-    let program =
-          construct
-            [ Mov (reg' 1) (imm 11),
-              Not (reg' 0) (reg 1),
-              Answer (reg 0)
-            ]
-    answer <- execute program (InputTape []) (InputTape [])
-    answer `shouldBe` Right (Word (fromIntegral(negate 11)))
+-- notTestCase :: Spec
+-- notTestCase =
+--   it "answers -11" $ do
+--     let program =
+--           construct
+--             [ Mov (reg' 1) (imm 11),
+--               Not (reg' 0) (reg 1),
+--               Answer (reg 0)
+--             ]
+--     answer <- execute program (InputTape []) (InputTape [])
+--     answer `shouldBe` Right (Word (fromIntegral(negate 11)))
 
   --mullTestCase
   --; TinyRAM V=1.000 W=16 K=16
