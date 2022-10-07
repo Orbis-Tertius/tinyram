@@ -3,6 +3,7 @@
 
 module TinyRAM.EncodeInstruction (encodeInstruction) where
 
+import TinyRAM.Cast (intToInteger)
 import TinyRAM.DecodeInstruction (bitsPerRegister)
 import TinyRAM.Prelude
 import TinyRAM.Types.ImmediateOrRegister (ImmediateOrRegister (..))
@@ -63,5 +64,5 @@ encodeInstruction' w k (opcode, ri, rj, a) =
     aVal :: ImmediateOrRegister -> Integer
     aVal x =
       case x of
-        IsImmediate wo -> fromIntegral wo
-        IsRegister (Register r) -> fromIntegral r
+        IsImmediate wo -> unWord wo
+        IsRegister (Register r) -> intToInteger r

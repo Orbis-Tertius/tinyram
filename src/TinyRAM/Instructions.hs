@@ -35,7 +35,7 @@ where
 
 import Control.Monad.Except (throwError)
 import TinyRAM.Bytes (bytesPerWord)
-import TinyRAM.Cast (wordSizeToInteger, unsignedIntToInt, wordSizeToUnsignedInt, wordToInt, integerToInt, intToAddress, addressToInt)
+import TinyRAM.Cast (wordSizeToInteger, unsignedIntToInt, wordSizeToUnsignedInt, wordToInt, integerToInt, intToAddress, addressToInt, intToChar)
 import TinyRAM.MachineState
   ( conditionToFlag,
     getImmediateOrRegister,
@@ -151,7 +151,7 @@ subtractUnsigned ri rj a = do
   wsb <- getWordSizeBitmask
   msb <- getWordSizeBitmaskMSB
   let k :: UnsignedInt
-      k = 2 ^ (wordSizeToInteger ws)
+      k = 2 ^ wordSizeToInteger ws
       y = rj' + k - a'
   setRegisterValue ri (unUnsignedInt y .&. wsb)
   setConditionFlag (conditionToFlag (unUnsignedInt y .&. msb == 0))
@@ -436,7 +436,7 @@ out a = do
   Word character <- getImmediateOrRegister a
   if character .&. 0xff /= character
     then throwError InvalidPrintCharacter
-    else consoleOut (toEnum $ integerToInt character)
+    else consoleOut (intToChar $ integerToInt character)
   incrementProgramCounter
 
 alignToWord :: WordSize -> Address -> (Address, Integer)

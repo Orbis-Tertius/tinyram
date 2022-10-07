@@ -80,6 +80,7 @@ library
     lens,
     mtl,
     optparse-applicative,
+    safe,
     text -any,
     transformers,
     validity,

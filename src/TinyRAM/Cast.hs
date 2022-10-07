@@ -15,10 +15,12 @@ module TinyRAM.Cast
   , word16ToInteger
   , unsignedIntToInt
   , wordSizeToUnsignedInt
+  , intToChar
   ) where
 
 import GHC.Word (Word8, Word16)
 import Data.Bits (toIntegralSized)
+import Safe (toEnumMay)
 import TinyRAM.Die (die)
 import TinyRAM.Prelude
 import TinyRAM.Types.Address (Address (..))
@@ -69,3 +71,6 @@ unsignedIntToInt = wordToInt . unUnsignedInt
 
 wordSizeToUnsignedInt :: WordSize -> UnsignedInt
 wordSizeToUnsignedInt = UnsignedInt . Word . wordSizeToInteger
+
+intToChar :: Int -> Char
+intToChar = fromMaybe (die "intToChar partiality") . toEnumMay
