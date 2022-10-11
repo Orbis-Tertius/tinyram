@@ -2,7 +2,7 @@
 
 module TinyRAM.DecodeInstruction
   ( decodeInstruction,
-    bitsPerRegister, decodeRJ
+    bitsPerRegister,
   )
 where
 
