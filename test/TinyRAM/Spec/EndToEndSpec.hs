@@ -57,7 +57,9 @@ spec = describe "TinyRAM end to end" $ do
   shlFlagTestCase
   shrTestCase
 
-  cmpaeEqualTestCase
+  cmpaeEqualTestCaseE
+  cmpaeEqualTestCaseG
+
   cmpaeGreaterTestCase
   --cmpaeLessTestCase --bugged reported
   --cmpaeNegTestCase  --bugged reported
@@ -217,14 +219,29 @@ cjmpTestCase =
 --cmov r1, 1
 --answer r1
 
-cmpaeEqualTestCase :: Spec
-cmpaeEqualTestCase =
+cmpaeEqualTestCaseE :: Spec
+cmpaeEqualTestCaseE =
   it "answers 1" $ do
     let program =
           construct
             [ Mov (reg' 0) (imm 0),
               Mov (reg' 2) (imm 2),
               Mov (reg' 3) (imm 2),
+              Cmpae (reg' 2) (reg 3),
+              Cmov (reg' 0) (imm 1),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 1
+
+cmpaeEqualTestCaseG :: Spec
+cmpaeEqualTestCaseG =
+  it "answers 1" $ do
+    let program =
+          construct
+            [ Mov (reg' 0) (imm 0),
+              Mov (reg' 2) (imm 2),
+              Mov (reg' 3) (imm 1),
               Cmpae (reg' 2) (reg 3),
               Cmov (reg' 0) (imm 1),
               Answer (reg 0)
