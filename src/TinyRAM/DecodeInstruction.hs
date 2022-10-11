@@ -2,11 +2,11 @@
 
 module TinyRAM.DecodeInstruction
   ( decodeInstruction,
-    bitsPerRegister,
+    bitsPerRegister, decodeRJ
   )
 where
 
-import Crypto.Number.Basic (log2)
+import Crypto.Number.Basic (numBits)
 import Data.Bits (rotate)
 import TinyRAM.Cast (intToInteger, integerToInt, wordSizetoInt, wordToInt)
 import TinyRAM.Prelude
@@ -83,7 +83,7 @@ decodeRJ ws rc (Word w) =
     shifted = w `rotate` (-wordSizetoInt ws + 2 * bitsPerRegister rc + 6)
 
 bitsPerRegister :: RegisterCount -> Int
-bitsPerRegister (RegisterCount rc) = log2 (intToInteger rc)
+bitsPerRegister (RegisterCount rc) = numBits (intToInteger rc - 1)
 
 registerBitmask :: RegisterCount -> Integer
 registerBitmask rc = 2 ^ bitsPerRegister rc - 1
