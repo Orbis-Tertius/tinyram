@@ -21,6 +21,7 @@ where
 
 import qualified Data.Map as Map
 import TinyRAM.Bytes (bytesPerWord)
+import TinyRAM.Cast (intToProgramCounter)
 import TinyRAM.Params (getWordSize)
 import TinyRAM.Prelude
 import TinyRAM.Types.Flag (Flag)
@@ -38,7 +39,7 @@ getImmediateOrRegister ::
   HasMachineState m =>
   ImmediateOrRegister ->
   m Word
-getImmediateOrRegister (IsImmediate w) = return w
+getImmediateOrRegister (IsImmediate w) = pure w
 getImmediateOrRegister (IsRegister r) = getRegisterValue r
 
 conditionToFlag :: Bool -> Flag
@@ -51,7 +52,7 @@ incrementProgramCounter ::
 incrementProgramCounter = do
   wordSize <- getWordSize
   setProgramCounter . (`mod` (2 ^ unWordSize wordSize))
-    . (+ (fromIntegral $ 2 * bytesPerWord wordSize))
+    . (+ (intToProgramCounter $ 2 * bytesPerWord wordSize))
     =<< getProgramCounter
 
 validateMachineState :: Params -> MachineState -> Validation

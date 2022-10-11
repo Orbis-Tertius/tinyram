@@ -31,7 +31,9 @@ library
   import: globals
   exposed-modules:
     TinyRAM.Bytes
+    TinyRAM.Cast
     TinyRAM.DecodeInstruction
+    TinyRAM.Die
     TinyRAM.EntryPoint
     TinyRAM.EncodeInstruction
     TinyRAM.ExecuteInstruction
@@ -73,11 +75,13 @@ library
     base >= 4.9 && < 5,
     bytestring,
     containers,
+    cryptonite,
     generic-lens,
     ghc-prim,
     lens,
     mtl,
     optparse-applicative,
+    safe,
     text -any,
     transformers,
     validity,

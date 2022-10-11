@@ -8,6 +8,7 @@ module TinyRAM.SignedArithmetic
   )
 where
 
+import TinyRAM.Cast (wordSizeToInteger)
 import TinyRAM.Prelude
 import TinyRAM.Types.Sign (Sign (..))
 import TinyRAM.Types.SignedInt (SignedInt (..))
@@ -17,7 +18,7 @@ import TinyRAM.Types.WordSize (WordSize (..))
 
 getSign :: WordSize -> SignedInt -> Sign
 getSign ws x =
-  case Word (2 ^ (fromIntegral ws - 1 :: Integer)) .&. unSignedInt x of
+  case Word (2 ^ (wordSizeToInteger ws - 1)) .&. unSignedInt x of
     0 -> Sign 1
     _ -> Sign (-1)
 
@@ -28,8 +29,8 @@ getUnsignedComponent ws x =
 -- Decode the two's complement representation to get the value of the SignedInt.
 decodeSignedInt :: WordSize -> SignedInt -> Integer
 decodeSignedInt ws (SignedInt (Word x)) =
-  (x .&. (2 ^ (fromIntegral ws - 1 :: Integer) - 1))
-    - (x .&. (2 ^ (fromIntegral ws - 1 :: Integer)))
+  (x .&. (2 ^ (wordSizeToInteger ws - 1) - 1))
+    - (x .&. (2 ^ (wordSizeToInteger ws - 1)))
 
 signedMultiplyHigh :: WordSize -> SignedInt -> SignedInt -> SignedInt
 signedMultiplyHigh ws x y =
