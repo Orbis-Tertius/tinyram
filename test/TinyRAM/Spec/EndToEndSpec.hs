@@ -65,9 +65,9 @@ spec = describe "TinyRAM end to end" $ do
   cmpaTestCaseE
   cmpaTestCaseG
   --cmpaTestCaseL --bugged reported
-  --cmpaNegTestCaseL --bugged reported
+  --cmpaNegTestCaseG --bugged reported
+  cmpaNegTestCaseL
   --cmpaNegTestCaseE
-  --cmpaNegTestCaseG
   cmpeTestCaseE
   -- cmpeTestCaseG --bugged reported
   --cmpeTestCaseL --bugged reported
@@ -410,13 +410,43 @@ cmpaTestCaseG =
 --answer r1
 --cmpaneg
 
--- cmpaNegTestCase :: Spec
--- cmpaNegTestCase =
+-- cmpaNegTestCaseG :: Spec
+-- cmpaNegTestCaseG =
 --   it "answers 0" $ do
 --     let program =
 --           construct
 --             [ Mov (reg' 0) (imm 0),
 --               Mov (reg' 2) (imm 2),
+--               Mov (reg' 3) (imm (negate 2)),
+--               Cmpa (reg' 2) (reg 3),
+--               Cmov (reg' 0) (imm 1),
+--               Answer (reg 0)
+--             ]
+--     answer <- execute program (InputTape []) (InputTape [])
+--     answer `shouldBe` Right 0
+
+cmpaNegTestCaseL :: Spec
+cmpaNegTestCaseL =
+  it "answers 0" $ do
+    let program =
+          construct
+            [ Mov (reg' 0) (imm 0),
+              Mov (reg' 2) (imm (negate 2)),
+              Mov (reg' 3) (imm 2),
+              Cmpa (reg' 2) (reg 3),
+              Cmov (reg' 0) (imm 1),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 0
+
+-- cmpaNegTestCaseE :: Spec
+-- cmpaNegTestCaseE =
+--   it "answers 0" $ do
+--     let program =
+--           construct
+--             [ Mov (reg' 0) (imm 0),
+--               Mov (reg' 2) (imm (negate 2)),
 --               Mov (reg' 3) (imm (negate 2)),
 --               Cmpa (reg' 2) (reg 3),
 --               Cmov (reg' 0) (imm 1),
