@@ -537,7 +537,7 @@ cmpeNegTestCaseE =
 --           construct
 --             [ Mov (reg' 0) (imm 0),
 --               Mov (reg' 2) (imm (negate 1)),
---               Mov (reg' 3) (imm negate 1),
+--               Mov (reg' 3) (imm 1),
 --               Cmpe (reg' 2) (reg 3),
 --               Cmov (reg' 0) (imm 1),
 --               Answer (reg 0)
