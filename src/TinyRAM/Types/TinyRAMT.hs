@@ -54,7 +54,7 @@ instance (Monad m, MonadError Error (TinyRAMT m)) => HasMachineState (TinyRAMT m
   getRegisterValue r = TinyRAMT $ do
     maybeWord <- gets (Map.lookup r . (^. _2 . #registerValues . #unRegisterValues))
     case maybeWord of
-      Just word -> return word
+      Just word -> pure word
       _ -> throwError InvalidRegisterError
   setRegisterValue r w =
     TinyRAMT $
@@ -77,7 +77,7 @@ instance (Monad m, MonadError Error (TinyRAMT m)) => HasMachineState (TinyRAMT m
       let m :: Map Address Instruction
           m = s ^. _2 . #programMemoryValues . #unProgramMemoryValues
        in case Map.lookup addr m of
-            Just instruction -> return instruction
+            Just instruction -> pure instruction
             Nothing -> lift $ throwError InstructionFetchError
   getWord addr =
     TinyRAMT $

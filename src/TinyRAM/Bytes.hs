@@ -3,6 +3,7 @@
 module TinyRAM.Bytes (bytesToWords, wordsToBytes, bytesPerWord) where
 
 import qualified Data.ByteString as BS
+import TinyRAM.Cast (word8ToWord, wordToWord8)
 import TinyRAM.Prelude
 import TinyRAM.Types.Word (Word)
 import TinyRAM.Types.WordSize (WordSize (..))
@@ -22,7 +23,7 @@ bytesToWords ws bytes =
     bytesToWord :: ByteString -> Word
     bytesToWord =
       BS.foldr
-        (\a x -> x * shiftValue + fromIntegral a)
+        (\a x -> x * shiftValue + word8ToWord a)
         0
 
     misalignment :: Int
@@ -58,6 +59,6 @@ wordsToBytes ws wrds =
     wordsToByte wrd =
       fst $
         foldr
-          (\_ (a, cw) -> (BS.snoc a (fromIntegral $ cw .&. (shiftValue - 1)), cw `div` shiftValue))
+          (\_ (a, cw) -> (BS.snoc a (wordToWord8 $ cw .&. (shiftValue - 1)), cw `div` shiftValue))
           (BS.empty, wrd)
           [1 .. bytesPerWord']

@@ -8,13 +8,13 @@ module TinyRAM.Spec.CoqTinyRAMSpec
   )
 where
 
-import Control.Monad
 import Control.Monad.Trans.Except (runExceptT)
 import Control.Monad.Trans.State (StateT (runStateT))
 import Data.ByteString (pack)
 import Data.Functor.Identity (runIdentity)
 import qualified Data.Map as Map
 import TinyRAM.Bytes (bytesPerWord)
+import TinyRAM.Cast (intToInteger)
 import TinyRAM.Run (run)
 import TinyRAM.Spec.CoqRun
   ( byteToBitString,
@@ -66,7 +66,7 @@ coqTinyRAMSmokeTest =
   it "passes a smoke test" $ do
     result <- runCoqTinyRAM (Program "\xFC\0\0\0") (InputTape []) (InputTape []) (MaxSteps 6)
     result `shouldBe` Just 0
-    return ()
+    pure ()
 
 answerTest :: Spec
 answerTest =
@@ -122,7 +122,7 @@ emptyMemoryValues ws =
     Map.fromList
       (take (2 ^ unWordSize ws) (zip addresses (Word <$> repeat 0)))
   where
-    addresses = Address . Word . (* fromIntegral (bytesPerWord ws)) <$> [0 ..]
+    addresses = Address . Word . (* intToInteger (bytesPerWord ws)) <$> [0 ..]
 
 createMachineState :: WordSize -> RegisterCount -> ProgramMemoryValues -> MachineState
 createMachineState ws rc =
@@ -152,7 +152,7 @@ generatedTests =
         let hsResult = execute maxSteps ps s
         -- print hsResult
         case (coqResult, hsResult) of
-          (_, Left _) -> return () -- TODO more granularly compare error results
+          (_, Left _) -> pure () -- TODO more granularly compare error results
           (x, Right (y, _)) -> do
             x `shouldBe` y
   where

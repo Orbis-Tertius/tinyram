@@ -7,6 +7,8 @@ import Control.Monad.Trans.Except (runExceptT)
 import Control.Monad.Trans.State (StateT (runStateT))
 import Data.Functor.Identity (Identity (runIdentity))
 import TinyRAM.Bytes (bytesPerWord)
+import TinyRAM.Cast (addressToInt, intToAddress, intToProgramCounter, wordSizeToWord, wordToInt)
+import TinyRAM.Die (die)
 import TinyRAM.ExecuteInstruction (executeInstruction)
 import TinyRAM.MachineState (conditionToFlag)
 import TinyRAM.SignedArithmetic
@@ -101,14 +103,14 @@ instructionStateTransition ps i =
         ws
     Shl ri rj a ->
       functionOpcode
-        (\x y -> (y `shift` fromIntegral (min (fromIntegral ws) x)) .&. wordSizeBitmask)
+        (\x y -> (y `shift` min (unWordSize ws) (wordToInt x)) .&. wordSizeBitmask)
         (\_ y -> conditionToFlag $ y .&. (2 ^ (ws ^. #unWordSize - 1)) /= 0)
         (ri, rj, a)
         ws
     Shr ri rj a ->
       functionOpcode
-        (\x y -> (y `shift` negate (fromIntegral (min (fromIntegral ws) x))) .&. wordSizeBitmask)
-        (\_ y -> Flag . fromIntegral $ y .&. 1)
+        (\x y -> (y `shift` negate (wordToInt (min (wordSizeToWord ws) x))) .&. wordSizeBitmask)
+        (\_ y -> Flag . wordToInt $ y .&. 1)
         (ri, rj, a)
         ws
     Cmpe ri a -> comparisonOpcode (==) (ri, a) ws
@@ -173,13 +175,13 @@ instructionStateTransition ps i =
     wordSizeBitmaskMSB = wordSizeBitmask `shift` (ps ^. #wordSize . #unWordSize)
 
 incrementPC :: WordSize -> MachineState -> MachineState
-incrementPC ws s = #programCounter .~ ((s ^. #programCounter + fromIntegral (2 * bytesPerWord ws)) `mod` (2 ^ unWordSize ws)) $ s
+incrementPC ws s = #programCounter .~ ((s ^. #programCounter + intToProgramCounter (2 * bytesPerWord ws)) `mod` (2 ^ unWordSize ws)) $ s
 
 alignToWord :: WordSize -> Address -> (Address, Integer)
 alignToWord ws address =
-  (address - fromIntegral offset, toInteger offset)
+  (address - intToAddress offset, toInteger offset)
   where
-    offset = fromIntegral address `rem` bytesPerWord ws
+    offset = addressToInt address `rem` bytesPerWord ws
 
 functionOpcode ::
   (Word -> Word -> Word) ->
@@ -235,15 +237,15 @@ getA a s =
   case a of
     IsImmediate x -> x
     IsRegister r ->
-      fromMaybe (error "getA failed") $
+      fromMaybe (die "getA failed") $
         s ^. #registerValues . #unRegisterValues . at r
 
 getRJ :: Register -> MachineState -> Word
 getRJ rj s =
-  fromMaybe (error "getRJ failed") $
+  fromMaybe (die "getRJ failed") $
     s ^. #registerValues . #unRegisterValues . at rj
 
 getRI :: Register -> MachineState -> Word
 getRI ri s =
-  fromMaybe (error "getRI failed") $
+  fromMaybe (die "getRI failed") $
     s ^. #registerValues . #unRegisterValues . at ri

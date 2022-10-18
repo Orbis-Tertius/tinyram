@@ -5,6 +5,7 @@ module TinyRAM.Run (run) where
 import Control.Monad (unless)
 import Control.Monad.Except (throwError)
 import TinyRAM.Bytes (bytesPerWord)
+import TinyRAM.Cast (intToAddress)
 import TinyRAM.ExecuteInstruction (executeInstruction)
 import TinyRAM.MachineState (getImmediateOrRegister)
 import TinyRAM.Params (getWordSize)
@@ -22,18 +23,18 @@ import TinyRAM.Types.ProgramCounter (ProgramCounter (..))
 import TinyRAM.Types.Word (Word)
 
 run :: (HasMachineState m, HasParams m) => Maybe MaxSteps -> m (Maybe Word)
-run (Just 0) = return Nothing
+run (Just 0) = pure Nothing
 run n = do
   ws <- getWordSize
   let bytesPerWord' = bytesPerWord ws
   pc <- unProgramCounter <$> getProgramCounter
-  unless (pc `mod` fromIntegral bytesPerWord' == 0) (throwError InvalidPCAlignment)
+  unless (pc `mod` intToAddress bytesPerWord' == 0) (throwError InvalidPCAlignment)
   instruction <- fetchInstruction pc
   case instruction of
     Jmp (IsImmediate w) | Address w == pc -> throwError (InfiniteLoopError pc)
     Answer a -> do
       code <- getImmediateOrRegister a
-      return (Just code)
+      pure (Just code)
     otherInstruction -> do
       executeInstruction otherInstruction
       run (subtract 1 <$> n)

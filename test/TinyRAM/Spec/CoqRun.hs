@@ -18,6 +18,7 @@ import System.Process
 import System.Random (randomIO)
 import Text.Read (readMaybe)
 import TinyRAM.Bytes (bytesPerWord)
+import TinyRAM.Cast (wordToWord8)
 import TinyRAM.EncodeInstruction
 import TinyRAM.Types.InputTape
   ( Auxiliary,
@@ -47,7 +48,7 @@ wordsToBytesBigEndian ws wrds =
         foldr
           ( \_ (a, cw) ->
               ( BS.cons
-                  (fromIntegral $ cw .&. (shiftValue - 1))
+                  (wordToWord8 $ cw .&. (shiftValue - 1))
                   a,
                 cw `div` shiftValue
               )
@@ -109,13 +110,13 @@ runCoqTinyRAM
         o3 <- hGetLine pStdout
         -- putStrLn o3
         if "Error: Program did not halt within" `isPrefixOf` o3
-          then return Nothing
+          then pure Nothing
           else do
             _ <- hGetLine pStdout
             -- putStrLn o4
             o5 <- hGetLine pStdout
             -- putStrLn o5
             if "\tNat: " `isPrefixOf` o5
-              then return (Word <$> readMaybe (drop 6 o5))
-              else return Nothing
-      _ -> return Nothing
+              then pure (Word <$> readMaybe (drop 6 o5))
+              else pure Nothing
+      _ -> pure Nothing

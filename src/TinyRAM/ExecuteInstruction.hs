@@ -70,4 +70,4 @@ executeInstruction i = case i of
   Storew a ri -> store a ri
   Loadw ri a -> load ri a
   Out a -> out a
-  Answer _ -> return ()
+  Answer _ -> pure ()

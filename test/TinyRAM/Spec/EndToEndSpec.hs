@@ -10,6 +10,7 @@ import qualified Data.Map as Map
 import qualified Data.Text as T
 import qualified Data.Word as W
 import TinyRAM.Bytes (bytesPerWord)
+import TinyRAM.Cast (intToInteger, word16ToInteger, word8ToInt)
 import TinyRAM.ExecuteProgram (executeProgram')
 import TinyRAM.Spec.CoqRun (runCoqTinyRAM, toProgram)
 import TinyRAM.Spec.Prelude hiding (negate)
@@ -80,7 +81,6 @@ spec = describe "TinyRAM end to end" $ do
   cmpgeNegTestCaseG
   cmpgeNegTestCaseE
 
---cmpgeNegTestCaseL
 
 --answerR1TestCase --bugged reported
 
@@ -109,7 +109,7 @@ execute prog t1 t2 =
       coqResult = runCoqTinyRAM (toProgram ws rc prog) t1 t2 maxSteps
    in do
         r <- coqResult
-        return $
+        pure $
           ((,) <$> maybeToRight "Coq failed" r <*> haskellResult)
             >>= ( \(c, (h, _)) ->
                     if c == h
@@ -120,16 +120,16 @@ execute prog t1 t2 =
 construct :: [Instruction] -> ProgramMemoryValues
 construct instructions = ProgramMemoryValues $ Map.fromList $ zip addresses instructions
   where
-    addresses = Address . Word . (* (2 * fromIntegral (bytesPerWord ws))) <$> [0 ..]
+    addresses = Address . Word . (* (2 * intToInteger (bytesPerWord ws))) <$> [0 ..]
 
 imm :: W.Word16 -> ImmediateOrRegister
-imm i = IsImmediate (Word (fromIntegral i))
+imm i = IsImmediate (Word (word16ToInteger i))
 
 reg :: W.Word8 -> ImmediateOrRegister
-reg i = IsRegister (Register (fromIntegral i))
+reg i = IsRegister (Register (word8ToInt i))
 
 reg' :: W.Word8 -> Register
-reg' i = Register (fromIntegral i)
+reg' i = Register (word8ToInt i)
 
 --When translating programs, answer register must be reg 0.
 --Example: ", Answer (reg 0)"
@@ -257,7 +257,7 @@ cmpaeTestCaseE =
 
 cmpaeTestCaseG :: Spec
 cmpaeTestCaseG =
-  it "answers 0" $ do
+  it "answers 1" $ do
     let program =
           construct
             [ Mov (reg' 0) (imm 0),
@@ -669,7 +669,7 @@ negativeTestCase =
             [ Answer (imm (negate 4))
             ]
     answer <- execute program (InputTape []) (InputTape [])
-    answer `shouldBe` Right (Word (fromIntegral (negate 4)))
+    answer `shouldBe` Right (Word (word16ToInteger (negate 4)))
 
 --negative8bitTestCase
 negative8bitTestCase :: Spec
@@ -680,7 +680,7 @@ negative8bitTestCase =
             [ Answer (imm (negate 2))
             ]
     answer <- execute program (InputTape []) (InputTape [])
-    answer `shouldBe` Right (Word (fromIntegral (negate 2)))
+    answer `shouldBe` Right (Word (word16ToInteger (negate 2)))
 
 orTestCase :: Spec
 orTestCase =
@@ -759,7 +759,7 @@ subTestCase =
 --               Answer (reg 0)
 --             ]
 --     answer <- execute program (InputTape []) (InputTape [])
---     answer `shouldBe` Right (Word (fromIntegral(negate 11)))
+--     answer `shouldBe` Right (Word (word16ToInteger (negate 11)))
 
 --mullTestCase
 --; TinyRAM V=1.000 W=16 K=16

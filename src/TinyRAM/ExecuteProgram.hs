@@ -12,7 +12,9 @@ import Data.Functor.Identity (Identity (runIdentity))
 import qualified Data.Map as Map
 import Data.Text (pack)
 import TinyRAM.Bytes (bytesPerWord, bytesToWords)
+import TinyRAM.Cast (intToAddress, intToInteger)
 import TinyRAM.DecodeInstruction (decodeInstruction)
+import TinyRAM.Die (die)
 import TinyRAM.Prelude
 import TinyRAM.Run (run)
 import TinyRAM.Types.Address
@@ -53,13 +55,15 @@ initializeMemoryWith (Params ws _) (InputTape primary) (InputTape auxiliary) =
   where
     concatenated =
       auxiliary
-        ++ [Word (fromIntegral $ length auxiliary)]
+        ++ [Word (intToInteger $ length auxiliary)]
         ++ primary
-        ++ [Word (fromIntegral $ length primary)]
+        ++ [Word (intToInteger $ length primary)]
 
     lastWord = ((2 ^ unWordSize ws) `quot` bytesPerWord ws) - 1
     offset = lastWord - length concatenated + 1
-    addresses = Address . Word . (* fromIntegral (bytesPerWord ws)) <$> [fromIntegral offset ..]
+    addresses =
+      Address . Word . (* intToInteger (bytesPerWord ws))
+        <$> [intToInteger offset ..]
 
 executeProgram' ::
   Params ->
@@ -117,7 +121,7 @@ programToMemoryValues params (Program p) =
     bytesPerWord' = bytesPerWord (params ^. #wordSize)
 
     addresses :: [Address]
-    addresses = (* (2 * fromIntegral bytesPerWord')) <$> [0 ..]
+    addresses = (* (2 * intToAddress bytesPerWord')) <$> [0 ..]
 
     decode = decodeInstruction (params ^. #wordSize) (params ^. #registerCount)
 
@@ -130,4 +134,4 @@ programToMemoryValues params (Program p) =
 slicePair :: [a] -> [(a, a)]
 slicePair (x0 : x1 : xs) = (x1, x0) : slicePair xs
 slicePair [] = []
-slicePair _ = error "odd number of elements"
+slicePair _ = die "odd number of elements"

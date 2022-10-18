@@ -26,6 +26,8 @@ import Data.GenValidity.ByteString ()
 import qualified Data.Map as Map
 import Data.Tuple.Extra (uncurry3)
 import TinyRAM.Bytes (bytesPerWord)
+import TinyRAM.Cast (intToInteger, intToProgramCounter)
+import TinyRAM.Die (die)
 import TinyRAM.Spec.Prelude
 import TinyRAM.Types.Address (Address (..))
 import TinyRAM.Types.Flag (Flag)
@@ -54,13 +56,11 @@ instance GenValid Sign where
   shrinkValid = shrinkValidStructurally
 
 instance GenValid WordSize where
-  genValid = oneof [return 8, return 16]
+  genValid = oneof [pure 8, pure 16]
   shrinkValid = shrinkValidStructurally
 
 genAddress :: WordSize -> Gen Address
 genAddress ws = Address <$> genWord ws
-
--- genAddress ws = Address . (`mod` (2 ^ ws - 1)) . (* (fromIntegral $ bytesPerWord ws)) <$> genWord ws
 
 genInputTape :: WordSize -> Gen (InputTape a)
 genInputTape ws = InputTape <$> listOf (genWord ws)
@@ -135,7 +135,7 @@ genMemoryValues :: WordSize -> Gen MemoryValues
 genMemoryValues ws =
   fmap
     ( MemoryValues . Map.fromList
-        . zip (Address . Word . (* fromIntegral (bytesPerWord ws)) <$> [0 ..])
+        . zip (Address . Word . (* intToInteger (bytesPerWord ws)) <$> [0 ..])
     )
     . vectorOf ((2 ^ unWordSize ws) `quot` bytesPerWord ws)
     $ genWord ws
@@ -144,7 +144,7 @@ genProgramMemoryValues :: WordSize -> RegisterCount -> Gen ProgramMemoryValues
 genProgramMemoryValues ws rc =
   fmap (ProgramMemoryValues . Map.fromList . zip addresses) instructions
   where
-    addresses = Address . Word . (* (2 * fromIntegral (bytesPerWord ws))) <$> [0 ..]
+    addresses = Address . Word . (* (2 * intToInteger (bytesPerWord ws))) <$> [0 ..]
     instructions = vectorOf ((2 ^ unWordSize ws) `quot` (2 * bytesPerWord ws)) (genInstruction ws rc)
 
 genParamsMachineState :: Gen (Params, MachineState)
@@ -152,15 +152,15 @@ genParamsMachineState = do
   ws <- genValid
   rc <- genRegisterCount ws
   ms <- genMachineState ws rc
-  return (Params ws rc, ms)
+  pure (Params ws rc, ms)
 
 genProgramCounter :: WordSize -> Gen ProgramCounter
-genProgramCounter ws = ((.&. (2 ^ ws - 1)) . (* (fromIntegral $ bytesPerWord ws))) . ProgramCounter <$> genAddress ws
+genProgramCounter ws = ((.&. (2 ^ ws - 1)) . (* (intToProgramCounter $ bytesPerWord ws))) . ProgramCounter <$> genAddress ws
 
 genRegisterCount :: WordSize -> Gen RegisterCount
 genRegisterCount (WordSize 16) = RegisterCount <$> choose (2, 32)
-genRegisterCount (WordSize 8) = return (RegisterCount 2)
-genRegisterCount _ = error "genRegisterCount: unsupported word size"
+genRegisterCount (WordSize 8) = pure (RegisterCount 2)
+genRegisterCount _ = die "genRegisterCount: unsupported word size"
 
 -- RegisterCount <$> choose (2, min 32 (2 ^ ((ws - 6) `quot` 2)))
 
