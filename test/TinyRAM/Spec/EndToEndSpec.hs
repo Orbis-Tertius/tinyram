@@ -57,7 +57,9 @@ spec = describe "TinyRAM end to end" $ do
   shrTestCase
 
   cmpaeEqualTestCase
-  cmpaeGreaterTestCase
+  --cmpaeGreaterTestCaseL --bugged
+  cmpaeGreaterTestCaseE
+  cmpaeGreaterTestCaseG
   --cmpaeLessTestCase --bugged reported
   --cmpaeNegTestCase  --bugged reported
   cmpaEqualTestCase
@@ -239,8 +241,8 @@ cmpaeEqualTestCase =
 --cmov r1, 1
 --answer r1
 
-cmpaeGreaterTestCase :: Spec
-cmpaeGreaterTestCase =
+cmpaeGreaterTestCaseG :: Spec
+cmpaeGreaterTestCaseG =
   it "answers 1" $ do
     let program =
           construct
@@ -254,6 +256,36 @@ cmpaeGreaterTestCase =
     answer <- execute program (InputTape []) (InputTape [])
     answer `shouldBe` Right 1
 
+-- cmpaeGreaterTestCaseL :: Spec
+-- cmpaeGreaterTestCaseL =
+--   it "answers 0" $ do
+--     let program =
+--           construct
+--             [ Mov (reg' 0) (imm 0),
+--               Mov (reg' 2) (imm 1),
+--               Mov (reg' 3) (imm 2),
+--               Cmpae (reg' 2) (reg 3),
+--               Cmov (reg' 0) (imm 1),
+--               Answer (reg 0)
+--             ]
+--     answer <- execute program (InputTape []) (InputTape [])
+--     answer `shouldBe` Right 0
+
+cmpaeGreaterTestCaseE :: Spec
+cmpaeGreaterTestCaseE =
+  it "answers 1" $ do
+    let program =
+          construct
+            [ Mov (reg' 0) (imm 0),
+              Mov (reg' 2) (imm 2),
+              Mov (reg' 3) (imm 2),
+              Cmpae (reg' 2) (reg 3),
+              Cmov (reg' 0) (imm 1),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 1
+  
 --; TinyRAM V=1.000 W=16 K=16
 --mov r1, 0
 --mov r2, 1
