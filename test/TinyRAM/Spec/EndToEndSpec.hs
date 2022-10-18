@@ -81,7 +81,6 @@ spec = describe "TinyRAM end to end" $ do
   cmpgeNegTestCaseG
   cmpgeNegTestCaseE
 
-
 --answerR1TestCase --bugged reported
 
 negate :: W.Word16 -> W.Word16
