@@ -79,7 +79,7 @@ spec = describe "TinyRAM end to end" $ do
   --cmpgeTestCaseL --bugged reported
   cmpgeNegTestCaseG
   cmpgeNegTestCaseE
-  --cmpgeNegTestCaseL
+  cmpgeNegTestCaseL
 
 --answerR1TestCase --bugged reported
 
@@ -605,20 +605,20 @@ cmpgeNegTestCaseG =
     answer <- execute program (InputTape []) (InputTape [])
     answer `shouldBe` Right 1
 
--- cmpgeNegTestCaseL :: Spec
--- cmpgeNegTestCaseL =
---   it "answers 0" $ do
---     let program =
---           construct
---             [ Mov (reg' 0) (imm 0),
---               Mov (reg' 2) (imm (negate 2)),
---               Mov (reg' 3) (imm 2),
---               Cmpge (reg' 2) (reg 3),
---               Cmov (reg' 0) (imm 1),
---               Answer (reg 0)
---             ]
---     answer <- execute program (InputTape []) (InputTape [])
---     answer `shouldBe` Right 0
+cmpgeNegTestCaseL :: Spec
+cmpgeNegTestCaseL =
+  it "answers 0" $ do
+    let program =
+          construct
+            [ Mov (reg' 0) (imm 0),
+              Mov (reg' 2) (imm (negate 2)),
+              Mov (reg' 3) (imm 2),
+              Cmpge (reg' 2) (reg 3),
+              Cmov (reg' 0) (imm 1),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 0
 
 cmpgeNegTestCaseE :: Spec
 cmpgeNegTestCaseE =
