@@ -59,21 +59,21 @@ spec = describe "TinyRAM end to end" $ do
   -- cmpaeTestCaseL --bugged reported
   cmpaeTestCaseE
   cmpaeTestCaseG
-  --cmpaeNegTestCase  --bugged reported
-  --cmpaeNegTestCase  --bugged reported
-  --cmpaeNegTestCase  --bugged reported
+  --cmpaeNegTestCaseG --bugged reported
+  cmpaeNegTestCaseE
+  cmpaeNegTestCaseL
   cmpaTestCaseE
   cmpaTestCaseG
   --cmpaTestCaseL --bugged reported
-  --cmpaNegTestCase --bugged reported
-  --cmpaNegTestCase --bugged reported
-  --cmpaNegTestCase --bugged reported
+  --cmpaNegTestCaseL --bugged reported
+  --cmpaNegTestCaseE
+  --cmpaNegTestCaseG
   cmpeTestCaseE
   -- cmpeTestCaseG --bugged reported
   --cmpeTestCaseL --bugged reported
-  --cmpeNegTestCase --bugged reported
-  --cmpeNegTestCase --bugged reported
-  --cmpeNegTestCase --bugged reported
+  --cmpeNegTestCaseL --bugged reported
+  --cmpeNegTestCaseE
+  --cmpeNegTestCaseG
   cmpgeTestCaseE
   cmpgeTestCaseG
   --cmpgeTestCaseL --bugged reported
@@ -286,8 +286,8 @@ cmpaeTestCaseG =
 --answer r1
 --Should be 0
 
--- cmpaeNegTestCase :: Spec
--- cmpaeNegTestCase =
+-- cmpaeNegTestCaseG :: Spec
+-- cmpaeNegTestCaseG =
 --   it "answers 0" $ do
 --     let program =
 --           construct
@@ -300,6 +300,36 @@ cmpaeTestCaseG =
 --             ]
 --     answer <- execute program (InputTape []) (InputTape [])
 --     answer `shouldBe` Right 0
+
+cmpaeNegTestCaseE :: Spec
+cmpaeNegTestCaseE =
+  it "answers 1" $ do
+    let program =
+          construct
+            [ Mov (reg' 0) (imm 0),
+              Mov (reg' 2) (imm (negate 2)),
+              Mov (reg' 3) (imm (negate 2)),
+              Cmpae (reg' 2) (reg 3),
+              Cmov (reg' 0) (imm 1),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 1
+
+cmpaeNegTestCaseL :: Spec
+cmpaeNegTestCaseL =
+  it "answers 1" $ do
+    let program =
+          construct
+            [ Mov (reg' 0) (imm 0),
+              Mov (reg' 2) (imm (negate 2)),
+              Mov (reg' 3) (imm 2),
+              Cmpae (reg' 2) (reg 3),
+              Cmov (reg' 0) (imm 1),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 1
 
 --; TinyRAM V=1.000 W=16 K=16
 --mov r1, 0
