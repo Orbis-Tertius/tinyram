@@ -48,6 +48,8 @@ spec = describe "TinyRAM end to end" $ do
   addTestNegativeTestCase
   subTestCase
   --notTestCase --negative answer bugged
+  --notPreFlagTestCase
+  notFlagTestCase
   mullTestCase
   umulhTestCase
   smulhTestCase
@@ -809,6 +811,20 @@ subTestCase =
 --mov r2, 5
 --mull r1, r2, 2
 --answer r1
+
+notFlagTestCase :: Spec
+notFlagTestCase =
+  it "answers -11" $ do
+    let program =
+          construct
+            [ Mov (reg' 1) (imm 11),
+              Not (reg' 0) (reg 1),
+              Cmov (reg' 0) (imm 1), 
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right (Word (word16ToInteger (negate 11)))
+
 
 mullTestCase :: Spec
 mullTestCase =
