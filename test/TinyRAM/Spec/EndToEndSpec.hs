@@ -43,6 +43,7 @@ spec = describe "TinyRAM end to end" $ do
   negative8bitTestCase
   orTestCase
   orFlagTestCase
+  orPreFlagTestCase
   --xorTestCase --bugged reported
   addTestNegativeTestCase
   subTestCase
@@ -717,6 +718,21 @@ orFlagTestCase =
             [ Mov (reg' 2) (imm 58),
               Or (reg' 0) (reg' 2) (imm 15),
               Cmov (reg' 0) (imm 1),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 63
+
+orPreFlagTestCase :: Spec
+orPreFlagTestCase =
+  it "answers 63" $ do
+    let program =
+          construct
+            [ Mov (reg' 2) (imm 58),
+              Mov (reg' 0) (imm 0),
+              Cmov (reg' 0) (imm 1),
+              Or (reg' 0) (reg' 2) (imm 15),
+              --Cmov (reg' 0) (imm 1),
               Answer (reg 0)
             ]
     answer <- execute program (InputTape []) (InputTape [])
