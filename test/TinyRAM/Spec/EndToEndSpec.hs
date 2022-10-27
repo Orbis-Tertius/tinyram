@@ -796,7 +796,7 @@ subTestCase =
 
 -- notTestCase :: Spec
 -- notTestCase =
---   it "answers -11" $ do
+--   it "answers 65524" $ do
 --     let program =
 --           construct
 --             [ Mov (reg' 1) (imm 11),
@@ -804,7 +804,7 @@ subTestCase =
 --               Answer (reg 0)
 --             ]
 --     answer <- execute program (InputTape []) (InputTape [])
---     answer `shouldBe` Right (Word (word16ToInteger (negate 11)))
+--     answer `shouldBe` Right 65524
 
 --mullTestCase
 --; TinyRAM V=1.000 W=16 K=16
@@ -814,7 +814,7 @@ subTestCase =
 
 notFlagTestCase :: Spec
 notFlagTestCase =
-  it "answers -11" $ do
+  it "answers 65524" $ do
     let program =
           construct
             [ Mov (reg' 1) (imm 11),
@@ -823,7 +823,7 @@ notFlagTestCase =
               Answer (reg 0)
             ]
     answer <- execute program (InputTape []) (InputTape [])
-    answer `shouldBe` Right (Word (word16ToInteger (negate 11)))
+    answer `shouldBe` Right 65524
 
 
 mullTestCase :: Spec
