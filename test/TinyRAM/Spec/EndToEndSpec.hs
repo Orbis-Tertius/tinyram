@@ -48,8 +48,8 @@ spec = describe "TinyRAM end to end" $ do
   addTestNegativeTestCase
   subTestCase
   --notTestCase --negative answer bugged
-  --notPreFlagTestCase
-  notFlagTestCase
+  notPreFlagTestCase
+  --notFlagTestCase
   mullTestCase
   umulhTestCase
   smulhTestCase
@@ -812,14 +812,27 @@ subTestCase =
 --mull r1, r2, 2
 --answer r1
 
-notFlagTestCase :: Spec
-notFlagTestCase =
+-- notFlagTestCase :: Spec
+-- notFlagTestCase =
+--   it "answers 65524" $ do
+--     let program =
+--           construct
+--             [ Mov (reg' 1) (imm 11),
+--               Not (reg' 0) (reg 1),
+--               Cmov (reg' 0) (imm 1), 
+--               Answer (reg 0)
+--             ]
+--     answer <- execute program (InputTape []) (InputTape [])
+--     answer `shouldBe` Right 65524
+
+notPreFlagTestCase :: Spec
+notPreFlagTestCase =
   it "answers 65524" $ do
     let program =
           construct
-            [ Mov (reg' 1) (imm 11),
+            [ Cmov (reg' 0) (imm 1),
+              Mov (reg' 1) (imm 11),
               Not (reg' 0) (reg 1),
-              Cmov (reg' 0) (imm 1), 
               Answer (reg 0)
             ]
     answer <- execute program (InputTape []) (InputTape [])
