@@ -443,7 +443,7 @@ cmpaTestCaseG =
 
 -- cmpaNegTestCaseL :: Spec
 -- cmpaNegTestCaseL =
---   it "answers 0" $ do
+--   it "answers 1" $ do
 --     let program =
 --           construct
 --             [ Mov (reg' 0) (imm 0),
@@ -454,7 +454,7 @@ cmpaTestCaseG =
 --               Answer (reg 0)
 --             ]
 --     answer <- execute program (InputTape []) (InputTape [])
---     answer `shouldBe` Right 0
+--     answer `shouldBe` Right 1
 
 -- cmpaNegTestCaseE :: Spec
 -- cmpaNegTestCaseE =
