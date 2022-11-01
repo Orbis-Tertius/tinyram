@@ -744,7 +744,7 @@ orFlagTestCase =
 
 xorFlagTestCase :: Spec
 xorFlagTestCase =
-  it "answers 15" $ do
+  it "answers 1" $ do
     let program =
           construct
             [ Mov (reg' 2) (imm 15),
@@ -753,7 +753,7 @@ xorFlagTestCase =
               Answer (reg 0)
             ]
     answer <- execute program (InputTape []) (InputTape [])
-    answer `shouldBe` Right 15
+    answer `shouldBe` Right 1
 
 addTestNegativeTestCase :: Spec
 addTestNegativeTestCase =
