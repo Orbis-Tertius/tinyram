@@ -37,6 +37,7 @@ spec = describe "TinyRAM end to end" $ do
   andTestCase
   andTestNegativeCase
   --andFlagTestCase bugged reported
+  andFlag1TestCase
   andPreFlagTestCase
   cjmpTestCase
   jmpTestExampleNonTermCase
@@ -195,6 +196,19 @@ andTestCase =
 --             ]
 --     answer <- execute program (InputTape []) (InputTape [])
 --     answer `shouldBe` Right 0
+
+andFlag1TestCase :: Spec
+andFlag1TestCase =
+  it "answers 1" $ do
+    let program =
+          construct
+            [ Mov (reg' 2) (imm 1),
+              And (reg' 0) (reg' 2) (imm 0),
+              Cmov (reg' 0) (imm 1),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 1
 
 andPreFlagTestCase :: Spec
 andPreFlagTestCase =
