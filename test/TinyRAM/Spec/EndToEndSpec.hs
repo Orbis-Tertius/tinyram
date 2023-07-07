@@ -46,6 +46,7 @@ spec = describe "TinyRAM end to end" $ do
   orFlagTestCase
   orFlag1TestCase
   --xorTestCase --bugged reported
+  xorFlagTestCase
   addTestNegativeTestCase
   subTestCase
   --notTestCase --negative answer bugged
@@ -769,6 +770,19 @@ orFlag1TestCase =
 --             ]
 --     answer <- execute program (InputTape []) (InputTape [])
 --     answer `shouldBe` Right 15
+
+xorFlagTestCase :: Spec
+xorFlagTestCase =
+  it "answers 1" $ do
+    let program =
+          construct
+            [ Mov (reg' 2) (imm 15),
+              Xor (reg' 0) (reg' 2) (reg 2),
+              Cmov (reg' 0) (imm 1),
+              Answer (reg 0)
+            ]
+    answer <- execute program (InputTape []) (InputTape [])
+    answer `shouldBe` Right 1
 
 addTestNegativeTestCase :: Spec
 addTestNegativeTestCase =
